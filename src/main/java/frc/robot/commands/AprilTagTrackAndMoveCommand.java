@@ -16,9 +16,9 @@ public class AprilTagTrackAndMoveCommand extends Command {
   
   // PID Gains (Tuning is required for your specific robot weight)
   private final PIDController m_rangePID = new PIDController(0.5, 0, 0); 
-  private final PIDController m_rotPID = new PIDController(0.02, 0, 0);
+  private final PIDController m_rotPID = new PIDController(0.015, 0, 0);
 
-  private final double DESIRED_RADIUS = 1.5; // Meters
+  private final double DESIRED_RADIUS = 2.5; // Meters
   private final int MAX_LOST_FRAMES = 10; // ~200ms at 50Hz
   private int m_lostFrames = 0;
 

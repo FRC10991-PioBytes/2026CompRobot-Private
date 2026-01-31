@@ -16,7 +16,7 @@ public class FindAprilTagCommand extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
 
   private final DriveSubsystem m_drive;
-  private final int FRAME_ERROR = 10;
+  private final int MAX_FRAMES = 3;
   private int frameCounter;
   private boolean targetFound;
 
@@ -47,15 +47,16 @@ public class FindAprilTagCommand extends Command {
     if (hasTarget)
     {
       frameCounter++;
-      m_drive.drive(0, 0, 1, 0.25, false);
+      SmartDashboard.putNumber("Frame counter", frameCounter);
+      m_drive.drive(0, 0, 1, 0.2, false);
     }
     else
     {
       frameCounter = 0;
-      m_drive.drive(0,0,1,0.25,false);
+      m_drive.drive(0,0,1,0.2,false);
     }
 
-    if (frameCounter > FRAME_ERROR)
+    if (frameCounter >= MAX_FRAMES)
     {
       targetFound = true;
     }

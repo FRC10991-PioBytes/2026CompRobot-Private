@@ -22,6 +22,7 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.commands.DriveCommand;
+import frc.robot.commands.FindAndTrackTagCommand;
 import frc.robot.commands.FindAprilTagCommand;
 import frc.robot.commands.AprilTagTrackAndMoveCommand;
 import frc.robot.commands.TrackAprilTagCommand;
@@ -60,6 +61,7 @@ public class RobotContainer
     autoChooser.addOption("Track April Tag", new TrackAprilTagCommand(m_robotDrive));
     autoChooser.addOption("April Tag Track and Move Command", new AprilTagTrackAndMoveCommand(m_robotDrive));
     autoChooser.addOption("April Tag finder", new FindAprilTagCommand(m_robotDrive));
+    autoChooser.addOption("Find and Track Tag Command", new FindAndTrackTagCommand(m_robotDrive));
 
     SmartDashboard.putData("Auto Mode", autoChooser);
 
@@ -93,6 +95,9 @@ public class RobotContainer
             () -> true));
 
     m_driverController.button(OIConstants.buttonA)
+        .whileTrue(new FindAndTrackTagCommand(m_robotDrive));
+
+    m_driverController.button(OIConstants.buttonX)
         .whileTrue(new RunCommand(
             () -> m_robotDrive.setX(),
             m_robotDrive));
