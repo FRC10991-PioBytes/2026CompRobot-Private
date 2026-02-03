@@ -37,17 +37,13 @@ public class AprilTagTrackAndMoveCommand extends Command {
       double gyroYaw = m_drive.getHeading(); // Ensure this returns degrees
       double gyroPitch = 0; // Usually 0 unless climbing
       double gyroRoll = 0;
-      SmartDashboard.putNumber("gyro yaw", gyroYaw);
       LimelightHelpers.SetRobotOrientation("limelight", gyroYaw, 0, 0, 0, 0, 0);
       
       // We use TargetPose_RobotSpace to get coordinates relative to the robot's front
       double[] poseEntry = LimelightHelpers.getTargetPose_RobotSpace("limelight");
       Pose2d mt2pose = new Pose2d(new Translation2d(poseEntry[0], poseEntry[1]), new Rotation2d(poseEntry[2]));
       field.setRobotPose(mt2pose);
-      SmartDashboard.putData("mt2field", field);
-      SmartDashboard.putNumber("0", poseEntry[0]);
-      SmartDashboard.putNumber("1", poseEntry[1]);
-      SmartDashboard.putNumber("2", poseEntry[2]);
+      SmartDashboard.putData("Game Info/mt2field", field);
       
       boolean hasTarget = LimelightHelpers.getTV("limelight");
 
@@ -70,11 +66,6 @@ public class AprilTagTrackAndMoveCommand extends Command {
                 speedMagnitude = m_rangePID.calculate(currentRadius, DESIRED_RADIUS);
             }
 
-            if (Double.isNaN(speedMagnitude))
-            {
-                System.out.println("Speed magnitude is NaN");
-            }
-
             // Project the magnitude onto robot-relative X and Y axes
             // This ensures the robot drives directly toward the tag's coordinates
             double xSpeed = (xTag / currentRadius) * speedMagnitude;
@@ -85,9 +76,6 @@ public class AprilTagTrackAndMoveCommand extends Command {
             double tx = LimelightHelpers.getTX("limelight");
             double rotSpeed = m_rotPID.calculate(tx, 0);
 
-            SmartDashboard.putNumber("xSpeed", xSpeed);
-            SmartDashboard.putNumber("ySpeed", ySpeed);
-            SmartDashboard.putNumber("rotSpeed", rotSpeed);
             //m_drive.drive(xSpeed, ySpeed, rotSpeed, 1, false);
             m_drive.drive(-xSpeed, ySpeed, rotSpeed, 1, false);
             }
@@ -95,34 +83,6 @@ public class AprilTagTrackAndMoveCommand extends Command {
           {
             System.out.println("Current radius is 0");
           }
-          /*
-          // Only move if we are outside a 5cm deadband
-          double speedMagnitude = 0;
-          if (Math.abs(distanceError) > 0.05) {
-              speedMagnitude = m_rangePID.calculate(currentRadius, DESIRED_RADIUS);
-          }
-
-          if (Double.isNaN(speedMagnitude))
-          {
-            System.out.println("Speed magnitude is NaN");
-          }
-
-          // Project the magnitude onto robot-relative X and Y axes
-          // This ensures the robot drives directly toward the tag's coordinates
-          double xSpeed = (xTag / currentRadius) * speedMagnitude;
-          double ySpeed = (yTag / currentRadius) * speedMagnitude;
-
-          // 3. Heading (Rotation)
-          // Still using TX for simple 'facing' logic
-          double tx = LimelightHelpers.getTX("limelight");
-          double rotSpeed = m_rotPID.calculate(tx, 0);
-
-          SmartDashboard.putNumber("xSpeed", xSpeed);
-          SmartDashboard.putNumber("ySpeed", ySpeed);
-          SmartDashboard.putNumber("rotSpeed", rotSpeed);
-          //m_drive.drive(xSpeed, ySpeed, rotSpeed, 1, false);
-          m_drive.drive(-xSpeed, ySpeed, rotSpeed, 1, false);
-          */
 
       } else {
           // 4. Persistence Logic

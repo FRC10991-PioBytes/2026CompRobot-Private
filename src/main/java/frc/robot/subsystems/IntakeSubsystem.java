@@ -29,6 +29,7 @@ public class IntakeSubsystem extends SubsystemBase {
   private final AbsoluteEncoder m_leftEncoder;
 
   private Rotation2d m_desiredAngle = new Rotation2d(0);
+  private double kArmGravityVoltage = 0;
 
   /** Creates a new DriveSubsystem. */
   public IntakeSubsystem() {
@@ -61,8 +62,16 @@ public class IntakeSubsystem extends SubsystemBase {
   
   public void setPosition(Rotation2d targetAngle)
   {
-    m_leftController.setSetpoint(targetAngle.getRadians(), ControlType.kPosition, ClosedLoopSlot.kSlot0, 0);
-    //m_leftController.setReference(0, null);
     m_desiredAngle = new Rotation2d(targetAngle.getRadians());
+    double targetRadians = targetAngle.getRadians();
+
+    double feedForwardVolts = kArmGravityVoltage * Math.cos(targetRadians);
+
+    m_leftController.setSetpoint(targetAngle.getRadians(), ControlType.kMAXMotionPositionControl, ClosedLoopSlot.kSlot0, feedForwardVolts);
+  }
+
+  public void stop()
+  {
+    m_leftMotor.stopMotor();
   }
 }

@@ -46,7 +46,7 @@ public class Robot extends TimedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
 
-    SmartDashboard.putNumber("Battery Voltage: ", RobotController.getBatteryVoltage());
+    SmartDashboard.putNumber("Game Info/Battery Voltage: ", RobotController.getBatteryVoltage());
 
     CommandScheduler.getInstance().run();
   }
@@ -72,7 +72,7 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    SmartDashboard.putNumber("Autonomous Time Remaining: ", Timer.getMatchTime());
+    SmartDashboard.putNumber("Game Info/Autonomous Time Remaining: ", Timer.getMatchTime());
   }
 
   @Override
@@ -89,7 +89,7 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    SmartDashboard.putNumber("TeleOp Time Remaining: ", Timer.getMatchTime());
+    SmartDashboard.putNumber("Game Info/TeleOp Time Remaining: ", Timer.getMatchTime());
   }
 
   @Override

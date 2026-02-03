@@ -63,7 +63,7 @@ public class RobotContainer
     autoChooser.addOption("April Tag finder", new FindAprilTagCommand(m_robotDrive));
     autoChooser.addOption("Find and Track Tag Command", new FindAndTrackTagCommand(m_robotDrive));
 
-    SmartDashboard.putData("Auto Mode", autoChooser);
+    SmartDashboard.putData("Auto/Auto Mode", autoChooser);
 
     configureButtonBindings();
   }

@@ -72,13 +72,16 @@ public final class Configs
                         .smartCurrentLimit(40);
                 leftConfig.absoluteEncoder
                         .positionConversionFactor(turningFactor)
-                        .velocityConversionFactor(turningFactor);
+                        .velocityConversionFactor(turningFactor / 60.0);
                 leftConfig.closedLoop
-                        .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-                        .pid(0.001, 0, 0, ClosedLoopSlot.kSlot0)
+                        .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
+                        .pid(0, 0, 0, ClosedLoopSlot.kSlot0)
                         .outputRange(-1, 1)
-                        .positionWrappingEnabled(true)
-                        .positionWrappingInputRange(0, turningFactor);
+                        .positionWrappingEnabled(false)
+                        .maxMotion
+                                .cruiseVelocity(Math.PI / 4, ClosedLoopSlot.kSlot0)
+                                .maxAcceleration(Math.PI / 2)
+                                .allowedProfileError(0.05, ClosedLoopSlot.kSlot0);
 
                 rightConfig
                         .idleMode(IdleMode.kBrake)

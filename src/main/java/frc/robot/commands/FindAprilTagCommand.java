@@ -47,7 +47,7 @@ public class FindAprilTagCommand extends Command {
     if (hasTarget)
     {
       frameCounter++;
-      SmartDashboard.putNumber("Frame counter", frameCounter);
+      SmartDashboard.putNumber("Limelight/Frame counter", frameCounter);
       m_drive.drive(0, 0, 1, 0.2, false);
     }
     else

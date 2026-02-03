@@ -76,14 +76,12 @@ public class DriveSubsystem extends SubsystemBase {
             m_rearRight.getPosition()
         });
 
-    SmartDashboard.putNumber("Gyro Angle: ", m_gyro.getRotation2d().getDegrees());
+    SmartDashboard.putNumber("Drive/Gyro Angle: ", m_gyro.getRotation2d().getDegrees());
     
 
     Pose2d robotPose = LimelightHelpers.getBotPose2d_wpiBlue("limelight");
     field.setRobotPose(robotPose);
-    SmartDashboard.putData("Field", field);
-
-    SmartDashboard.putNumber("FrontLeft Drive Current", m_frontLeft.getDrivingSpark().getOutputCurrent());
+    SmartDashboard.putData("Game Info/Field", field);
     
     //FieldObject2d mt1robotPose = new FieldObject2d().setPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight").pose);
     //field.setRobotPose(m_odometry.getPoseMeters());
