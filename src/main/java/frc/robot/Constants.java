@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -85,6 +86,15 @@ public final class Constants {
   public static final class IntakeConstants {
     public static final int kLeftPivotCanId = 9;
     public static final int kRightPivotCanId = 10;
+    public static final int kLeftRollerCanId = 11;
+    public static final int kRightRollerCanId = 12;
+
+    public static final double kIntakeInSpeed = 0.5;
+    public static final double kIntakeOutSpeed = 0.5;
+
+    // In radians
+    public static final Rotation2d kIntakeRetractedEncoderPosition = Rotation2d.kZero;
+    public static final Rotation2d kIntakeExtendedEncoderPosition = new Rotation2d(0.1);
   }
 
   public static final class OIConstants {

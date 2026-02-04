@@ -33,8 +33,10 @@ public final class Configs
                         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
                         // These are example gains you may need to them for your own robot!
                         .pid(0.04, 0, 0)
-                        .velocityFF(drivingVelocityFeedForward)
-                        .outputRange(-1, 1);
+                        //.velocityFF(drivingVelocityFeedForward)
+                        .outputRange(-1, 1)
+                        .feedForward
+                                .kV(drivingVelocityFeedForward);
 
                 turningConfig
                         .idleMode(IdleMode.kBrake)
@@ -60,20 +62,32 @@ public final class Configs
     }
 
     public static final class Intake {
-        public static final SparkMaxConfig leftConfig = new SparkMaxConfig();
-        public static final SparkMaxConfig rightConfig = new SparkMaxConfig();
+        public static final SparkMaxConfig leftRollerConfig = new SparkMaxConfig();
+        public static final SparkMaxConfig rightRollerConfig = new SparkMaxConfig();
+
+        public static final SparkMaxConfig leftPivotConfig = new SparkMaxConfig();
+        public static final SparkMaxConfig rightPivotConfig = new SparkMaxConfig();
 
         static {
-
-                double turningFactor = 2 * Math.PI;
-
-                leftConfig
+                // Roller configs
+                leftRollerConfig
                         .idleMode(IdleMode.kBrake)
                         .smartCurrentLimit(40);
-                leftConfig.absoluteEncoder
+                rightRollerConfig
+                        .idleMode(IdleMode.kBrake)
+                        .smartCurrentLimit(40)
+                        .follow(Constants.IntakeConstants.kLeftRollerCanId, true);
+
+                // Pivot configs
+                double turningFactor = 2 * Math.PI;
+
+                leftPivotConfig
+                        .idleMode(IdleMode.kBrake)
+                        .smartCurrentLimit(40);
+                leftPivotConfig.absoluteEncoder
                         .positionConversionFactor(turningFactor)
                         .velocityConversionFactor(turningFactor / 60.0);
-                leftConfig.closedLoop
+                leftPivotConfig.closedLoop
                         .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
                         .pid(0, 0, 0, ClosedLoopSlot.kSlot0)
                         .outputRange(-1, 1)
@@ -83,7 +97,7 @@ public final class Configs
                                 .maxAcceleration(Math.PI / 2)
                                 .allowedProfileError(0.05, ClosedLoopSlot.kSlot0);
 
-                rightConfig
+                rightPivotConfig
                         .idleMode(IdleMode.kBrake)
                         .smartCurrentLimit(40)
                         .follow(Constants.IntakeConstants.kLeftPivotCanId, true);

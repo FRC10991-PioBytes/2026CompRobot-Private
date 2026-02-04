@@ -21,8 +21,11 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class IntakeSubsystem extends SubsystemBase {
   
-  private final SparkMax m_leftMotor;
-  private final SparkMax m_rightMotor;
+  private final SparkMax m_leftRollerMotor;
+  private final SparkMax m_rightRollerMotor;
+
+  private final SparkMax m_leftPivotMotor;
+  private final SparkMax m_rightPivotMotor;
 
   private final SparkClosedLoopController m_leftController;
 
@@ -33,34 +36,57 @@ public class IntakeSubsystem extends SubsystemBase {
 
   /** Creates a new DriveSubsystem. */
   public IntakeSubsystem() {
-    m_leftMotor = new SparkMax(IntakeConstants.kLeftPivotCanId, MotorType.kBrushless);
-    m_rightMotor = new SparkMax(IntakeConstants.kRightPivotCanId, MotorType.kBrushless);
+    // Roller motors
+    m_leftRollerMotor = new SparkMax(IntakeConstants.kLeftRollerCanId, MotorType.kBrushless);
+    m_rightRollerMotor = new SparkMax(IntakeConstants.kRightRollerCanId, MotorType.kBrushless);
+    
+    m_leftRollerMotor.configure(Configs.Intake.leftRollerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    m_rightRollerMotor.configure(Configs.Intake.rightRollerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-    m_leftEncoder = m_leftMotor.getAbsoluteEncoder();
+    // Pivot motors
+    m_leftPivotMotor = new SparkMax(IntakeConstants.kLeftPivotCanId, MotorType.kBrushless);
+    m_rightPivotMotor = new SparkMax(IntakeConstants.kRightPivotCanId, MotorType.kBrushless);
 
-    m_leftController = m_leftMotor.getClosedLoopController();
+    m_leftEncoder = m_leftPivotMotor.getAbsoluteEncoder();
 
-    m_leftMotor.configure(Configs.Intake.leftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    m_rightMotor.configure(Configs.Intake.rightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    m_leftController = m_leftPivotMotor.getClosedLoopController();
+
+    m_leftPivotMotor.configure(Configs.Intake.leftPivotConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    m_rightPivotMotor.configure(Configs.Intake.rightPivotConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     m_desiredAngle = new Rotation2d(m_leftEncoder.getPosition());
   }
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("Intake/Current Angle (Deg)", getRotation2d().getDegrees());
+    SmartDashboard.putNumber("Intake/Current Angle (Deg)", getPivotRotation2d().getDegrees());
     SmartDashboard.putNumber("Intake/Setpoint (Deg)", m_desiredAngle.getDegrees());
-    SmartDashboard.putNumber("Intake/Applied Output", m_leftMotor.getAppliedOutput());
-    SmartDashboard.putNumber("Intake/Output Current", m_leftMotor.getOutputCurrent());
+    SmartDashboard.putNumber("Intake/Current Angle (Rad)", getPivotRotation2d().getRadians());
+    SmartDashboard.putNumber("Intake/Setpoint (Rad)", m_desiredAngle.getRadians());
+    SmartDashboard.putNumber("Intake/Pivot Applied Output", m_leftPivotMotor.getAppliedOutput());
+    SmartDashboard.putNumber("Intake/Pivot Output Current", m_leftPivotMotor.getOutputCurrent());
   }
 
-  public Rotation2d getRotation2d()
+  public void runRollers(double speed)
+  {
+    if (Math.abs(speed) < 1)
+    {
+      m_leftRollerMotor.set(speed);
+    }
+  }
+
+  public void stopRollers()
+  {
+    m_leftRollerMotor.stopMotor();
+  }
+
+  public Rotation2d getPivotRotation2d()
   {
     return new Rotation2d(m_leftEncoder.getPosition());
   }
 
   
-  public void setPosition(Rotation2d targetAngle)
+  public void setPivotPosition(Rotation2d targetAngle)
   {
     m_desiredAngle = new Rotation2d(targetAngle.getRadians());
     double targetRadians = targetAngle.getRadians();
@@ -70,8 +96,8 @@ public class IntakeSubsystem extends SubsystemBase {
     m_leftController.setSetpoint(targetAngle.getRadians(), ControlType.kMAXMotionPositionControl, ClosedLoopSlot.kSlot0, feedForwardVolts);
   }
 
-  public void stop()
+  public void stopPivot()
   {
-    m_leftMotor.stopMotor();
+    m_leftPivotMotor.stopMotor();
   }
 }

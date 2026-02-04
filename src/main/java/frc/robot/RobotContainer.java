@@ -5,34 +5,24 @@
 package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.math.trajectory.TrajectoryConfig;
-import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SendableBuilderImpl;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Constants.AutoConstants;
-import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.commands.DriveCommand;
-import frc.robot.commands.FindAndTrackTagCommand;
-import frc.robot.commands.FindAprilTagCommand;
-import frc.robot.commands.AprilTagTrackAndMoveCommand;
-import frc.robot.commands.TrackAprilTagCommand;
+import frc.robot.commands.AprilTagCommands.AprilTagTrackAndMoveCommand;
+import frc.robot.commands.AprilTagCommands.FindAndTrackTagCommand;
+import frc.robot.commands.AprilTagCommands.FindAprilTagCommand;
+import frc.robot.commands.AprilTagCommands.TrackAprilTagCommand;
+import frc.robot.commands.IntakeCommands.RunIntakeInCommand;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import java.util.List;
 
 /*
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
@@ -44,6 +34,8 @@ public class RobotContainer
 {
   // Drive subsystem
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
+  
+  private final IntakeSubsystem m_intake = new IntakeSubsystem();
 
   // Driver controller
   CommandJoystick m_driverController = new CommandJoystick(OIConstants.kDriverControllerPort);
@@ -94,15 +86,27 @@ public class RobotContainer
             () -> Constants.DriveConstants.kFastSpeedMultiplier,
             () -> true));
 
-    m_driverController.button(OIConstants.buttonA)
-        .whileTrue(new FindAndTrackTagCommand(m_robotDrive));
-
+    // Find and track April tag
     m_driverController.button(OIConstants.buttonX)
+        .whileTrue(new FindAndTrackTagCommand(m_robotDrive));
+    
+    // Extend Intake
+    m_driverController.button(OIConstants.buttonY)
+        .onTrue(m_intake.runOnce(() -> m_intake.setPivotPosition(IntakeConstants.kIntakeExtendedEncoderPosition)));
+
+    // Retract Intake
+    m_driverController.button(OIConstants.buttonA)
+        .onTrue(m_intake.runOnce(() -> m_intake.setPivotPosition(IntakeConstants.kIntakeRetractedEncoderPosition)));
+
+    // Run intake in
+    m_driverController.button(OIConstants.bumperRight)
+        .whileTrue(new RunIntakeInCommand(m_intake));
+      
+    // Set X formation
+    m_driverController.button(OIConstants.buttonB)
         .whileTrue(new RunCommand(
             () -> m_robotDrive.setX(),
             m_robotDrive));
-
-    
   }
 
   /**
@@ -111,56 +115,6 @@ public class RobotContainer
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    /*
-
-    // Create config for trajectory
-    TrajectoryConfig config = new TrajectoryConfig(
-        AutoConstants.kMaxSpeedMetersPerSecond,
-        AutoConstants.kMaxAccelerationMetersPerSecondSquared)
-        // Add kinematics to ensure max speed is actually obeyed
-        .setKinematics(DriveConstants.kDriveKinematics);
-    */
-
-    // An example trajectory to follow. All units in meters.
-    /*
-    Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(
-        // Start at the origin facing the +X direction
-        new Pose2d(0, 0, new Rotation2d(0)),
-        // Pass through these two interior waypoints, making an 's' curve path
-        List.of(new Translation2d(1, 1), new Translation2d(2, -1)),
-        // End 3 meters straight ahead of where we started, facing forward
-        new Pose2d(3, 0, new Rotation2d(0)),
-        config);
-    */
-    /* 
-    Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(
-      new Pose2d(0, 0, new Rotation2d(0)),
-      List.of(new Translation2d(1, 0)),
-      new Pose2d(2, 0, new Rotation2d(0)),
-      config);
-
-    var thetaController = new ProfiledPIDController(
-        AutoConstants.kPThetaController, 0, 0, AutoConstants.kThetaControllerConstraints);
-    thetaController.enableContinuousInput(-Math.PI, Math.PI);
-
-    SwerveControllerCommand swerveControllerCommand = new SwerveControllerCommand(
-        exampleTrajectory,
-        m_robotDrive::getPose, // Functional interface to feed supplier
-        DriveConstants.kDriveKinematics,
-
-        // Position controllers
-        new PIDController(AutoConstants.kPXController, 0, 0),
-        new PIDController(AutoConstants.kPYController, 0, 0),
-        thetaController,
-        m_robotDrive::setModuleStates,
-        m_robotDrive);
-
-    // Reset odometry to the starting pose of the trajectory.
-    m_robotDrive.resetOdometry(exampleTrajectory.getInitialPose());
-
-    // Run path following command, then stop at the end.
-    return swerveControllerCommand.andThen(() -> m_robotDrive.drive(0, 0, 0, 1, false));
-    */
     return autoChooser.getSelected();
   }
 

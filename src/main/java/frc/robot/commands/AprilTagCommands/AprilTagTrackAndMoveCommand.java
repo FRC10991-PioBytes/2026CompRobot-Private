@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.commands.AprilTagCommands;
 
 import frc.robot.subsystems.DriveSubsystem;
 import edu.wpi.first.math.controller.PIDController;
@@ -37,7 +37,7 @@ public class AprilTagTrackAndMoveCommand extends Command {
       double gyroYaw = m_drive.getHeading(); // Ensure this returns degrees
       double gyroPitch = 0; // Usually 0 unless climbing
       double gyroRoll = 0;
-      LimelightHelpers.SetRobotOrientation("limelight", gyroYaw, 0, 0, 0, 0, 0);
+      LimelightHelpers.SetRobotOrientation("limelight", gyroYaw, 0, gyroPitch, 0, gyroRoll, 0);
       
       // We use TargetPose_RobotSpace to get coordinates relative to the robot's front
       double[] poseEntry = LimelightHelpers.getTargetPose_RobotSpace("limelight");
