@@ -95,6 +95,19 @@ public final class Constants {
     // In radians
     public static final Rotation2d kIntakeRetractedEncoderPosition = Rotation2d.kZero;
     public static final Rotation2d kIntakeExtendedEncoderPosition = new Rotation2d(0.1);
+
+    public static final double kIntakeGravityCosVoltage = 0;
+  }
+
+  public static final class FeederConstants {
+    public static final int kLeftFeederCanId = 13;
+    public static final int kRightFeederCanId = 14;
+  }
+
+  public static final class ShooterConstants {
+    public static final int kLeaderShooterCanId = 15;
+    public static final int kLeftShooterCanId = 16;
+    public static final int kRightShooterCanId = 17;
   }
 
   public static final class OIConstants {
