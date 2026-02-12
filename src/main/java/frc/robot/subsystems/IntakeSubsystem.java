@@ -27,7 +27,7 @@ public class IntakeSubsystem extends SubsystemBase {
   private final SparkMax m_rightRollerMotor;
 
   private final SparkMax m_leftPivotMotor;
-  private final SparkMax m_rightPivotMotor;
+  //private final SparkMax m_rightPivotMotor;
 
   private final SparkClosedLoopController m_leftController;
 
@@ -53,7 +53,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     // Pivot motors
     m_leftPivotMotor = new SparkMax(IntakeConstants.kLeftPivotCanId, MotorType.kBrushless);
-    m_rightPivotMotor = new SparkMax(IntakeConstants.kRightPivotCanId, MotorType.kBrushless);
+    //m_rightPivotMotor = new SparkMax(IntakeConstants.kRightPivotCanId, MotorType.kBrushless);
 
     m_leftEncoder = m_leftPivotMotor.getAbsoluteEncoder();
 
@@ -71,7 +71,7 @@ public class IntakeSubsystem extends SubsystemBase {
       .velocityConversionFactor(2 * Math.PI / 60);
 
     m_leftPivotMotor.configure(Configs.Intake.leftPivotConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    m_rightPivotMotor.configure(Configs.Intake.rightPivotConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    //m_rightPivotMotor.configure(Configs.Intake.rightPivotConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     m_desiredAngle = new Rotation2d(m_leftEncoder.getPosition());
 

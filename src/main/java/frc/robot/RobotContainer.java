@@ -11,7 +11,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.commands.DriveCommand;
 import frc.robot.commands.AprilTagCommands.AprilTagTrackAndMoveCommand;
 import frc.robot.commands.AprilTagCommands.FindAndTrackTagCommand;
@@ -23,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 /*
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
@@ -35,7 +38,10 @@ public class RobotContainer
   // Drive subsystem
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
   
-  private final IntakeSubsystem m_intake = new IntakeSubsystem();
+  //private final IntakeSubsystem m_intake = new IntakeSubsystem();
+
+  private final ShooterSubsystem m_shooter = new ShooterSubsystem();
+  private final FeederSubsystem m_feeder = new FeederSubsystem();
 
   // Driver controller
   CommandJoystick m_driverController = new CommandJoystick(OIConstants.kDriverControllerPort);
@@ -86,10 +92,39 @@ public class RobotContainer
             () -> Constants.DriveConstants.kFastSpeedMultiplier,
             () -> true));
 
+    /*
     // Find and track April tag
     m_driverController.button(OIConstants.buttonX)
         .whileTrue(new FindAndTrackTagCommand(m_robotDrive));
+    */
+
+    /*
+    m_driverController.button(OIConstants.buttonA)
+        .whileTrue(m_shooter.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+
+    m_driverController.button(OIConstants.buttonB)
+        .whileTrue(m_shooter.sysIdDynamic(SysIdRoutine.Direction.kForward));
+
+    m_driverController.button(OIConstants.buttonX)
+        .whileTrue(m_shooter.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+
+    m_driverController.button(OIConstants.buttonY)
+        .whileTrue(m_shooter.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    */
+
+    m_driverController.button(OIConstants.buttonA)
+        .onTrue(m_shooter.runOnce(() -> m_shooter.setVelocity(4000)));
+
+    m_driverController.button(OIConstants.buttonB)
+        .onTrue(m_shooter.runOnce(m_shooter::stop));
+
+    m_driverController.button(OIConstants.buttonX)
+        .onTrue(m_feeder.runOnce(() -> m_feeder.setVelocity(2000)));
+
+    m_driverController.button(OIConstants.buttonY)
+        .onTrue(m_feeder.runOnce(m_feeder::stop));
     
+        /*
     // Extend Intake
     m_driverController.button(OIConstants.buttonY)
         .onTrue(m_intake.runOnce(() -> m_intake.setPivotPosition(IntakeConstants.kIntakeExtendedEncoderPosition)));
@@ -101,12 +136,14 @@ public class RobotContainer
     // Run intake in
     m_driverController.button(OIConstants.bumperRight)
         .whileTrue(new RunIntakeInCommand(m_intake));
-      
+      */
     // Set X formation
+    /*
     m_driverController.button(OIConstants.buttonB)
         .whileTrue(new RunCommand(
             () -> m_robotDrive.setX(),
             m_robotDrive));
+    */
   }
 
   /**

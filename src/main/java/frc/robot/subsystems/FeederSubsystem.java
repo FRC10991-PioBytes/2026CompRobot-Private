@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class FeederSubsystem extends SubsystemBase {
 
   private final SparkMax m_leaderMotor;
-  private final SparkMax m_rightMotor;
+  //private final SparkMax m_rightMotor;
 
   private SparkClosedLoopController m_leaderController;
 
@@ -36,7 +36,7 @@ public class FeederSubsystem extends SubsystemBase {
   public FeederSubsystem() {
     
     m_leaderMotor = new SparkMax(FeederConstants.kLeftFeederCanId, MotorType.kBrushless);
-    m_rightMotor = new SparkMax(FeederConstants.kRightFeederCanId, MotorType.kBrushless);
+    //m_rightMotor = new SparkMax(FeederConstants.kRightFeederCanId, MotorType.kBrushless);
 
     m_leaderController = m_leaderMotor.getClosedLoopController();
 
@@ -51,7 +51,7 @@ public class FeederSubsystem extends SubsystemBase {
   private void configureMotors() {
     // Apply to hardware (Reset to factory defaults first to clear old junk)
     m_leaderMotor.configure(Feeder.leaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    m_rightMotor.configure(Feeder.rightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    //m_rightMotor.configure(Feeder.rightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   public void setVelocity(double rpm)
@@ -59,6 +59,7 @@ public class FeederSubsystem extends SubsystemBase {
     if (rpm != m_targetRPM)
     {
       m_targetRPM = rpm;
+      System.out.println(m_targetRPM);
       //m_leaderController.setReference(m_targetRPM, ControlType.kVelocity);
       m_leaderController.setSetpoint(m_targetRPM, ControlType.kMAXMotionVelocityControl);
     }
@@ -86,7 +87,7 @@ public class FeederSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Feeder/Actual RPM: ", getActualVelocity());
     SmartDashboard.putNumber("Feeder/Applied Output: ", m_leaderMotor.getAppliedOutput());
 
-    updateTunables();
+    //updateTunables();
 
   }
 
@@ -115,6 +116,7 @@ public class FeederSubsystem extends SubsystemBase {
 
     // check if Target Velocity changed via dashboard
     if (readTarget != m_targetRPM) {
+      System.out.println("Feeder Target set -------------------------------------------------------");
       setVelocity(readTarget);
     }
   }

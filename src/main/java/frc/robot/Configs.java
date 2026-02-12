@@ -4,6 +4,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.FeedForwardConfig;
 import com.revrobotics.spark.config.SparkFlexConfig;
 
 import frc.robot.Constants.FeederConstants;
@@ -76,7 +77,11 @@ public final class Configs
                         .pid(0, 0, 0)
                         .outputRange(-1, 1)
                         .feedForward
-                                .kV(0);
+                                .kS(0.002)
+                                .kV(0.00265);
+
+                leaderConfig.closedLoop.maxMotion
+                        .maxAcceleration(2000);
 
                 rightConfig
                         .idleMode(IdleMode.kCoast)
@@ -87,7 +92,7 @@ public final class Configs
 
     public static final class Shooter {
         public static final SparkMaxConfig leaderConfig = new SparkMaxConfig();
-        public static final SparkMaxConfig leftConfig = new SparkMaxConfig();
+        //public static final SparkMaxConfig leftConfig = new SparkMaxConfig();
         public static final SparkMaxConfig rightConfig = new SparkMaxConfig();
 
         static {
@@ -97,16 +102,23 @@ public final class Configs
                         .voltageCompensation(12)
                         .closedLoopRampRate(0.5);
                 leaderConfig.closedLoop
-                        .pid(0.00005, 0, 0.00001)
+                        //.pid(0.00005, 0, 0.00001)
+                        .pid(0,0,0)
                         .outputRange(-1, 1)
                         .feedForward
-                                .kV(0.000174);
-
+                                .kS(0.20042 / 60.0) // Divide by 60 to change from rps to rpm
+                                .kV(0.12391 / 60.0)
+                                .kA(0.011037 / 60.0);
+                
+                leaderConfig.closedLoop.maxMotion
+                        .maxAcceleration(1500)
+                        .allowedProfileError(0.1);
+                /*
                 leftConfig
                         .idleMode(IdleMode.kCoast)
                         .smartCurrentLimit(40)
                         .follow(Constants.ShooterConstants.kLeaderShooterCanId, false);
-
+                */
                 rightConfig
                         .idleMode(IdleMode.kCoast)
                         .smartCurrentLimit(40)

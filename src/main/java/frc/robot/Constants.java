@@ -29,8 +29,8 @@ public final class Constants {
     public static final double kMaxSpeedMetersPerSecond = 4.8;
     public static final double kMaxAngularSpeed = 2 * Math.PI; // radians per second
 
-    public static final double kFastSpeedMultiplier = 1;
-    public static final double kSlowSpeedMultiplier = 0.5;
+    public static final double kFastSpeedMultiplier = 0.75;
+    public static final double kSlowSpeedMultiplier = 0.4;
 
 
     // Chassis configuration
@@ -84,10 +84,9 @@ public final class Constants {
   }
 
   public static final class IntakeConstants {
-    public static final int kLeftPivotCanId = 9;
-    public static final int kRightPivotCanId = 10;
-    public static final int kLeftRollerCanId = 11;
-    public static final int kRightRollerCanId = 12;
+    public static final int kLeftPivotCanId = 12;
+    public static final int kLeftRollerCanId = 13;
+    public static final int kRightRollerCanId = 14;
 
     public static final double kIntakeInSpeed = 0.5;
     public static final double kIntakeOutSpeed = 0.5;
@@ -96,18 +95,18 @@ public final class Constants {
     public static final Rotation2d kIntakeRetractedEncoderPosition = Rotation2d.kZero;
     public static final Rotation2d kIntakeExtendedEncoderPosition = new Rotation2d(0.1);
 
-    public static final double kIntakeGravityCosVoltage = 0;
+    public static final double kIntakeGravityCosVoltage = 0.1;
   }
 
   public static final class FeederConstants {
-    public static final int kLeftFeederCanId = 13;
-    public static final int kRightFeederCanId = 14;
+    public static final int kLeftFeederCanId = 9;
+    //public static final int kRightFeederCanId = 14;
   }
 
   public static final class ShooterConstants {
-    public static final int kLeaderShooterCanId = 15;
-    public static final int kLeftShooterCanId = 16;
-    public static final int kRightShooterCanId = 17;
+    public static final int kLeaderShooterCanId = 10;
+    //public static final int kLeftShooterCanId = 16;
+    public static final int kRightShooterCanId = 11;
   }
 
   public static final class OIConstants {
