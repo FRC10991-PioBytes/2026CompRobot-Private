@@ -13,14 +13,19 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import frc.robot.Constants.FeederConstants;
 import frc.robot.Configs.Feeder;
-
+import edu.wpi.first.units.*;
+import edu.wpi.first.units.measure.MutAngle;
+import edu.wpi.first.units.measure.MutAngularVelocity;
+import edu.wpi.first.units.measure.MutVoltage;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 public class FeederSubsystem extends SubsystemBase {
 
   private final SparkMax m_leaderMotor;
-  //private final SparkMax m_rightMotor;
 
   private SparkClosedLoopController m_leaderController;
 
@@ -31,27 +36,51 @@ public class FeederSubsystem extends SubsystemBase {
   private double m_ff = 0;
   private double m_targetRPM = 0;
 
+  private final MutVoltage m_appliedVoltage = new MutVoltage(0.0, 0.0, Units.Volts);
+  private final MutAngle m_angle = new MutAngle(0, 0, Units.Revolutions); // Revolutions
+  private final MutAngularVelocity m_velocity = new MutAngularVelocity(0, 0, Units.Revolutions.per(Units.Minute)); // RPM
+  private final SysIdRoutine m_sysIdRoutine;
+
 
   /** Creates a new DriveSubsystem. */
   public FeederSubsystem() {
     
     m_leaderMotor = new SparkMax(FeederConstants.kLeftFeederCanId, MotorType.kBrushless);
-    //m_rightMotor = new SparkMax(FeederConstants.kRightFeederCanId, MotorType.kBrushless);
 
     m_leaderController = m_leaderMotor.getClosedLoopController();
 
-    configureMotors();
+    m_leaderMotor.configure(Feeder.leaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     SmartDashboard.putNumber("Feeder/P", m_p);
     SmartDashboard.putNumber("Feeder/D", m_d);
     SmartDashboard.putNumber("Feeder/Feed Forward", m_ff);
     SmartDashboard.putNumber("Feeder/Target RPM", 0);
-  }
 
-  private void configureMotors() {
-    // Apply to hardware (Reset to factory defaults first to clear old junk)
-    m_leaderMotor.configure(Feeder.leaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    //m_rightMotor.configure(Feeder.rightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    m_sysIdRoutine =
+      new SysIdRoutine(
+        // Config
+        new SysIdRoutine.Config(),
+
+        // Mechanism
+        new SysIdRoutine.Mechanism(
+          (voltage) -> m_leaderMotor.setVoltage(voltage),
+          (log) -> {
+            log.motor("shooter")
+              .voltage(
+                m_appliedVoltage.mut_replace(
+                  m_leaderMotor.getAppliedOutput() * RobotController.getBatteryVoltage(), Units.Volts
+                )
+              )
+              .angularPosition(
+                m_angle.mut_replace(m_leaderMotor.getEncoder().getPosition(), Units.Revolutions)
+              )
+              .angularVelocity(
+                m_velocity.mut_replace(m_leaderMotor.getEncoder().getVelocity(), Units.Revolutions.per(Units.Minute))
+              );
+          },
+          this
+        )
+      );
   }
 
   public void setVelocity(double rpm)
@@ -59,8 +88,6 @@ public class FeederSubsystem extends SubsystemBase {
     if (rpm != m_targetRPM)
     {
       m_targetRPM = rpm;
-      System.out.println(m_targetRPM);
-      //m_leaderController.setReference(m_targetRPM, ControlType.kVelocity);
       m_leaderController.setSetpoint(m_targetRPM, ControlType.kMAXMotionVelocityControl);
     }
     
@@ -68,6 +95,7 @@ public class FeederSubsystem extends SubsystemBase {
 
   public void stop()
   {
+    m_targetRPM = 0;
     m_leaderMotor.stopMotor();
   }
 
@@ -119,6 +147,14 @@ public class FeederSubsystem extends SubsystemBase {
       System.out.println("Feeder Target set -------------------------------------------------------");
       setVelocity(readTarget);
     }
+  }
+
+  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+    return m_sysIdRoutine.quasistatic(direction);
+  }
+
+  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+    return m_sysIdRoutine.dynamic(direction);
   }
   
 }

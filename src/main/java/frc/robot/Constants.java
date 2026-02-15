@@ -34,7 +34,6 @@ public final class Constants {
 
 
     // Chassis configuration
-    //Test bot = 22.5 for both
     public static final double kTrackWidth = Units.inchesToMeters(23.5);
     // Distance between centers of right and left wheels on robot
     public static final double kWheelBase = Units.inchesToMeters(23.5);
@@ -69,7 +68,6 @@ public final class Constants {
     // The MAXSwerve module can be configured with one of three pinion gears: 12T,
     // 13T, or 14T. This changes the drive speed of the module (a pinion gear with
     // more teeth will result in a robot that drives faster).
-    //Test bot = 13
     public static final int kDrivingMotorPinionTeeth = 12;
 
     // Calculations required for driving motor conversion factors and feed forward
@@ -99,14 +97,36 @@ public final class Constants {
   }
 
   public static final class FeederConstants {
+    // CAN ID
     public static final int kLeftFeederCanId = 9;
-    //public static final int kRightFeederCanId = 14;
+
+    // Feed forward constants
+    public static final double kStaticFF = 0; // Divide by 60 to change from rps to rpm
+    public static final double kVelocityFF = 0;
+    public static final double kAccelerationFF = 0;
+
+    // PID constants
+    public static final double kP = 0;
+    public static final double kD = 0;
+
+    public static final int kFeederMaxAcceleration = 2000; // RPM per second
   }
 
   public static final class ShooterConstants {
+    // CAN IDs
     public static final int kLeaderShooterCanId = 10;
-    //public static final int kLeftShooterCanId = 16;
     public static final int kRightShooterCanId = 11;
+
+    // Feed forward constants
+    public static final double kStaticFF = 0.20042 / 60.0; // Divide by 60 to change from rps to rpm
+    public static final double kVelocityFF = 0.12391 / 60.0;
+    public static final double kAccelerationFF = 0.011037 / 60.0;
+
+    // PID constants
+    public static final double kP = 0;
+    public static final double kD = 0;
+
+    public static final int kShooterMaxAcceleration = 1500; // RPM per second
   }
 
   public static final class OIConstants {

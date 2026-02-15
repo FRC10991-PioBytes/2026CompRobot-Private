@@ -21,7 +21,6 @@ import frc.robot.commands.AprilTagCommands.FindAprilTagCommand;
 import frc.robot.commands.AprilTagCommands.TrackAprilTagCommand;
 import frc.robot.commands.IntakeCommands.RunIntakeInCommand;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -35,17 +34,19 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
  */
 public class RobotContainer 
 {
-  // Drive subsystem
+  // Subsystems
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
-  
   //private final IntakeSubsystem m_intake = new IntakeSubsystem();
-
   private final ShooterSubsystem m_shooter = new ShooterSubsystem();
   private final FeederSubsystem m_feeder = new FeederSubsystem();
 
   // Driver controller
   CommandJoystick m_driverController = new CommandJoystick(OIConstants.kDriverControllerPort);
+  
+  // Operator controller
+  CommandJoystick m_manipulatorController = new CommandJoystick(OIConstants.kManipulatorControllerPort);
 
+  // Auto chooser
   private final SendableChooser<Command> autoChooser = new SendableChooser<>();
 
   /**
@@ -92,39 +93,40 @@ public class RobotContainer
             () -> Constants.DriveConstants.kFastSpeedMultiplier,
             () -> true));
 
-    /*
+    
     // Find and track April tag
-    m_driverController.button(OIConstants.buttonX)
+    /*
+    m_driverController.button(OIConstants.buttonA)
         .whileTrue(new FindAndTrackTagCommand(m_robotDrive));
     */
-
-    /*
+    
+    // Sys Id Routines
     m_driverController.button(OIConstants.buttonA)
-        .whileTrue(m_shooter.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+        .whileTrue(m_feeder.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
 
     m_driverController.button(OIConstants.buttonB)
-        .whileTrue(m_shooter.sysIdDynamic(SysIdRoutine.Direction.kForward));
+        .whileTrue(m_feeder.sysIdDynamic(SysIdRoutine.Direction.kForward));
 
     m_driverController.button(OIConstants.buttonX)
-        .whileTrue(m_shooter.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+        .whileTrue(m_feeder.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
 
     m_driverController.button(OIConstants.buttonY)
-        .whileTrue(m_shooter.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-    */
-
-    m_driverController.button(OIConstants.buttonA)
+        .whileTrue(m_feeder.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    
+    // Shooter and feeder commands
+    m_manipulatorController.button(OIConstants.buttonA)
         .onTrue(m_shooter.runOnce(() -> m_shooter.setVelocity(4000)));
 
-    m_driverController.button(OIConstants.buttonB)
+    m_manipulatorController.button(OIConstants.buttonB)
         .onTrue(m_shooter.runOnce(m_shooter::stop));
 
-    m_driverController.button(OIConstants.buttonX)
+    m_manipulatorController.button(OIConstants.buttonX)
         .onTrue(m_feeder.runOnce(() -> m_feeder.setVelocity(2000)));
 
-    m_driverController.button(OIConstants.buttonY)
+    m_manipulatorController.button(OIConstants.buttonY)
         .onTrue(m_feeder.runOnce(m_feeder::stop));
     
-        /*
+    /*
     // Extend Intake
     m_driverController.button(OIConstants.buttonY)
         .onTrue(m_intake.runOnce(() -> m_intake.setPivotPosition(IntakeConstants.kIntakeExtendedEncoderPosition)));
