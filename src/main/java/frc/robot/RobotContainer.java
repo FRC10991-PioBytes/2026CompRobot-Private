@@ -18,6 +18,7 @@ import frc.robot.commands.DriveCommand;
 import frc.robot.commands.AprilTagCommands.AprilTagTrackAndMoveCommand;
 import frc.robot.commands.AprilTagCommands.FindAndTrackTagCommand;
 import frc.robot.commands.AprilTagCommands.FindAprilTagCommand;
+import frc.robot.commands.AprilTagCommands.MoveToScoreDistance;
 import frc.robot.commands.AprilTagCommands.TrackAprilTagCommand;
 import frc.robot.commands.IntakeCommands.RunIntakeInCommand;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -61,6 +62,7 @@ public class RobotContainer
     autoChooser.addOption("April Tag Track and Move Command", new AprilTagTrackAndMoveCommand(m_robotDrive));
     autoChooser.addOption("April Tag finder", new FindAprilTagCommand(m_robotDrive));
     autoChooser.addOption("Find and Track Tag Command", new FindAndTrackTagCommand(m_robotDrive));
+    autoChooser.addOption("MoveToScoreDistance", new MoveToScoreDistance(m_robotDrive));
 
     SmartDashboard.putData("Auto/Auto Mode", autoChooser);
 
