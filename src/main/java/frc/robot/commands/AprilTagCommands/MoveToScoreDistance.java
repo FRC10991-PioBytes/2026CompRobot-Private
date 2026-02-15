@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.LimelightHelpers;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Constants.FieldConstants;
 import java.util.Set;
 
 public class MoveToScoreDistance extends Command {
@@ -19,7 +20,7 @@ public class MoveToScoreDistance extends Command {
     private final PIDController m_rotPID = new PIDController(0, 0, 0);
 
     // Field Coordinate of the HUB Center
-    private final Translation2d HUB_CENTER = new Translation2d(4.625594, 4.034536);
+    private final Translation2d HUB_CENTER = FieldConstants.kBlueHUB;
 
     // Allowed Blue side AprilTag IDs for the HUB
     private final Set<Double> VALID_TAG_IDS = Set.of(24.0, 25.0, 26.0, 27.0);

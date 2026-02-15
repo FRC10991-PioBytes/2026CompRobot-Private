@@ -163,6 +163,14 @@ public final class Constants {
         kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
   }
 
+  // All values are field centric from the blue origin in meters
+  public static final class FieldConstants {
+    public static final Translation2d kBlueHUB = new Translation2d(4.625594, 4.034536);
+    public static final Translation2d kRedHUB = new Translation2d(11.915394, 4.034536);
+
+    
+  }
+
   public static final class NeoMotorConstants {
     public static final double kFreeSpeedRpm = 5676;
   }
