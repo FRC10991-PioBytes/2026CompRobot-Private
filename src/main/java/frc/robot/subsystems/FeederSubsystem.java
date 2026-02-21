@@ -59,7 +59,7 @@ public class FeederSubsystem extends SubsystemBase {
     m_sysIdRoutine =
       new SysIdRoutine(
         // Config
-        new SysIdRoutine.Config(),
+        new SysIdRoutine.Config(Units.Volts.per(Units.Seconds).of(1), Units.Volts.of(7), Units.Seconds.of(7)),
 
         // Mechanism
         new SysIdRoutine.Mechanism(

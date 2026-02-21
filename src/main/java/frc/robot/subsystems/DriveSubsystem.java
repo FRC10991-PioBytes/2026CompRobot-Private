@@ -4,8 +4,20 @@
 
 package frc.robot.subsystems;
 
+import java.io.IOException;
+
+import org.json.simple.parser.ParseException;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.util.PathPlannerLogging;
 import com.studica.frc.AHRS;
 
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -13,9 +25,11 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.LimelightHelpers;
+import frc.robot.Robot;
 import frc.robot.Constants.DriveConstants;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -46,6 +60,7 @@ public class DriveSubsystem extends SubsystemBase {
 
   private final Field2d field = new Field2d();
 
+  /*
   // Odometry class for tracking robot pose
   SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(
       DriveConstants.kDriveKinematics,
@@ -57,14 +72,55 @@ public class DriveSubsystem extends SubsystemBase {
           m_rearLeft.getPosition(),
           m_rearRight.getPosition()
       });
+  */
+
+  SwerveDrivePoseEstimator m_poseEstimator = new SwerveDrivePoseEstimator(
+    DriveConstants.kDriveKinematics, 
+    m_gyro.getRotation2d(), 
+    new SwerveModulePosition[] {
+          m_frontLeft.getPosition(),
+          m_frontRight.getPosition(),
+          m_rearLeft.getPosition(),
+          m_rearRight.getPosition()
+      }, 
+      new Pose2d());
 
   /** Creates a new DriveSubsystem. */
   public DriveSubsystem() {
     
+    // Set up a callback that PathPlanner calls every 20ms
+    PathPlannerLogging.setLogTargetPoseCallback((targetPose) -> {
+        // Only do this in simulation so you don't break the real robot!
+        if (RobotBase.isSimulation()) {
+            // Forcibly update your odometry to exactly match the target
+            this.resetPose(targetPose); 
+        }
+    });
+
+    RobotConfig config;
+    
+    try {
+      config = RobotConfig.fromGUISettings();
+      AutoBuilder.configure(
+      this::getPose, 
+      this::resetPose,
+      this::getRobotRelativeSpeeds,
+      (speeds, feedforwards) -> drive(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, speeds.omegaRadiansPerSecond, 1, false),
+      new PPHolonomicDriveController(
+        new PIDConstants(0, 0, 0), 
+        new PIDConstants(0, 0, 0)),
+      config,
+      () -> false,
+      this);
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+    }
   }
 
   @Override
   public void periodic() {
+    /*
     // Update the odometry in the periodic block
     m_odometry.update(
         m_gyro.getRotation2d(),
@@ -75,11 +131,14 @@ public class DriveSubsystem extends SubsystemBase {
             m_rearLeft.getPosition(),
             m_rearRight.getPosition()
         });
+    */
+
+    updateOdometry();
 
     SmartDashboard.putNumber("Drive/Gyro Angle: ", m_gyro.getRotation2d().getDegrees());
     
 
-    Pose2d robotPose = LimelightHelpers.getBotPose2d_wpiBlue("limelight");
+    Pose2d robotPose = getPose();
     field.setRobotPose(robotPose);
     SmartDashboard.putData("Game Info/Field", field);
     
@@ -88,13 +147,45 @@ public class DriveSubsystem extends SubsystemBase {
     
   }
 
+
+  public void updateOdometry() {
+    m_poseEstimator.update(
+        m_gyro.getRotation2d(),
+        new SwerveModulePosition[] {
+            m_frontLeft.getPosition(),
+            m_frontRight.getPosition(),
+            m_rearLeft.getPosition(),
+            m_rearRight.getPosition()
+        });
+
+    boolean doRejectUpdate = false;
+    
+    LimelightHelpers.SetRobotOrientation("limelight", this.getHeading(), 0, 0, 0, 0, 0);
+    LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
+    if (mt2 != null) {
+      if (Math.abs(this.getTurnRate()) > 720 || mt2.tagCount == 0)
+    {
+      doRejectUpdate = true;
+    }
+    if (!doRejectUpdate)
+    {
+      m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.5, 0.5, 9999999));
+      m_poseEstimator.addVisionMeasurement(
+        mt2.pose, 
+        mt2.timestampSeconds);
+    }
+    }
+  }
+
   /**
    * Returns the currently-estimated pose of the robot.
    *
    * @return The pose.
    */
   public Pose2d getPose() {
-    return m_odometry.getPoseMeters();
+    
+    //return m_odometry.getPoseMeters();
+    return m_poseEstimator.getEstimatedPosition();
   }
 
   /**
@@ -102,7 +193,8 @@ public class DriveSubsystem extends SubsystemBase {
    *
    * @param pose The pose to which to set the odometry.
    */
-  public void resetOdometry(Pose2d pose) {
+  public void resetPose(Pose2d pose) {
+    /*
     m_odometry.resetPosition(
         m_gyro.getRotation2d(),
         //Rotation2d.kZero,
@@ -113,6 +205,19 @@ public class DriveSubsystem extends SubsystemBase {
             m_rearRight.getPosition()
         },
         pose);
+    */
+    
+    m_poseEstimator.resetPosition(
+        m_gyro.getRotation2d(),
+        //Rotation2d.kZero,
+        new SwerveModulePosition[] {
+            m_frontLeft.getPosition(),
+            m_frontRight.getPosition(),
+            m_rearLeft.getPosition(),
+            m_rearRight.getPosition()
+        },
+        pose);
+    
   }
 
   /**
@@ -172,6 +277,15 @@ public class DriveSubsystem extends SubsystemBase {
     m_frontRight.setDesiredState(desiredStates[1]);
     m_rearLeft.setDesiredState(desiredStates[2]);
     m_rearRight.setDesiredState(desiredStates[3]);
+  }
+
+  public SwerveModuleState[] getModuleStates() {
+    SwerveModuleState[] swerveModuleStates = {m_frontLeft.getState(), m_frontRight.getState(), m_rearLeft.getState(), m_rearRight.getState()};
+    return swerveModuleStates;
+  }
+
+  public ChassisSpeeds getRobotRelativeSpeeds() {
+    return DriveConstants.kDriveKinematics.toChassisSpeeds(getModuleStates());
   }
 
   /** Resets the drive encoders to currently read a position of 0. */

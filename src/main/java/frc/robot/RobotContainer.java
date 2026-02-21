@@ -4,6 +4,10 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -21,6 +25,8 @@ import frc.robot.commands.AprilTagCommands.FindAprilTagCommand;
 import frc.robot.commands.AprilTagCommands.MoveToScoreDistance;
 import frc.robot.commands.AprilTagCommands.TrackAprilTagCommand;
 import frc.robot.commands.IntakeCommands.RunIntakeInCommand;
+import frc.robot.commands.IntakeCommands.RunIntakePivotDownCommand;
+import frc.robot.commands.IntakeCommands.RunIntakePivotUpCommand;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
@@ -37,7 +43,7 @@ public class RobotContainer
 {
   // Subsystems
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
-  //private final IntakeSubsystem m_intake = new IntakeSubsystem();
+  private final IntakeSubsystem m_intake = new IntakeSubsystem();
   private final ShooterSubsystem m_shooter = new ShooterSubsystem();
   private final FeederSubsystem m_feeder = new FeederSubsystem();
 
@@ -49,12 +55,27 @@ public class RobotContainer
 
   // Auto chooser
   private final SendableChooser<Command> autoChooser = new SendableChooser<>();
+  private final SendableChooser<Command> pathAutoChooser;
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() 
   {
+    NamedCommands.registerCommand("RevShooter", m_shooter.runOnce(() -> m_shooter.setVelocity(4000)));
+    NamedCommands.registerCommand("RunFeederAndShoot", m_feeder.runOnce(() -> m_shooter.setVelocity(2000)));
+    NamedCommands.registerCommand("StopFeeder", m_feeder.runOnce(() -> m_feeder.stop()));
+    NamedCommands.registerCommand("StopShooter", m_shooter.runOnce(() -> m_shooter.stop()));
+    NamedCommands.registerCommand("ExtendIntake", m_intake.runOnce(() -> m_intake.setPivotPosition(IntakeConstants.kIntakeExtendedEncoderPosition)));
+    NamedCommands.registerCommand("RunIntakeRoller", new RunIntakeInCommand(m_intake));
+    
+    PathPlannerAuto auto1 = new PathPlannerAuto("LeftScoreToNeutralZone");
+    PathPlannerAuto auto2 = new PathPlannerAuto("RightScoreToNeutralZone");
+    PathPlannerAuto auto3 = new PathPlannerAuto("LeftStartToDepotToLeftScore");
+    PathPlannerAuto auto4 = new PathPlannerAuto("LeftStart-LeftScore-Depot-LeftScore");
+    PathPlannerAuto test = new PathPlannerAuto("test");
+    pathAutoChooser = AutoBuilder.buildAutoChooser();
+
     autoChooser.setDefaultOption("Do Nothing", new WaitCommand(1));
 
     //autoChooser.addOption("Drive Forward", new DriveForwardAuto());
@@ -65,6 +86,7 @@ public class RobotContainer
     autoChooser.addOption("MoveToScoreDistance", new MoveToScoreDistance(m_robotDrive));
 
     SmartDashboard.putData("Auto/Auto Mode", autoChooser);
+    SmartDashboard.putData("Auto/PP Autos", pathAutoChooser);
 
     configureButtonBindings();
   }
@@ -103,6 +125,7 @@ public class RobotContainer
     */
     
     // Sys Id Routines
+    /*
     m_driverController.button(OIConstants.buttonA)
         .whileTrue(m_feeder.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
 
@@ -114,6 +137,7 @@ public class RobotContainer
 
     m_driverController.button(OIConstants.buttonY)
         .whileTrue(m_feeder.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    */
     
     // Shooter and feeder commands
     m_manipulatorController.button(OIConstants.buttonA)
@@ -148,6 +172,13 @@ public class RobotContainer
             () -> m_robotDrive.setX(),
             m_robotDrive));
     */
+
+    m_driverController.button(OIConstants.bumperLeft)
+        .whileTrue(new RunIntakePivotDownCommand(m_intake));
+    m_driverController.button(OIConstants.bumperRight)
+        .whileTrue(new RunIntakePivotUpCommand(m_intake));
+    m_driverController.button(OIConstants.buttonX)
+        .whileTrue(new RunIntakeInCommand(m_intake));
   }
 
   /**
@@ -156,7 +187,7 @@ public class RobotContainer
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return autoChooser.getSelected();
+    return pathAutoChooser.getSelected();
   }
 
 }

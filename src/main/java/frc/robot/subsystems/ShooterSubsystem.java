@@ -124,7 +124,7 @@ public class ShooterSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Shooter/Output Shaft RPM", getActualVelocity() * m_gearRatio);
     SmartDashboard.putNumber("Shooter/Applied Output: ", m_leaderMotor.getAppliedOutput());
 
-    updateTunables();
+    //updateTunables();
 
   }
 

@@ -113,49 +113,40 @@ public final class Configs
     }
 
     public static final class Intake {
-        public static final SparkMaxConfig leftRollerConfig = new SparkMaxConfig();
-        public static final SparkMaxConfig rightRollerConfig = new SparkMaxConfig();
+        public static final SparkMaxConfig leaderRollerConfig = new SparkMaxConfig();
 
-        public static final SparkMaxConfig leftPivotConfig = new SparkMaxConfig();
-        public static final SparkMaxConfig rightPivotConfig = new SparkMaxConfig();
+        public static final SparkMaxConfig leaderPivotConfig = new SparkMaxConfig();
 
         static {
                 // Roller configs
-                leftRollerConfig
+                leaderRollerConfig
                         .idleMode(IdleMode.kBrake)
                         .smartCurrentLimit(40);
-                rightRollerConfig
-                        .idleMode(IdleMode.kBrake)
-                        .smartCurrentLimit(40)
-                        .follow(IntakeConstants.kLeftRollerCanId, true);
 
                 // Pivot configs
                 double turningFactor = 2 * Math.PI;
 
-                leftPivotConfig
+                leaderPivotConfig
                         .idleMode(IdleMode.kBrake)
                         .smartCurrentLimit(40);
-                leftPivotConfig.absoluteEncoder
-                        .positionConversionFactor(turningFactor) // radians
-                        .velocityConversionFactor(turningFactor / 60.0); // radians per second
-                leftPivotConfig.closedLoop
+                leaderPivotConfig.absoluteEncoder
+                        .positionConversionFactor(turningFactor * 14.0 / 32.0) // radians with gear ratio
+                        .velocityConversionFactor(turningFactor / 60.0 * 14.0 / 32.0); // radians per second wtih gear ratio
+                leaderPivotConfig.closedLoop
                         .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
                         .pid(0, 0, 0, ClosedLoopSlot.kSlot0)
                         .outputRange(-1, 1)
                         .positionWrappingEnabled(false)
                         .feedForward
+                                .kS(IntakeConstants.kStaticFF)
+                                .kV(IntakeConstants.kVelocityFF)
+                                .kA(IntakeConstants.kAccelerationFF)
                                 .kCos(IntakeConstants.kIntakeGravityCosVoltage)
                                 .kCosRatio(1 / turningFactor);
-                leftPivotConfig.closedLoop
-                        .maxMotion
-                                .cruiseVelocity(Math.PI / 4, ClosedLoopSlot.kSlot0)
-                                .maxAcceleration(Math.PI / 2)
-                                .allowedProfileError(0.05, ClosedLoopSlot.kSlot0);
-
-                rightPivotConfig
-                        .idleMode(IdleMode.kBrake)
-                        .smartCurrentLimit(40)
-                        .follow(IntakeConstants.kLeftPivotCanId, true);
+                leaderPivotConfig.closedLoop.maxMotion
+                        .cruiseVelocity(Math.PI / 8)
+                        .maxAcceleration(Math.PI / 2)
+                        .allowedProfileError(0.05);
         }
     }
 }

@@ -4,6 +4,12 @@
 
 package frc.robot;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
+
+import com.pathplanner.lib.config.RobotConfig;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -31,7 +37,7 @@ public final class Constants {
 
     public static final double kFastSpeedMultiplier = 0.75;
     public static final double kSlowSpeedMultiplier = 0.4;
-
+    
 
     // Chassis configuration
     public static final double kTrackWidth = Units.inchesToMeters(23.5);
@@ -82,18 +88,25 @@ public final class Constants {
   }
 
   public static final class IntakeConstants {
-    public static final int kLeftPivotCanId = 12;
-    public static final int kLeftRollerCanId = 13;
-    public static final int kRightRollerCanId = 14;
+    public static final int kLeaderPivotCanId = 12;
+    public static final int kLeaderRollerCanId = 13;
 
-    public static final double kIntakeInSpeed = 0.5;
-    public static final double kIntakeOutSpeed = 0.5;
+    public static final double kIntakeInSpeed = 1;
+    public static final double kIntakeOutSpeed = -1;
+
+    public static final double kIntakePivotUpSpeed = 0.3;
+    public static final double kIntakePivotDownSpeed = -0.1;
+    public static final double kIntakePivotHoldSpeed = 0.1;
 
     // In radians
     public static final Rotation2d kIntakeRetractedEncoderPosition = Rotation2d.kZero;
     public static final Rotation2d kIntakeExtendedEncoderPosition = new Rotation2d(0.1);
 
     public static final double kIntakeGravityCosVoltage = 0.1;
+    public static final double kStaticFF = 0;
+    public static final double kVelocityFF = 0;
+    public static final double kAccelerationFF = 0;
+
   }
 
   public static final class FeederConstants {
@@ -101,12 +114,12 @@ public final class Constants {
     public static final int kLeftFeederCanId = 9;
 
     // Feed forward constants
-    public static final double kStaticFF = 0; // Divide by 60 to change from rps to rpm
-    public static final double kVelocityFF = 0;
-    public static final double kAccelerationFF = 0;
+    public static final double kStaticFF = 0.19906 / 60.0; // Divide by 60 to change from rps to rpm
+    public static final double kVelocityFF = 0.12557 / 60.0;
+    public static final double kAccelerationFF = 0.015522 / 60.0;
 
     // PID constants
-    public static final double kP = 0;
+    public static final double kP = 2.9426E-05;
     public static final double kD = 0;
 
     public static final int kFeederMaxAcceleration = 2000; // RPM per second
@@ -123,7 +136,7 @@ public final class Constants {
     public static final double kAccelerationFF = 0.011037 / 60.0;
 
     // PID constants
-    public static final double kP = 0;
+    public static final double kP = 1.0486E-05;
     public static final double kD = 0;
 
     public static final int kShooterMaxAcceleration = 1500; // RPM per second
@@ -165,10 +178,70 @@ public final class Constants {
 
   // All values are field centric from the blue origin in meters
   public static final class FieldConstants {
+    
     public static final Translation2d kBlueHUB = new Translation2d(4.625594, 4.034536);
     public static final Translation2d kRedHUB = new Translation2d(11.915394, 4.034536);
 
     
+    public static final BlueScoringPosition kBlueScorePose1 = new BlueScoringPosition(2.577, 5.98, 4000);
+    public static final BlueScoringPosition kBlueScorePose2 = new BlueScoringPosition(11.915394, 4.034536, 4000);
+
+
+    /** Represents a 2D pose pointed at the HUB with an RPM */
+    public static class BlueScoringPosition {
+      private Pose2d kScoringPose;
+      private double kShooterRPM;
+
+      private static Collection<Pose2d> kBlueScoringPoses = new ArrayList<>();
+      
+      public BlueScoringPosition(double x, double y, double RPM)
+      {
+        Translation2d scoringTranslation = new Translation2d(x, y);
+        kScoringPose = new Pose2d(scoringTranslation, new Rotation2d(kBlueHUB.minus(scoringTranslation).getAngle().getRadians()));
+        kBlueScoringPoses.add(kScoringPose);
+
+        kShooterRPM = RPM;
+      }
+      
+      public static Collection<Pose2d> getBlueScoringPoses()
+      {
+        return kBlueScoringPoses;
+      }
+
+      public Pose2d getPose2d()
+      {
+        return kScoringPose;
+      }
+
+      public Translation2d getTranslation2d()
+      {
+        return kScoringPose.getTranslation();
+      }
+
+      public Rotation2d getRotation2d()
+      {
+        return kScoringPose.getRotation();
+      }
+
+      public double getRPM()
+      {
+        return kShooterRPM;
+      }
+      
+    }
+
+
+    public static final Pose2d getBlueScorePose(double x, double y)
+    {
+      Translation2d scoringTranslation = new Translation2d(x, y);
+      return new Pose2d(scoringTranslation, new Rotation2d(kBlueHUB.minus(scoringTranslation).getAngle().getRadians()));
+    }
+
+    public static final Pose2d getRedScorePose(double x, double y)
+    {
+      Translation2d scoringTranslation = new Translation2d(x, y);
+      return new Pose2d(scoringTranslation, new Rotation2d(kRedHUB.minus(scoringTranslation).getAngle().getRadians()));
+    }
   }
 
   public static final class NeoMotorConstants {
