@@ -25,12 +25,15 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.LimelightHelpers;
 import frc.robot.Robot;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.FieldConstants;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class DriveSubsystem extends SubsystemBase {
@@ -60,6 +63,8 @@ public class DriveSubsystem extends SubsystemBase {
 
   private final Field2d field = new Field2d();
 
+  private double m_angleOffset = 0;
+
   /*
   // Odometry class for tracking robot pose
   SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(
@@ -74,16 +79,7 @@ public class DriveSubsystem extends SubsystemBase {
       });
   */
 
-  SwerveDrivePoseEstimator m_poseEstimator = new SwerveDrivePoseEstimator(
-    DriveConstants.kDriveKinematics, 
-    m_gyro.getRotation2d(), 
-    new SwerveModulePosition[] {
-          m_frontLeft.getPosition(),
-          m_frontRight.getPosition(),
-          m_rearLeft.getPosition(),
-          m_rearRight.getPosition()
-      }, 
-      new Pose2d());
+  SwerveDrivePoseEstimator m_poseEstimator;
 
   /** Creates a new DriveSubsystem. */
   public DriveSubsystem() {
@@ -116,6 +112,28 @@ public class DriveSubsystem extends SubsystemBase {
     catch (Exception e) {
       e.printStackTrace();
     }
+
+    while (m_gyro.isCalibrating())
+    {
+
+    }
+
+    m_poseEstimator = new SwerveDrivePoseEstimator(
+      DriveConstants.kDriveKinematics, 
+      Rotation2d.fromDegrees(this.getHeading()),
+      new SwerveModulePosition[] {
+            m_frontLeft.getPosition(),
+            m_frontRight.getPosition(),
+            m_rearLeft.getPosition(),
+            m_rearRight.getPosition()
+        }, 
+        new Pose2d());
+    
+    resetOdometryWithAprilTags();
+
+    LimelightHelpers.SetIMUMode("limelight", 0);
+
+    
   }
 
   @Override
@@ -135,12 +153,44 @@ public class DriveSubsystem extends SubsystemBase {
 
     updateOdometry();
 
-    SmartDashboard.putNumber("Drive/Gyro Angle: ", m_gyro.getRotation2d().getDegrees());
-    
+    SmartDashboard.putNumber("Drive/Gyro Angle: ", this.getHeading());
+    SmartDashboard.putNumber("Drive/Gyro reading", m_gyro.getRotation2d().getDegrees());
+
+    SmartDashboard.putNumber("Angle offset", m_angleOffset);
+
+    LimelightHelpers.SetRobotOrientation("limelight", this.getHeading(), 0, 0, 0, 0, 0);
+    LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
+    field.setRobotPose(mt2.pose);
+
+    /*
+    SmartDashboard.putData("Drive/Swerve Drive", new Sendable() {
+      @Override
+      public void initSendable(SendableBuilder builder) {
+        builder.setSmartDashboardType("SwerveDrive");
+
+        builder.addDoubleProperty("Front Left Angle", () -> m_frontLeft.getAngle().getRadians(), null);
+        builder.addDoubleProperty("Front Left Velocity", () -> m_frontLeft.getVelocity(), null);
+
+        builder.addDoubleProperty("Front Right Angle", () -> m_frontRight.getAngle().getRadians(), null);
+        builder.addDoubleProperty("Front Right Velocity", () -> m_frontRight.getVelocity(), null);
+
+        builder.addDoubleProperty("Back Left Angle", () -> m_rearLeft.getAngle().getRadians(), null);
+        builder.addDoubleProperty("Back Left Velocity", () -> m_rearLeft.getVelocity(), null);
+
+        builder.addDoubleProperty("Back Right Angle", () -> m_rearRight.getAngle().getRadians(), null);
+        builder.addDoubleProperty("Back Right Velocity", () -> m_rearRight.getVelocity(), null);
+
+        builder.addDoubleProperty("Robot Angle", () -> getPose().getRotation().getRadians(), null);
+      }
+    });
+    */
 
     Pose2d robotPose = getPose();
-    field.setRobotPose(robotPose);
+    //field.setRobotPose(robotPose);
     SmartDashboard.putData("Game Info/Field", field);
+
+    //field.getObject("Blue scoring poses").setPoses(FieldConstants.BlueScoringPosition.getBlueScoringPoses());
+    //field.getObject("Red scoring poses").setPoses(FieldConstants.RedScoringPosition.getRedScoringPoses());
     
     //FieldObject2d mt1robotPose = new FieldObject2d().setPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight").pose);
     //field.setRobotPose(m_odometry.getPoseMeters());
@@ -150,7 +200,7 @@ public class DriveSubsystem extends SubsystemBase {
 
   public void updateOdometry() {
     m_poseEstimator.update(
-        m_gyro.getRotation2d(),
+        Rotation2d.fromDegrees(this.getHeading()),
         new SwerveModulePosition[] {
             m_frontLeft.getPosition(),
             m_frontRight.getPosition(),
@@ -161,19 +211,20 @@ public class DriveSubsystem extends SubsystemBase {
     boolean doRejectUpdate = false;
     
     LimelightHelpers.SetRobotOrientation("limelight", this.getHeading(), 0, 0, 0, 0, 0);
-    LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
+    LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
+    //this.getField().getObject("").setPose(mt2.pose);
     if (mt2 != null) {
       if (Math.abs(this.getTurnRate()) > 720 || mt2.tagCount == 0)
-    {
-      doRejectUpdate = true;
-    }
-    if (!doRejectUpdate)
-    {
-      m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.5, 0.5, 9999999));
-      m_poseEstimator.addVisionMeasurement(
-        mt2.pose, 
-        mt2.timestampSeconds);
-    }
+      {
+        doRejectUpdate = true;
+      }
+      if (!doRejectUpdate)
+      {
+        m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(99999, 99999, 999999));
+        m_poseEstimator.addVisionMeasurement(
+          mt2.pose, 
+          mt2.timestampSeconds);
+      }
     }
   }
 
@@ -208,7 +259,7 @@ public class DriveSubsystem extends SubsystemBase {
     */
     
     m_poseEstimator.resetPosition(
-        m_gyro.getRotation2d(),
+        Rotation2d.fromDegrees(this.getHeading()),
         //Rotation2d.kZero,
         new SwerveModulePosition[] {
             m_frontLeft.getPosition(),
@@ -217,7 +268,27 @@ public class DriveSubsystem extends SubsystemBase {
             m_rearRight.getPosition()
         },
         pose);
-    
+  }
+
+  public void resetOdometryWithAprilTags() {
+    try {
+      LimelightHelpers.SetIMUMode("limelight", 4);
+      LimelightHelpers.PoseEstimate mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
+      System.out.println(mt1.tagCount);
+      if (mt1.tagCount > 0)
+      {
+        //resetHeading(mt1.pose.getRotation().getRadians());
+        //this.getField().getObject("mt1 pose").setPose(mt1.pose);
+        resetPose(mt1.pose);
+        resetHeading(mt1.pose.getRotation().getDegrees());
+        System.out.println("Set pose to " + mt1.pose.getX() + " x and " + mt1.pose.getY() + "y and " + mt1.pose.getRotation().getDegrees() + " degrees");
+      }
+
+    }
+    catch (Exception e) {
+      System.out.println("Couldn't get pose");
+      e.printStackTrace();
+    }
   }
 
   /**
@@ -239,7 +310,7 @@ public class DriveSubsystem extends SubsystemBase {
     var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
         fieldRelative
             ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered,
-                m_gyro.getRotation2d())
+                Rotation2d.fromDegrees(this.getHeading()))
             : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
 
     SwerveDriveKinematics.desaturateWheelSpeeds(
@@ -296,6 +367,16 @@ public class DriveSubsystem extends SubsystemBase {
     m_rearRight.resetEncoders();
   }
 
+  public Field2d getField() {
+    return field;
+  }
+
+  
+  public void resetHeading(double amount) {
+    //m_gyro.setAngleAdjustment(0);
+    m_angleOffset = amount;
+  }
+  
   
   //Zeroes the heading of the robot.
   public void zeroHeading() {
@@ -312,7 +393,7 @@ public class DriveSubsystem extends SubsystemBase {
   
   public double getHeading() {
     //return Rotation2d.fromDegrees(m_gyro.getAngle(IMUAxis.kZ)).getDegrees();
-    return m_gyro.getRotation2d().getDegrees();
+    return m_gyro.getRotation2d().getDegrees() + m_angleOffset;
   }
   
 

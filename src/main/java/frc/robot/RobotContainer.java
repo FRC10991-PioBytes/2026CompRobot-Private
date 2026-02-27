@@ -9,9 +9,13 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.DriveSubsystem;
@@ -22,12 +26,16 @@ import frc.robot.commands.DriveCommand;
 import frc.robot.commands.AprilTagCommands.AprilTagTrackAndMoveCommand;
 import frc.robot.commands.AprilTagCommands.FindAndTrackTagCommand;
 import frc.robot.commands.AprilTagCommands.FindAprilTagCommand;
-import frc.robot.commands.AprilTagCommands.MoveToScoreDistance;
 import frc.robot.commands.AprilTagCommands.TrackAprilTagCommand;
+import frc.robot.commands.AutomaticShootingCommands.MoveToScoreDistance;
+import frc.robot.commands.AutomaticShootingCommands.MoveToScorePosCommand;
+import frc.robot.commands.AutomaticShootingCommands.ShootFromScorePosCommand;
 import frc.robot.commands.IntakeCommands.RunIntakeInCommand;
+import frc.robot.commands.IntakeCommands.RunIntakePivotCommand;
 import frc.robot.commands.IntakeCommands.RunIntakePivotDownCommand;
 import frc.robot.commands.IntakeCommands.RunIntakePivotUpCommand;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -62,18 +70,19 @@ public class RobotContainer
    */
   public RobotContainer() 
   {
+    DriverStation.silenceJoystickConnectionWarning(true);
+
     NamedCommands.registerCommand("RevShooter", m_shooter.runOnce(() -> m_shooter.setVelocity(4000)));
-    NamedCommands.registerCommand("RunFeederAndShoot", m_feeder.runOnce(() -> m_shooter.setVelocity(2000)));
+    NamedCommands.registerCommand("RunFeederAndShoot", m_feeder.runOnce(() -> m_feeder.setVelocity(2000)));
     NamedCommands.registerCommand("StopFeeder", m_feeder.runOnce(() -> m_feeder.stop()));
     NamedCommands.registerCommand("StopShooter", m_shooter.runOnce(() -> m_shooter.stop()));
     NamedCommands.registerCommand("ExtendIntake", m_intake.runOnce(() -> m_intake.setPivotPosition(IntakeConstants.kIntakeExtendedEncoderPosition)));
     NamedCommands.registerCommand("RunIntakeRoller", new RunIntakeInCommand(m_intake));
     
-    PathPlannerAuto auto1 = new PathPlannerAuto("LeftScoreToNeutralZone");
-    PathPlannerAuto auto2 = new PathPlannerAuto("RightScoreToNeutralZone");
-    PathPlannerAuto auto3 = new PathPlannerAuto("LeftStartToDepotToLeftScore");
+    PathPlannerAuto auto1 = new PathPlannerAuto("CenterStart-CenterScore");
+    PathPlannerAuto auto2 = new PathPlannerAuto("LeftScore-NeutralZone");
+    PathPlannerAuto auto3 = new PathPlannerAuto("LeftStart-Depot-LeftScore");
     PathPlannerAuto auto4 = new PathPlannerAuto("LeftStart-LeftScore-Depot-LeftScore");
-    PathPlannerAuto test = new PathPlannerAuto("test");
     pathAutoChooser = AutoBuilder.buildAutoChooser();
 
     autoChooser.setDefaultOption("Do Nothing", new WaitCommand(1));
@@ -105,7 +114,7 @@ public class RobotContainer
     m_robotDrive.setDefaultCommand(new DriveCommand(m_robotDrive,
         () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.leftStickY), OIConstants.kDriveDeadband),
         () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.leftStickX), OIConstants.kDriveDeadband),
-        () -> MathUtil.applyDeadband(-m_driverController.getRawAxis(OIConstants.rightStickX), OIConstants.kDriveDeadband),
+        () -> -MathUtil.applyDeadband(-m_driverController.getRawAxis(OIConstants.rightStickX), OIConstants.kDriveDeadband),
         () -> Constants.DriveConstants.kSlowSpeedMultiplier,
         () -> true));
 
@@ -113,44 +122,42 @@ public class RobotContainer
         .whileTrue(new DriveCommand(m_robotDrive, 
             () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.leftStickY), OIConstants.kDriveDeadband),
             () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.leftStickX), OIConstants.kDriveDeadband),
-            () -> MathUtil.applyDeadband(-m_driverController.getRawAxis(OIConstants.rightStickX), OIConstants.kDriveDeadband),
+            () -> -MathUtil.applyDeadband(-m_driverController.getRawAxis(OIConstants.rightStickX), OIConstants.kDriveDeadband),
             () -> Constants.DriveConstants.kFastSpeedMultiplier,
             () -> true));
 
-    
-    // Find and track April tag
-    /*
-    m_driverController.button(OIConstants.buttonA)
-        .whileTrue(new FindAndTrackTagCommand(m_robotDrive));
-    */
-    
-    // Sys Id Routines
-    /*
-    m_driverController.button(OIConstants.buttonA)
-        .whileTrue(m_feeder.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-
-    m_driverController.button(OIConstants.buttonB)
-        .whileTrue(m_feeder.sysIdDynamic(SysIdRoutine.Direction.kForward));
-
-    m_driverController.button(OIConstants.buttonX)
-        .whileTrue(m_feeder.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-
+    // Reset odometry
     m_driverController.button(OIConstants.buttonY)
-        .whileTrue(m_feeder.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-    */
+        .onTrue(m_robotDrive.runOnce(() -> m_robotDrive.resetHeading(90)));
     
-    // Shooter and feeder commands
-    m_manipulatorController.button(OIConstants.buttonA)
-        .onTrue(m_shooter.runOnce(() -> m_shooter.setVelocity(4000)));
+    // Move to closest scoring position
+    m_driverController.button(OIConstants.buttonA)
+        .whileTrue(new MoveToScorePosCommand(m_robotDrive));
 
-    m_manipulatorController.button(OIConstants.buttonB)
-        .onTrue(m_shooter.runOnce(m_shooter::stop));
+    // Set X formation
+    m_driverController.button(OIConstants.buttonX)
+        .whileTrue(new RunCommand(
+            () -> m_robotDrive.setX(),
+            m_robotDrive));
+    
+    // Run shooter
+    m_manipulatorController.axisGreaterThan(OIConstants.rightTrigger, 0.5)
+        .onTrue(new ShootFromScorePosCommand(m_shooter, m_robotDrive))
+        .onFalse(m_shooter.runOnce(() -> m_shooter.stop()));
+    
+    // Run feeder
+    m_manipulatorController.axisGreaterThan(OIConstants.leftTrigger, 0.5)
+        .onTrue(m_feeder.runOnce(() -> m_feeder.setVelocity(2000)))
+        .onFalse(m_feeder.runOnce(() -> m_feeder.stop()));
 
+    // Run intake
     m_manipulatorController.button(OIConstants.buttonX)
-        .onTrue(m_feeder.runOnce(() -> m_feeder.setVelocity(2000)));
+        .whileTrue(new RunIntakeInCommand(m_intake));
 
-    m_manipulatorController.button(OIConstants.buttonY)
-        .onTrue(m_feeder.runOnce(m_feeder::stop));
+    
+    m_intake.setDefaultCommand(new RunIntakePivotCommand(
+        m_intake,
+        () -> MathUtil.applyDeadband(m_manipulatorController.getRawAxis(OIConstants.rightStickY), 0.1)));
     
     /*
     // Extend Intake
@@ -165,20 +172,22 @@ public class RobotContainer
     m_driverController.button(OIConstants.bumperRight)
         .whileTrue(new RunIntakeInCommand(m_intake));
       */
-    // Set X formation
-    /*
-    m_driverController.button(OIConstants.buttonB)
-        .whileTrue(new RunCommand(
-            () -> m_robotDrive.setX(),
-            m_robotDrive));
-    */
+    
 
-    m_driverController.button(OIConstants.bumperLeft)
-        .whileTrue(new RunIntakePivotDownCommand(m_intake));
-    m_driverController.button(OIConstants.bumperRight)
-        .whileTrue(new RunIntakePivotUpCommand(m_intake));
+    // Sys Id Routines
+    /*
+    m_driverController.button(OIConstants.buttonA)
+        .whileTrue(m_feeder.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+
+    m_driverController.button(OIConstants.buttonB)
+        .whileTrue(m_feeder.sysIdDynamic(SysIdRoutine.Direction.kForward));
+
     m_driverController.button(OIConstants.buttonX)
-        .whileTrue(new RunIntakeInCommand(m_intake));
+        .whileTrue(m_feeder.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+
+    m_driverController.button(OIConstants.buttonY)
+        .whileTrue(m_feeder.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    */
   }
 
   /**
