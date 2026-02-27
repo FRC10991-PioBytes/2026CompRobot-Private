@@ -13,18 +13,6 @@
                 "data": {
                   "pathName": "LeftStart-Depot"
                 }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "ExtendIntake"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "RunIntakeRoller"
-                }
               }
             ]
           }
@@ -37,12 +25,6 @@
                 "type": "path",
                 "data": {
                   "pathName": "Depot-ShootPos1"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "RevShooter"
                 }
               }
             ]

@@ -64,6 +64,7 @@ public final class Configs
 
     public static final class Feeder {
         public static final SparkMaxConfig leaderConfig = new SparkMaxConfig();
+        public static final SparkMaxConfig agitatorConfig = new SparkMaxConfig();
 
         static {
                 leaderConfig
@@ -73,13 +74,18 @@ public final class Configs
                         .closedLoopRampRate(0.5);
                 leaderConfig.closedLoop
                         .pid(FeederConstants.kP, 0, FeederConstants.kD)
-                        .outputRange(-1, 1)
+                        .outputRange(-0.75, 0.75)
                         .feedForward
                                 .kS(FeederConstants.kStaticFF) // 0.002
                                 .kV(FeederConstants.kVelocityFF) // 0.00265
                                 .kA(FeederConstants.kAccelerationFF);
                 leaderConfig.closedLoop.maxMotion
                         .maxAcceleration(2000);
+
+                agitatorConfig
+                        .idleMode(IdleMode.kBrake)
+                        .smartCurrentLimit(40)
+                        .voltageCompensation(12);
 
         }
     }

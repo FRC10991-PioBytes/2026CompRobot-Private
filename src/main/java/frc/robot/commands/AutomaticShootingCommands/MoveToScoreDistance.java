@@ -1,4 +1,4 @@
-package frc.robot.commands.AprilTagCommands;
+package frc.robot.commands.AutomaticShootingCommands;
 
 import frc.robot.subsystems.DriveSubsystem;
 import edu.wpi.first.math.controller.PIDController;

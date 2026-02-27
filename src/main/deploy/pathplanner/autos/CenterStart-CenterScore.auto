@@ -11,20 +11,20 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "LeftStart-ShootPos1"
+                  "pathName": "CenterStart-ShootPos3"
                 }
               }
             ]
           }
         },
         {
-          "type": "deadline",
+          "type": "sequential",
           "data": {
             "commands": [
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 3.0
+                  "waitTime": 1.0
                 }
               },
               {
@@ -32,39 +32,33 @@
                 "data": {
                   "name": "RunFeederAndShoot"
                 }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 3.0
+                }
               }
             ]
           }
         },
         {
-          "type": "deadline",
+          "type": "parallel",
           "data": {
             "commands": [
               {
                 "type": "named",
                 "data": {
-                  "name": "StopFeeder"
+                  "name": "StopShooter"
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "RunIntakeRoller"
+                  "name": "StopFeeder"
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Depot-ShootPos1"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "RunFeederAndShoot"
           }
         }
       ]

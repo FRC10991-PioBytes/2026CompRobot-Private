@@ -15,12 +15,14 @@ public final class RunIntakeInCommand extends Command {
   public RunIntakeInCommand(IntakeSubsystem intake)
   {
     m_intake = intake;
+
+    addRequirements(m_intake);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    
+    System.out.println("Running rollers");
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -33,7 +35,7 @@ public final class RunIntakeInCommand extends Command {
   @Override
   public void end(boolean interrupted) {
     m_intake.stopRollers();
-    
+    System.out.println("Stopping rollers");
   }
 
   // Returns true when the command should end.

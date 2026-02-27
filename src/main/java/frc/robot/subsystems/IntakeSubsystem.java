@@ -132,6 +132,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     m_leaderPivotController.setSetpoint(targetAngle.getRadians(), ControlType.kMAXMotionPositionControl, ClosedLoopSlot.kSlot0);
     SmartDashboard.putNumber("Intake/Target (Rad)", targetAngle.getRadians());
+    System.out.println("Setting pivot target position to " + targetAngle.getDegrees() + " degrees");
   }
 
   public void stopPivot()

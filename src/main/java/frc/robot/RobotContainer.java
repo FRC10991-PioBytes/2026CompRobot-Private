@@ -128,7 +128,7 @@ public class RobotContainer
 
     // Reset odometry
     m_driverController.button(OIConstants.buttonY)
-        .onTrue(m_robotDrive.runOnce(() -> m_robotDrive.resetHeading(90)));
+        .onTrue(m_robotDrive.runOnce(() -> m_robotDrive.resetOdometryWithAprilTags()));
     
     // Move to closest scoring position
     m_driverController.button(OIConstants.buttonA)

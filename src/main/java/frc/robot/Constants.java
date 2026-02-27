@@ -6,7 +6,8 @@ package frc.robot;
 
 import java.util.ArrayList;
 import java.util.Collection;
-
+import java.util.Collections;
+import java.util.Comparator;
 
 import com.pathplanner.lib.config.RobotConfig;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -112,6 +113,7 @@ public final class Constants {
   public static final class FeederConstants {
     // CAN ID
     public static final int kLeftFeederCanId = 9;
+    public static final int kAgitatorCanId = 14;
 
     // Feed forward constants
     public static final double kStaticFF = 0.19906 / 60.0; // Divide by 60 to change from rps to rpm
@@ -179,33 +181,83 @@ public final class Constants {
   // All values are field centric from the blue origin in meters
   public static final class FieldConstants {
     
-    public static final Translation2d kBlueHUB = new Translation2d(4.625594, 4.034536);
-    public static final Translation2d kRedHUB = new Translation2d(11.915394, 4.034536);
+    public static final Pose2d kResetPosePosition = new Pose2d(2, 4.0345, new Rotation2d(0));
+
+    public static final Translation2d kBlueHUB = new Translation2d(4.6256, 4.0345);
+    public static final Translation2d kRedHUB = new Translation2d(11.9154, 4.0345);
+
+
+    public static final BlueScoringPosition kBlueLeftScoringPose1 = new BlueScoringPosition(2.061, 5.173, 4000);
+    public static final BlueScoringPosition kBlueLeftScoringPose2 = new BlueScoringPosition(1.76, 6, 4000);
+    public static final BlueScoringPosition kBlueLeftScoringPose3 = new BlueScoringPosition(3.083, 6.378, 4000);
+    public static final BlueScoringPosition kBlueLeftScoringPose4 = new BlueScoringPosition(1.5, 7.25, 4500);
+    public static final BlueScoringPosition kBlueLeftScoringPose5 = new BlueScoringPosition(1.175, 5.93, 4000);
+    public static final BlueScoringPosition kBlueLeftScoringPose6 = new BlueScoringPosition(2.67, 6.907, 4000);
+    
+    public static final BlueScoringPosition kBlueCenterScoringPose = new BlueScoringPosition(1.82, 4.0345, 4000);
+
+    public static final BlueScoringPosition kBlueRightScoringPose1 = new BlueScoringPosition(2.074, 2.868, 4000);
+    public static final BlueScoringPosition kBlueRightScoringPose2 = new BlueScoringPosition(1.776, 2.045, 4000);
+    public static final BlueScoringPosition kBlueRightScoringPose3 = new BlueScoringPosition(3.067, 1.701, 4000);
+    public static final BlueScoringPosition kBlueRightScoringPose4 = new BlueScoringPosition(1.484, 0.834, 1);
+    public static final BlueScoringPosition kBlueRightScoringPose5 = new BlueScoringPosition(1.19, 2.112, 4000);
+    public static final BlueScoringPosition kBlueRightScoringPose6 = new BlueScoringPosition(2.67, 1.162, 4000);
 
     
-    public static final BlueScoringPosition kBlueScorePose1 = new BlueScoringPosition(2.577, 5.98, 4000);
-    public static final BlueScoringPosition kBlueScorePose2 = new BlueScoringPosition(11.915394, 4.034536, 4000);
+    public static final RedScoringPosition kRedLeftScoringPose1 = new RedScoringPosition(14.467, 2.868, 4000);
+    public static final RedScoringPosition kRedLeftScoringPose2 = new RedScoringPosition(14.765, 2.045, 4000);
+    public static final RedScoringPosition kRedLeftScoringPose3 = new RedScoringPosition(13.474, 1.701, 4000);
+    public static final RedScoringPosition kRedLeftScoringPose4 = new RedScoringPosition(15.057, 0.834, 4500);
+    public static final RedScoringPosition kRedLeftScoringPose5 = new RedScoringPosition(15.351, 2.112, 4000);
+    public static final RedScoringPosition kRedLeftScoringPose6 = new RedScoringPosition(13.871, 1.162, 4000);
+
+    public static final RedScoringPosition kRedCenterScoringPose = new RedScoringPosition(14.721, 4.0345, 4000);
+
+    public static final RedScoringPosition kRedRightScoringPose1 = new RedScoringPosition(14.48, 5.173, 4000);
+    public static final RedScoringPosition kRedRightScoringPose2 = new RedScoringPosition(14.781, 6, 4000);
+    public static final RedScoringPosition kRedRightScoringPose3 = new RedScoringPosition(13.458, 6.378, 4000);
+    public static final RedScoringPosition kRedRightScoringPose4 = new RedScoringPosition(15.041, 7.25, 4500);
+    public static final RedScoringPosition kRedRightScoringPose5 = new RedScoringPosition(15.366, 5.93, 4000);
+    public static final RedScoringPosition kRedRightScoringPose6 = new RedScoringPosition(13.871, 6.907, 4000);
 
 
-    /** Represents a 2D pose pointed at the HUB with an RPM */
+    /** Represents a Blue 2D pose pointed at the Blue HUB with an RPM */
     public static class BlueScoringPosition {
       private Pose2d kScoringPose;
       private double kShooterRPM;
 
-      private static Collection<Pose2d> kBlueScoringPoses = new ArrayList<>();
+      private static ArrayList<Pose2d> kBlueScoringPoses = new ArrayList<>();
+      private static ArrayList<BlueScoringPosition> kBlueScoringPositions = new ArrayList<>();
       
       public BlueScoringPosition(double x, double y, double RPM)
       {
         Translation2d scoringTranslation = new Translation2d(x, y);
-        kScoringPose = new Pose2d(scoringTranslation, new Rotation2d(kBlueHUB.minus(scoringTranslation).getAngle().getRadians()));
+        kScoringPose = new Pose2d(scoringTranslation, kBlueHUB.minus(scoringTranslation).getAngle());
         kBlueScoringPoses.add(kScoringPose);
 
         kShooterRPM = RPM;
+
+        kBlueScoringPositions.add(this);
       }
       
-      public static Collection<Pose2d> getBlueScoringPoses()
+      public static ArrayList<Pose2d> getBlueScoringPoses()
       {
         return kBlueScoringPoses;
+      }
+
+      public static double getNearestRPM(Pose2d robotPose)
+      {
+        Pose2d closestPose = robotPose.nearest(kBlueScoringPoses);
+
+        for (int i = 0; i < kBlueScoringPoses.size(); i++)
+        {
+          if (kBlueScoringPoses.get(i).equals(closestPose))
+          {
+            return kBlueScoringPositions.get(i).getRPM();
+          }
+        }
+
+        return 0.0;
       }
 
       public Pose2d getPose2d()
@@ -227,20 +279,66 @@ public final class Constants {
       {
         return kShooterRPM;
       }
+    }
+
+    /** Represents a Red 2D pose pointed at the Red HUB with an RPM */
+    public static class RedScoringPosition {
+      private Pose2d kScoringPose;
+      private double kShooterRPM;
+
+      private static ArrayList<Pose2d> kRedScoringPoses = new ArrayList<>();
+      private static ArrayList<RedScoringPosition> kRedScoringPositions = new ArrayList<>();
       
-    }
+      public RedScoringPosition(double x, double y, double RPM)
+      {
+        Translation2d scoringTranslation = new Translation2d(x, y);
+        kScoringPose = new Pose2d(scoringTranslation, kRedHUB.minus(scoringTranslation).getAngle());
+        kRedScoringPoses.add(kScoringPose);
 
+        kShooterRPM = RPM;
 
-    public static final Pose2d getBlueScorePose(double x, double y)
-    {
-      Translation2d scoringTranslation = new Translation2d(x, y);
-      return new Pose2d(scoringTranslation, new Rotation2d(kBlueHUB.minus(scoringTranslation).getAngle().getRadians()));
-    }
+        kRedScoringPositions.add(this);
+      }
+      
+      public static ArrayList<Pose2d> getRedScoringPoses()
+      {
+        return kRedScoringPoses;
+      }
 
-    public static final Pose2d getRedScorePose(double x, double y)
-    {
-      Translation2d scoringTranslation = new Translation2d(x, y);
-      return new Pose2d(scoringTranslation, new Rotation2d(kRedHUB.minus(scoringTranslation).getAngle().getRadians()));
+      public static double getNearestRPM(Pose2d robotPose)
+      {
+        Pose2d closestPose = robotPose.nearest(kRedScoringPoses);
+
+        for (int i = 0; i < kRedScoringPoses.size(); i++)
+        {
+          if (kRedScoringPoses.get(i).equals(closestPose))
+          {
+            return kRedScoringPositions.get(i).getRPM();
+          }
+        }
+
+        return 0.0;
+      }
+
+      public Pose2d getPose2d()
+      {
+        return kScoringPose;
+      }
+
+      public Translation2d getTranslation2d()
+      {
+        return kScoringPose.getTranslation();
+      }
+
+      public Rotation2d getRotation2d()
+      {
+        return kScoringPose.getRotation();
+      }
+
+      public double getRPM()
+      {
+        return kShooterRPM;
+      }
     }
   }
 

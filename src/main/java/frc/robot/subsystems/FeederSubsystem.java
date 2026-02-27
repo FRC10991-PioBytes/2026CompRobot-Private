@@ -18,6 +18,7 @@ import edu.wpi.first.units.measure.MutAngle;
 import edu.wpi.first.units.measure.MutAngularVelocity;
 import edu.wpi.first.units.measure.MutVoltage;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -26,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 public class FeederSubsystem extends SubsystemBase {
 
   private final SparkMax m_leaderMotor;
+  private final SparkMax m_agitatorMotor;
 
   private SparkClosedLoopController m_leaderController;
 
@@ -50,6 +52,10 @@ public class FeederSubsystem extends SubsystemBase {
     m_leaderController = m_leaderMotor.getClosedLoopController();
 
     m_leaderMotor.configure(Feeder.leaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+    m_agitatorMotor = new SparkMax(FeederConstants.kAgitatorCanId, MotorType.kBrushless);
+
+    m_agitatorMotor.configure(Feeder.agitatorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     SmartDashboard.putNumber("Feeder/P", m_p);
     SmartDashboard.putNumber("Feeder/D", m_d);
@@ -81,6 +87,8 @@ public class FeederSubsystem extends SubsystemBase {
           this
         )
       );
+
+    setVelocity(0);
   }
 
   public void setVelocity(double rpm)
@@ -91,12 +99,15 @@ public class FeederSubsystem extends SubsystemBase {
       m_leaderController.setSetpoint(m_targetRPM, ControlType.kMAXMotionVelocityControl);
     }
     
+    System.out.println("Setting feeder target rpm to " + rpm);
   }
 
   public void stop()
   {
     m_targetRPM = 0;
     m_leaderMotor.stopMotor();
+    m_agitatorMotor.stopMotor();
+    System.out.println("Feeder stopped");
   }
 
   public boolean isAtSpeed(double tolerance)
@@ -114,6 +125,15 @@ public class FeederSubsystem extends SubsystemBase {
 
     SmartDashboard.putNumber("Feeder/Actual RPM: ", getActualVelocity());
     SmartDashboard.putNumber("Feeder/Applied Output: ", m_leaderMotor.getAppliedOutput());
+
+    if (m_targetRPM > 0)
+    {
+      m_agitatorMotor.set(-1);
+    }
+    else
+    {
+      m_agitatorMotor.stopMotor();
+    }
 
     //updateTunables();
 

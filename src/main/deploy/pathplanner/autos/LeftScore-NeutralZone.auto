@@ -5,15 +5,16 @@
     "data": {
       "commands": [
         {
-          "type": "named",
+          "type": "deadline",
           "data": {
-            "name": "RevShooter"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "LeftStart-ShootPos1"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "LeftStart-ShootPos1"
+                }
+              }
+            ]
           }
         },
         {

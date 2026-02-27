@@ -27,7 +27,9 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.LimelightHelpers;
@@ -131,9 +133,6 @@ public class DriveSubsystem extends SubsystemBase {
     
     resetOdometryWithAprilTags();
 
-    LimelightHelpers.SetIMUMode("limelight", 0);
-
-    
   }
 
   @Override
@@ -160,7 +159,7 @@ public class DriveSubsystem extends SubsystemBase {
 
     LimelightHelpers.SetRobotOrientation("limelight", this.getHeading(), 0, 0, 0, 0, 0);
     LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
-    field.setRobotPose(mt2.pose);
+    this.getField().getObject("mt2 pose").setPose(mt2.pose);
 
     /*
     SmartDashboard.putData("Drive/Swerve Drive", new Sendable() {
@@ -186,7 +185,7 @@ public class DriveSubsystem extends SubsystemBase {
     */
 
     Pose2d robotPose = getPose();
-    //field.setRobotPose(robotPose);
+    field.setRobotPose(robotPose);
     SmartDashboard.putData("Game Info/Field", field);
 
     //field.getObject("Blue scoring poses").setPoses(FieldConstants.BlueScoringPosition.getBlueScoringPoses());
@@ -200,7 +199,7 @@ public class DriveSubsystem extends SubsystemBase {
 
   public void updateOdometry() {
     m_poseEstimator.update(
-        Rotation2d.fromDegrees(this.getHeading()),
+        Rotation2d.fromDegrees(this.getHeading() - m_angleOffset),
         new SwerveModulePosition[] {
             m_frontLeft.getPosition(),
             m_frontRight.getPosition(),
@@ -220,7 +219,7 @@ public class DriveSubsystem extends SubsystemBase {
       }
       if (!doRejectUpdate)
       {
-        m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(99999, 99999, 999999));
+        m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(1, 1, 999999));
         m_poseEstimator.addVisionMeasurement(
           mt2.pose, 
           mt2.timestampSeconds);
@@ -268,6 +267,8 @@ public class DriveSubsystem extends SubsystemBase {
             m_rearRight.getPosition()
         },
         pose);
+
+    //m_poseEstimator.resetRotation(pose.getRotation());
   }
 
   public void resetOdometryWithAprilTags() {
@@ -307,18 +308,37 @@ public class DriveSubsystem extends SubsystemBase {
     double ySpeedDelivered = ySpeed * DriveConstants.kMaxSpeedMetersPerSecond * speedMult;
     double rotDelivered = rot * DriveConstants.kMaxAngularSpeed * speedMult;
     
-    var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
+    if (DriverStation.getAlliance().get() == Alliance.Red) {
+      var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
+        fieldRelative
+            ? ChassisSpeeds.fromFieldRelativeSpeeds(-xSpeedDelivered, -ySpeedDelivered, rotDelivered,
+                Rotation2d.fromDegrees(this.getHeading()))
+            : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
+
+      SwerveDriveKinematics.desaturateWheelSpeeds(
+        swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);
+        m_frontLeft.setDesiredState(swerveModuleStates[0]);
+        m_frontRight.setDesiredState(swerveModuleStates[1]);
+        m_rearLeft.setDesiredState(swerveModuleStates[2]);
+        m_rearRight.setDesiredState(swerveModuleStates[3]);
+    }
+    else {
+      var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
         fieldRelative
             ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered,
                 Rotation2d.fromDegrees(this.getHeading()))
             : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
 
-    SwerveDriveKinematics.desaturateWheelSpeeds(
+      SwerveDriveKinematics.desaturateWheelSpeeds(
         swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);
-    m_frontLeft.setDesiredState(swerveModuleStates[0]);
-    m_frontRight.setDesiredState(swerveModuleStates[1]);
-    m_rearLeft.setDesiredState(swerveModuleStates[2]);
-    m_rearRight.setDesiredState(swerveModuleStates[3]);
+        m_frontLeft.setDesiredState(swerveModuleStates[0]);
+        m_frontRight.setDesiredState(swerveModuleStates[1]);
+        m_rearLeft.setDesiredState(swerveModuleStates[2]);
+        m_rearRight.setDesiredState(swerveModuleStates[3]);
+    }
+    
+
+    
   }
 
   public void stop()

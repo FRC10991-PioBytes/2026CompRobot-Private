@@ -70,6 +70,14 @@ public class SwerveModule {
     return m_drivingSpark;
   }
 
+  public Rotation2d getAngle() {
+    return getState().angle;
+  }
+
+  public double getVelocity() {
+    return getState().speedMetersPerSecond;
+  }
+
   /**
    * Returns the current state of the module.
    *
