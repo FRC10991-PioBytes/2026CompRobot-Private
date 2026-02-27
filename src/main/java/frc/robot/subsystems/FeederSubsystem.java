@@ -17,8 +17,6 @@ import edu.wpi.first.units.*;
 import edu.wpi.first.units.measure.MutAngle;
 import edu.wpi.first.units.measure.MutAngularVelocity;
 import edu.wpi.first.units.measure.MutVoltage;
-import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -38,12 +36,6 @@ public class FeederSubsystem extends SubsystemBase {
   private double m_ff = 0;
   private double m_targetRPM = 0;
 
-  private final MutVoltage m_appliedVoltage = new MutVoltage(0.0, 0.0, Units.Volts);
-  private final MutAngle m_angle = new MutAngle(0, 0, Units.Revolutions); // Revolutions
-  private final MutAngularVelocity m_velocity = new MutAngularVelocity(0, 0, Units.Revolutions.per(Units.Minute)); // RPM
-  private final SysIdRoutine m_sysIdRoutine;
-
-
   /** Creates a new DriveSubsystem. */
   public FeederSubsystem() {
     
@@ -57,36 +49,7 @@ public class FeederSubsystem extends SubsystemBase {
 
     m_agitatorMotor.configure(Feeder.agitatorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-    SmartDashboard.putNumber("Feeder/P", m_p);
-    SmartDashboard.putNumber("Feeder/D", m_d);
-    SmartDashboard.putNumber("Feeder/Feed Forward", m_ff);
     SmartDashboard.putNumber("Feeder/Target RPM", 0);
-
-    m_sysIdRoutine =
-      new SysIdRoutine(
-        // Config
-        new SysIdRoutine.Config(Units.Volts.per(Units.Seconds).of(1), Units.Volts.of(7), Units.Seconds.of(7)),
-
-        // Mechanism
-        new SysIdRoutine.Mechanism(
-          (voltage) -> m_leaderMotor.setVoltage(voltage),
-          (log) -> {
-            log.motor("shooter")
-              .voltage(
-                m_appliedVoltage.mut_replace(
-                  m_leaderMotor.getAppliedOutput() * RobotController.getBatteryVoltage(), Units.Volts
-                )
-              )
-              .angularPosition(
-                m_angle.mut_replace(m_leaderMotor.getEncoder().getPosition(), Units.Revolutions)
-              )
-              .angularVelocity(
-                m_velocity.mut_replace(m_leaderMotor.getEncoder().getVelocity(), Units.Revolutions.per(Units.Minute))
-              );
-          },
-          this
-        )
-      );
 
     setVelocity(0);
   }
@@ -126,7 +89,7 @@ public class FeederSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Feeder/Actual RPM: ", getActualVelocity());
     SmartDashboard.putNumber("Feeder/Applied Output: ", m_leaderMotor.getAppliedOutput());
 
-    if (m_targetRPM > 0)
+    if (m_targetRPM != 0)
     {
       m_agitatorMotor.set(-1);
     }
@@ -134,47 +97,6 @@ public class FeederSubsystem extends SubsystemBase {
     {
       m_agitatorMotor.stopMotor();
     }
-
-    //updateTunables();
-
   }
 
-  private void updateTunables() {
-    double readP = SmartDashboard.getNumber("Feeder/P", m_p);
-    double readD = SmartDashboard.getNumber("Feeder/D", m_d);
-    double readFF = SmartDashboard.getNumber("Feeder/Feed Forward", m_ff);
-    double readTarget = SmartDashboard.getNumber("Feeder/Target RPM", m_targetRPM);
-
-    // check if PID constants changed
-    if (readP != m_p || readD != m_d || readFF != m_ff) {
-      m_p = readP;
-      m_d = readD;
-      m_ff = readFF;
-
-      // Update the local config object
-      m_leaderConfig.closedLoop
-          .p(m_p)
-          .d(m_d)
-          .feedForward.kV(m_ff);
-
-      // Apply ALL changes at once (Batch update)
-      // Use kNoResetSafeParameters so we don't wipe the current limit/coast mode
-      m_leaderMotor.configure(m_leaderConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
-    }
-
-    // check if Target Velocity changed via dashboard
-    if (readTarget != m_targetRPM) {
-      System.out.println("Feeder Target set -------------------------------------------------------");
-      setVelocity(readTarget);
-    }
-  }
-
-  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-    return m_sysIdRoutine.quasistatic(direction);
-  }
-
-  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-    return m_sysIdRoutine.dynamic(direction);
-  }
-  
 }

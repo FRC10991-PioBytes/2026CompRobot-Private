@@ -83,7 +83,7 @@ public final class Configs
                         .maxAcceleration(2000);
 
                 agitatorConfig
-                        .idleMode(IdleMode.kBrake)
+                        .idleMode(IdleMode.kCoast)
                         .smartCurrentLimit(40)
                         .voltageCompensation(12);
 

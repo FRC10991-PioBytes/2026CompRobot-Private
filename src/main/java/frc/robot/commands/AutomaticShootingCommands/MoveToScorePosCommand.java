@@ -119,7 +119,15 @@ public class MoveToScorePosCommand extends Command {
 
             // 7. Drive Command
             // fieldRelative = true, so these X/Y values are treated as Field X/Y
-            m_drive.drive(xSpeed, ySpeed, rotSpeed, 1, false);
+            if (DriverStation.getAlliance().get() == Alliance.Red)
+            {
+                m_drive.drive(-xSpeed, -ySpeed, rotSpeed, 1, true);
+            }
+            else
+            {
+                m_drive.drive(xSpeed, ySpeed, rotSpeed, 1, true);
+            }
+            
         }
     }
 

@@ -13,15 +13,9 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Configs.Shooter;
-import edu.wpi.first.units.*;
-import edu.wpi.first.units.measure.MutAngle;
-import edu.wpi.first.units.measure.MutAngularVelocity;
-import edu.wpi.first.units.measure.MutVoltage;
-import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 public class ShooterSubsystem extends SubsystemBase {
 
@@ -32,16 +26,16 @@ public class ShooterSubsystem extends SubsystemBase {
 
   private SparkMaxConfig m_leaderConfig = new SparkMaxConfig();
 
-  private double m_p = 0.00005;
-  private double m_d = 0.00001;
   private double m_targetRPM = 0;
 
   private double m_gearRatio = (double) 23 / 18;
 
+  /*
   private final MutVoltage m_appliedVoltage = new MutVoltage(0.0, 0.0, Units.Volts);
   private final MutAngle m_angle = new MutAngle(0, 0, Units.Revolutions); // Revolutions
   private final MutAngularVelocity m_velocity = new MutAngularVelocity(0, 0, Units.Revolutions.per(Units.Minute)); // RPM
   private final SysIdRoutine m_sysIdRoutine;
+  */
     
 
   /** Creates a new DriveSubsystem. */
@@ -53,7 +47,8 @@ public class ShooterSubsystem extends SubsystemBase {
     m_leaderController = m_leaderMotor.getClosedLoopController();
 
     configureMotors();
-
+    
+    /*
     m_sysIdRoutine =
       new SysIdRoutine(
         // Config
@@ -79,12 +74,10 @@ public class ShooterSubsystem extends SubsystemBase {
           this
         )
       );
+    */
     
     setVelocity(0);
 
-    SmartDashboard.putNumber("Shooter/P", m_p);
-    SmartDashboard.putNumber("Shooter/D", m_d);
-    SmartDashboard.putNumber("Shooter/Target RPM (Input)", 0);
   }
 
   private void configureMotors() {
@@ -123,48 +116,17 @@ public class ShooterSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
 
-    SmartDashboard.putNumber("Shooter/Input Shaft RPM: ", getActualVelocity());
-    SmartDashboard.putNumber("Shooter/Output Shaft RPM", getActualVelocity() * m_gearRatio);
-    SmartDashboard.putNumber("Shooter/Applied Output: ", m_leaderMotor.getAppliedOutput());
-
-    //updateTunables();
-
+    SmartDashboard.putData("Shooter", this);
   }
 
-  private void updateTunables() {
-    double readP = SmartDashboard.getNumber("Shooter/P", m_p);
-    double readD = SmartDashboard.getNumber("Shooter/D", m_d);
-    double readTarget = SmartDashboard.getNumber("Shooter/Target RPM (Input)", m_targetRPM);
+  @Override
+  public void initSendable(SendableBuilder builder) {
+    builder.setSmartDashboardType("Shooter");
 
-    // check if PID constants changed
-    if (readP != m_p || readD != m_d) {
-      m_p = readP;
-      m_d = readD;
+    builder.addDoubleProperty("Input Shaft RPM", () -> getActualVelocity(), null);
+    builder.addDoubleProperty("Output Shaft RPM", () -> getActualVelocity() * m_gearRatio, null);
+    builder.addDoubleProperty("Shooter Setpoint", () -> m_targetRPM, null);
+    builder.addBooleanProperty("Within 50 RPM", () -> isAtSpeed(50.0), null);
 
-      
-      // Update the local config object
-      m_leaderConfig.closedLoop
-          .p(m_p)
-          .d(m_d);
-
-      // Apply ALL changes at once (Batch update)
-      // Use kNoResetSafeParameters so we don't wipe the current limit/coast mode
-      m_leaderMotor.configure(m_leaderConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
-      
-    }
-
-    // check if Target Velocity changed via dashboard
-    if (readTarget != m_targetRPM) {
-      setVelocity(readTarget);
-    }
   }
-
-  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-    return m_sysIdRoutine.quasistatic(direction);
-  }
-
-  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-    return m_sysIdRoutine.dynamic(direction);
-  }
-
 }

@@ -117,7 +117,7 @@ public final class Constants {
 
     // Feed forward constants
     public static final double kStaticFF = 0.19906 / 60.0; // Divide by 60 to change from rps to rpm
-    public static final double kVelocityFF = 0.12557 / 60.0;
+    public static final double kVelocityFF = 0.126 / 60.0;
     public static final double kAccelerationFF = 0.015522 / 60.0;
 
     // PID constants
