@@ -17,8 +17,8 @@ public class MoveToScorePosCommand extends Command {
     private final DriveSubsystem m_drive;
 
     // PID Gains
-    private final PIDController m_rangePID = new PIDController(0.5, 0, 0); 
-    private final PIDController m_rotPID = new PIDController(0.015, 0, 0);
+    private final PIDController m_rangePID = new PIDController(2, 0, 0); 
+    private final PIDController m_rotPID = new PIDController(0.035, 0, 0);
 
     // Allowed Blue side AprilTag IDs for the HUB
     private final Set<Double> VALID_TAG_IDS = Set.of(24.0, 25.0, 26.0, 27.0);
@@ -39,7 +39,7 @@ public class MoveToScorePosCommand extends Command {
         m_drive = drive;
         addRequirements(m_drive);
         
-        m_rangePID.setTolerance(0.1);
+        m_rangePID.setTolerance(0.05);
 
         m_rotPID.enableContinuousInput(-180, 180);
         m_rotPID.setTolerance(1.0); 
@@ -77,7 +77,12 @@ public class MoveToScorePosCommand extends Command {
         // A) The robot is on the blue side of the field
         if (robotPose.getX() < FieldConstants.kBlueHUB.getX() || robotPose.getX() > FieldConstants.kRedHUB.getX()) {
 
-            Pose2d closestScoringPose = robotPose.nearest(FieldConstants.BlueScoringPosition.getBlueScoringPoses());
+            if (DriverStation.getAlliance().get() == Alliance.Blue) {
+                closestScoringPose = m_drive.getPose().nearest(FieldConstants.BlueScoringPosition.getBlueScoringPoses());
+            }
+            else if (DriverStation.getAlliance().get() == Alliance.Red) {
+                closestScoringPose = m_drive.getPose().nearest(FieldConstants.RedScoringPosition.getRedScoringPoses());
+            }
             
             // ---------------------------------------------------------
             // FIELD-CENTRIC VECTOR MATH
@@ -85,6 +90,8 @@ public class MoveToScorePosCommand extends Command {
 
             // Vector from robot to scoring position
             Translation2d robotToScoringPositionVector = closestScoringPose.getTranslation().minus(robotPose.getTranslation());
+            SmartDashboard.putNumber("X Robot to Scoring Pos", robotToScoringPositionVector.getX());
+            SmartDashboard.putNumber("Y Robot to Scoring Pos", robotToScoringPositionVector.getY());
 
             // Distance to scoring position
             double distanceToScoringPosition = robotToScoringPositionVector.getNorm();
@@ -96,13 +103,13 @@ public class MoveToScorePosCommand extends Command {
                 if (!m_rangePID.atSetpoint()) 
                 {
                     // Positive value from PID = move backwards
-                    approachSpeed = m_rangePID.calculate(distanceToScoringPosition, 0);
+                    approachSpeed = -m_rangePID.calculate(distanceToScoringPosition, 0);
                 }
 
                 // Rotation Speed
                 if (!m_rotPID.atSetpoint()) 
                 {
-                    rotSpeed = m_rotPID.calculate(robotPose.getRotation().getDegrees(), closestScoringPose.getRotation().getDegrees());
+                    rotSpeed = -m_rotPID.calculate(robotPose.getRotation().getDegrees(), closestScoringPose.getRotation().getDegrees());
                 }
 
                 // 6. Calculate Field-Centric Velocities
@@ -117,11 +124,14 @@ public class MoveToScorePosCommand extends Command {
             lastY = ySpeed;
             lastRot = rotSpeed;
 
+            SmartDashboard.putNumber("X speed", xSpeed);
+            SmartDashboard.putNumber("Y speed", ySpeed);
+            SmartDashboard.putNumber("Rotation", rotSpeed);
             // 7. Drive Command
             // fieldRelative = true, so these X/Y values are treated as Field X/Y
-            if (DriverStation.getAlliance().get() == Alliance.Red)
+            if (m_rangePID.atSetpoint() && m_rotPID.atSetpoint())
             {
-                m_drive.drive(-xSpeed, -ySpeed, rotSpeed, 1, true);
+                m_drive.setX();
             }
             else
             {

@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.LimelightHelpers;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.FieldConstants;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class DriveSubsystem extends SubsystemBase {
@@ -105,7 +106,6 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     zeroHeading();
-
 
     m_poseEstimator = new SwerveDrivePoseEstimator(
       DriveConstants.kDriveKinematics, 
@@ -271,7 +271,7 @@ public class DriveSubsystem extends SubsystemBase {
     if (DriverStation.getAlliance().get() == Alliance.Red) {
       var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
         fieldRelative
-            ? ChassisSpeeds.fromFieldRelativeSpeeds(-xSpeedDelivered, -ySpeedDelivered, rotDelivered,
+            ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, -rotDelivered,
                 Rotation2d.fromDegrees(this.getHeading()))
             : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
 

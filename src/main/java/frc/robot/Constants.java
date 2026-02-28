@@ -36,8 +36,8 @@ public final class Constants {
     public static final double kMaxSpeedMetersPerSecond = 4.8;
     public static final double kMaxAngularSpeed = 2 * Math.PI; // radians per second
 
-    public static final double kFastSpeedMultiplier = 0.75;
-    public static final double kSlowSpeedMultiplier = 0.4;
+    public static final double kFastSpeedMultiplier = 1;
+    public static final double kSlowSpeedMultiplier = 0.75;
     
 
     // Chassis configuration
@@ -187,38 +187,42 @@ public final class Constants {
     public static final Translation2d kRedHUB = new Translation2d(11.9154, 4.0345);
 
 
+    // Blue Scoring Positions
     public static final BlueScoringPosition kBlueLeftScoringPose1 = new BlueScoringPosition(2.061, 5.173, 4000);
-    public static final BlueScoringPosition kBlueLeftScoringPose2 = new BlueScoringPosition(1.76, 6, 4000);
+    public static final BlueScoringPosition kBlueLeftScoringPose2 = new BlueScoringPosition(1.76, 6, 4200);
     public static final BlueScoringPosition kBlueLeftScoringPose3 = new BlueScoringPosition(3.083, 6.378, 4000);
-    public static final BlueScoringPosition kBlueLeftScoringPose4 = new BlueScoringPosition(1.5, 7.25, 4500);
-    public static final BlueScoringPosition kBlueLeftScoringPose5 = new BlueScoringPosition(1.175, 5.93, 4000);
-    public static final BlueScoringPosition kBlueLeftScoringPose6 = new BlueScoringPosition(2.67, 6.907, 4000);
+    public static final BlueScoringPosition kBlueLeftScoringPose4 = new BlueScoringPosition(1.5, 7.25, 5600);
+    public static final BlueScoringPosition kBlueLeftScoringPose5 = new BlueScoringPosition(1.175, 5.93, 4700);
+    public static final BlueScoringPosition kBlueLeftScoringPose6 = new BlueScoringPosition(2.67, 6.907, 4200);
     
-    public static final BlueScoringPosition kBlueCenterScoringPose = new BlueScoringPosition(1.82, 4.0345, 4000);
+    public static final BlueScoringPosition kBlueCenterScoringPose1 = new BlueScoringPosition(1.82, 4.0345, 4000);
+    public static final BlueScoringPosition kBlueCenterScoringPose2 = new BlueScoringPosition(3.04, 4.0345, 3500);
 
     public static final BlueScoringPosition kBlueRightScoringPose1 = new BlueScoringPosition(2.074, 2.868, 4000);
-    public static final BlueScoringPosition kBlueRightScoringPose2 = new BlueScoringPosition(1.776, 2.045, 4000);
+    public static final BlueScoringPosition kBlueRightScoringPose2 = new BlueScoringPosition(1.776, 2.045, 4200);
     public static final BlueScoringPosition kBlueRightScoringPose3 = new BlueScoringPosition(3.067, 1.701, 4000);
-    public static final BlueScoringPosition kBlueRightScoringPose4 = new BlueScoringPosition(1.484, 0.834, 1);
-    public static final BlueScoringPosition kBlueRightScoringPose5 = new BlueScoringPosition(1.19, 2.112, 4000);
-    public static final BlueScoringPosition kBlueRightScoringPose6 = new BlueScoringPosition(2.67, 1.162, 4000);
+    public static final BlueScoringPosition kBlueRightScoringPose4 = new BlueScoringPosition(1.484, 0.834, 5600);
+    public static final BlueScoringPosition kBlueRightScoringPose5 = new BlueScoringPosition(1.19, 2.112, 4700);
+    public static final BlueScoringPosition kBlueRightScoringPose6 = new BlueScoringPosition(2.67, 1.162, 4200);
 
     
+    // Red Scoring positions
     public static final RedScoringPosition kRedLeftScoringPose1 = new RedScoringPosition(14.467, 2.868, 4000);
-    public static final RedScoringPosition kRedLeftScoringPose2 = new RedScoringPosition(14.765, 2.045, 4000);
+    public static final RedScoringPosition kRedLeftScoringPose2 = new RedScoringPosition(14.765, 2.045, 4200);
     public static final RedScoringPosition kRedLeftScoringPose3 = new RedScoringPosition(13.474, 1.701, 4000);
-    public static final RedScoringPosition kRedLeftScoringPose4 = new RedScoringPosition(15.057, 0.834, 4500);
-    public static final RedScoringPosition kRedLeftScoringPose5 = new RedScoringPosition(15.351, 2.112, 4000);
-    public static final RedScoringPosition kRedLeftScoringPose6 = new RedScoringPosition(13.871, 1.162, 4000);
-
-    public static final RedScoringPosition kRedCenterScoringPose = new RedScoringPosition(14.721, 4.0345, 4000);
+    public static final RedScoringPosition kRedLeftScoringPose4 = new RedScoringPosition(15.057, 0.834, 5600);
+    public static final RedScoringPosition kRedLeftScoringPose5 = new RedScoringPosition(15.351, 2.112, 4700);
+    public static final RedScoringPosition kRedLeftScoringPose6 = new RedScoringPosition(13.871, 1.162, 4200);
+    
+    public static final RedScoringPosition kRedCenterScoringPose1 = new RedScoringPosition(14.721, 4.0345, 4000);
+    public static final RedScoringPosition kRedCenterScoringPose2 = new RedScoringPosition(13.75, 4.0345, 3500);
 
     public static final RedScoringPosition kRedRightScoringPose1 = new RedScoringPosition(14.48, 5.173, 4000);
-    public static final RedScoringPosition kRedRightScoringPose2 = new RedScoringPosition(14.781, 6, 4000);
+    public static final RedScoringPosition kRedRightScoringPose2 = new RedScoringPosition(14.781, 6, 4200);
     public static final RedScoringPosition kRedRightScoringPose3 = new RedScoringPosition(13.458, 6.378, 4000);
-    public static final RedScoringPosition kRedRightScoringPose4 = new RedScoringPosition(15.041, 7.25, 4500);
-    public static final RedScoringPosition kRedRightScoringPose5 = new RedScoringPosition(15.366, 5.93, 4000);
-    public static final RedScoringPosition kRedRightScoringPose6 = new RedScoringPosition(13.871, 6.907, 4000);
+    public static final RedScoringPosition kRedRightScoringPose4 = new RedScoringPosition(15.041, 7.25, 5600);
+    public static final RedScoringPosition kRedRightScoringPose5 = new RedScoringPosition(15.366, 5.93, 4700);
+    public static final RedScoringPosition kRedRightScoringPose6 = new RedScoringPosition(13.871, 6.907, 4200);
 
 
     /** Represents a Blue 2D pose pointed at the Blue HUB with an RPM */

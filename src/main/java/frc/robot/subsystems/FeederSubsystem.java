@@ -65,6 +65,11 @@ public class FeederSubsystem extends SubsystemBase {
     System.out.println("Setting feeder target rpm to " + rpm);
   }
 
+  public void runAgitator(double speed)
+  {
+    m_agitatorMotor.set(speed);
+  }
+
   public void stop()
   {
     m_targetRPM = 0;
