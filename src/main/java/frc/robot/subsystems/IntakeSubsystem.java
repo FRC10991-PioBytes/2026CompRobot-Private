@@ -10,7 +10,6 @@ import com.revrobotics.ResetMode;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -23,17 +22,15 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class IntakeSubsystem extends SubsystemBase {
   
-  private final SparkMax m_leftRollerMotor;
-  private final SparkMax m_rightRollerMotor;
+  private final SparkMax m_leaderRollerMotor;
 
-  private final SparkMax m_leftPivotMotor;
-  private final SparkMax m_rightPivotMotor;
+  private final SparkMax m_leaderPivotMotor;
 
-  private final SparkClosedLoopController m_leftController;
+  private final SparkClosedLoopController m_leaderPivotController;
 
-  private SparkMaxConfig m_leftPivotConfig = new SparkMaxConfig();
+  private SparkMaxConfig m_leaderPivotConfig = new SparkMaxConfig();
 
-  private final AbsoluteEncoder m_leftEncoder;
+  private final AbsoluteEncoder m_leaderEncoder;
 
   private Rotation2d m_desiredAngle = new Rotation2d(0);
 
@@ -44,36 +41,23 @@ public class IntakeSubsystem extends SubsystemBase {
 
   /** Creates a new DriveSubsystem. */
   public IntakeSubsystem() {
-    // Roller motors
-    m_leftRollerMotor = new SparkMax(IntakeConstants.kLeftRollerCanId, MotorType.kBrushless);
-    m_rightRollerMotor = new SparkMax(IntakeConstants.kRightRollerCanId, MotorType.kBrushless);
+    // Roller motor
+    m_leaderRollerMotor = new SparkMax(IntakeConstants.kLeaderRollerCanId, MotorType.kBrushless);
     
-    m_leftRollerMotor.configure(Configs.Intake.leftRollerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    m_rightRollerMotor.configure(Configs.Intake.rightRollerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    m_leaderRollerMotor.configure(Configs.Intake.leaderRollerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-    // Pivot motors
-    m_leftPivotMotor = new SparkMax(IntakeConstants.kLeftPivotCanId, MotorType.kBrushless);
-    m_rightPivotMotor = new SparkMax(IntakeConstants.kRightPivotCanId, MotorType.kBrushless);
+    // Pivot motor
+    m_leaderPivotMotor = new SparkMax(IntakeConstants.kLeaderPivotCanId, MotorType.kBrushless);
 
-    m_leftEncoder = m_leftPivotMotor.getAbsoluteEncoder();
+    m_leaderEncoder = m_leaderPivotMotor.getAbsoluteEncoder();
 
-    m_leftController = m_leftPivotMotor.getClosedLoopController();
+    m_leaderPivotController = m_leaderPivotMotor.getClosedLoopController();
 
-    m_leftPivotConfig
-      .idleMode(IdleMode.kCoast)
-      .smartCurrentLimit(40)
-      .voltageCompensation(12)
-      .closedLoopRampRate(0.5)
-      .closedLoop.outputRange(-1, 1);
+    m_leaderPivotConfig.apply(Configs.Intake.leaderPivotConfig);
 
-    m_leftPivotConfig.absoluteEncoder
-      .positionConversionFactor(2 * Math.PI)
-      .velocityConversionFactor(2 * Math.PI / 60);
+    m_leaderPivotMotor.configure(Configs.Intake.leaderPivotConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-    m_leftPivotMotor.configure(Configs.Intake.leftPivotConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    m_rightPivotMotor.configure(Configs.Intake.rightPivotConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-    m_desiredAngle = new Rotation2d(m_leftEncoder.getPosition());
+    m_desiredAngle = new Rotation2d(m_leaderEncoder.getPosition());
 
     SmartDashboard.putNumber("Intake/Pivot/P", m_p);
     SmartDashboard.putNumber("Intake/Pivot/D", m_d);
@@ -87,10 +71,15 @@ public class IntakeSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Intake/Setpoint (Deg)", m_desiredAngle.getDegrees());
     SmartDashboard.putNumber("Intake/Current Angle (Rad)", getPivotRotation2d().getRadians());
     SmartDashboard.putNumber("Intake/Setpoint (Rad)", m_desiredAngle.getRadians());
-    SmartDashboard.putNumber("Intake/Pivot Applied Output", m_leftPivotMotor.getAppliedOutput());
-    SmartDashboard.putNumber("Intake/Pivot Output Current", m_leftPivotMotor.getOutputCurrent());
+    SmartDashboard.putNumber("Intake/Pivot Applied Output", m_leaderPivotMotor.getAppliedOutput());
+    SmartDashboard.putNumber("Intake/Pivot Output Current", m_leaderPivotMotor.getOutputCurrent());
 
-    updateTunables();
+    //updateTunables();
+  }
+
+  public void runPivot(double speed)
+  {
+    m_leaderPivotMotor.set(speed);
   }
 
   private void updateTunables()
@@ -107,14 +96,14 @@ public class IntakeSubsystem extends SubsystemBase {
       m_ff = readFF;
 
       // Update the local config object
-      m_leftPivotConfig.closedLoop
+      m_leaderPivotConfig.closedLoop
           .p(m_p)
           .d(m_d)
           .feedForward.kV(m_ff);
 
       // Apply ALL changes at once (Batch update)
       // Use kNoResetSafeParameters so we don't wipe the current limit/coast mode
-      m_leftPivotMotor.configure(m_leftPivotConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+      m_leaderPivotMotor.configure(m_leaderPivotConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
     }
 
     if (readTarget != m_desiredAngle.getRadians()) {
@@ -124,36 +113,31 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public void runRollers(double speed)
   {
-    if (Math.abs(speed) < 1)
-    {
-      m_leftRollerMotor.set(speed);
-    }
+      m_leaderRollerMotor.set(speed);
   }
 
   public void stopRollers()
   {
-    m_leftRollerMotor.stopMotor();
+    m_leaderRollerMotor.stopMotor();
   }
 
   public Rotation2d getPivotRotation2d()
   {
-    return new Rotation2d(m_leftEncoder.getPosition());
+    return new Rotation2d(m_leaderEncoder.getPosition());
   }
 
-  
   public void setPivotPosition(Rotation2d targetAngle)
   {
     m_desiredAngle = new Rotation2d(targetAngle.getRadians());
-    //double targetRadians = targetAngle.getRadians();
 
-    //double feedForwardVolts = kArmGravityVoltage * Math.cos(targetRadians);
-
-    m_leftController.setSetpoint(targetAngle.getRadians(), ControlType.kMAXMotionPositionControl, ClosedLoopSlot.kSlot0);
+    m_leaderPivotController.setSetpoint(targetAngle.getRadians(), ControlType.kMAXMotionPositionControl, ClosedLoopSlot.kSlot0);
     SmartDashboard.putNumber("Intake/Target (Rad)", targetAngle.getRadians());
+    System.out.println("Setting pivot target position to " + targetAngle.getDegrees() + " degrees");
   }
 
   public void stopPivot()
   {
-    m_leftPivotMotor.stopMotor();
+    m_desiredAngle = new Rotation2d(m_leaderEncoder.getPosition());
+    setPivotPosition(m_desiredAngle);
   }
 }

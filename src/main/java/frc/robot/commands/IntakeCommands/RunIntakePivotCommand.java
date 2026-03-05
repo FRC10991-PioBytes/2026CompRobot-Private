@@ -4,17 +4,20 @@
 
 package frc.robot.commands.IntakeCommands;
 
+import java.util.function.DoubleSupplier;
+
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants;
 import frc.robot.subsystems.IntakeSubsystem;
 
 
-public final class RunIntakeInCommand extends Command {
+public final class RunIntakePivotCommand extends Command {
   private IntakeSubsystem m_intake;
+  private DoubleSupplier m_power;
 
-  public RunIntakeInCommand(IntakeSubsystem intake)
+  public RunIntakePivotCommand(IntakeSubsystem intake, DoubleSupplier power)
   {
     m_intake = intake;
+    m_power = power;
 
     addRequirements(m_intake);
   }
@@ -22,20 +25,19 @@ public final class RunIntakeInCommand extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    System.out.println("Running rollers in");
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_intake.runRollers(Constants.IntakeConstants.kIntakeInSpeed);
+    m_intake.runPivot(m_power.getAsDouble());
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_intake.stopRollers();
-    System.out.println("Stopping rollers");
+    m_intake.stopPivot();
+    
   }
 
   // Returns true when the command should end.

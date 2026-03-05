@@ -10,48 +10,36 @@ import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.SparkMaxConfig;
 import frc.robot.Constants.FeederConstants;
 import frc.robot.Configs.Feeder;
-
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class FeederSubsystem extends SubsystemBase {
 
   private final SparkMax m_leaderMotor;
-  private final SparkMax m_rightMotor;
+  //private final SparkMax m_agitatorMotor;
 
   private SparkClosedLoopController m_leaderController;
 
-  private SparkMaxConfig m_leaderConfig = new SparkMaxConfig();
-
-  private double m_p = 0;
-  private double m_d = 0;
-  private double m_ff = 0;
   private double m_targetRPM = 0;
-
 
   /** Creates a new DriveSubsystem. */
   public FeederSubsystem() {
     
     m_leaderMotor = new SparkMax(FeederConstants.kLeftFeederCanId, MotorType.kBrushless);
-    m_rightMotor = new SparkMax(FeederConstants.kRightFeederCanId, MotorType.kBrushless);
 
     m_leaderController = m_leaderMotor.getClosedLoopController();
 
-    configureMotors();
-
-    SmartDashboard.putNumber("Feeder/P", m_p);
-    SmartDashboard.putNumber("Feeder/D", m_d);
-    SmartDashboard.putNumber("Feeder/Feed Forward", m_ff);
-    SmartDashboard.putNumber("Feeder/Target RPM", 0);
-  }
-
-  private void configureMotors() {
-    // Apply to hardware (Reset to factory defaults first to clear old junk)
     m_leaderMotor.configure(Feeder.leaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    m_rightMotor.configure(Feeder.rightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+    //m_agitatorMotor = new SparkMax(FeederConstants.kAgitatorCanId, MotorType.kBrushless);
+
+    //m_agitatorMotor.configure(Feeder.agitatorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+    SmartDashboard.putNumber("Feeder/Target RPM", 0);
+
+    setVelocity(0);
   }
 
   public void setVelocity(double rpm)
@@ -59,15 +47,25 @@ public class FeederSubsystem extends SubsystemBase {
     if (rpm != m_targetRPM)
     {
       m_targetRPM = rpm;
-      //m_leaderController.setReference(m_targetRPM, ControlType.kVelocity);
       m_leaderController.setSetpoint(m_targetRPM, ControlType.kMAXMotionVelocityControl);
     }
     
+    System.out.println("Setting feeder target rpm to " + rpm);
   }
+
+  /*
+  public void runAgitator(double speed)
+  {
+    m_agitatorMotor.set(speed);
+  }
+  */
 
   public void stop()
   {
+    m_targetRPM = 0;
     m_leaderMotor.stopMotor();
+    //m_agitatorMotor.stopMotor();
+    System.out.println("Feeder stopped");
   }
 
   public boolean isAtSpeed(double tolerance)
@@ -86,37 +84,16 @@ public class FeederSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Feeder/Actual RPM: ", getActualVelocity());
     SmartDashboard.putNumber("Feeder/Applied Output: ", m_leaderMotor.getAppliedOutput());
 
-    updateTunables();
-
+    /*
+    if (m_targetRPM != 0)
+    {
+      m_agitatorMotor.set(-1);
+    }
+    else
+    {
+      m_agitatorMotor.stopMotor();
+    }
+    */
   }
 
-  private void updateTunables() {
-    double readP = SmartDashboard.getNumber("Feeder/P", m_p);
-    double readD = SmartDashboard.getNumber("Feeder/D", m_d);
-    double readFF = SmartDashboard.getNumber("Feeder/Feed Forward", m_ff);
-    double readTarget = SmartDashboard.getNumber("Feeder/Target RPM", m_targetRPM);
-
-    // check if PID constants changed
-    if (readP != m_p || readD != m_d || readFF != m_ff) {
-      m_p = readP;
-      m_d = readD;
-      m_ff = readFF;
-
-      // Update the local config object
-      m_leaderConfig.closedLoop
-          .p(m_p)
-          .d(m_d)
-          .feedForward.kV(m_ff);
-
-      // Apply ALL changes at once (Batch update)
-      // Use kNoResetSafeParameters so we don't wipe the current limit/coast mode
-      m_leaderMotor.configure(m_leaderConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
-    }
-
-    // check if Target Velocity changed via dashboard
-    if (readTarget != m_targetRPM) {
-      setVelocity(readTarget);
-    }
-  }
-  
 }

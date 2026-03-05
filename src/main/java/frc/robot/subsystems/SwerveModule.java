@@ -65,9 +65,12 @@ public class SwerveModule {
     m_drivingEncoder.setPosition(0);
   }
 
-  public SparkFlex getDrivingSpark()
-  {
-    return m_drivingSpark;
+  public Rotation2d getAngle() {
+    return getState().angle;
+  }
+
+  public double getVelocity() {
+    return getState().speedMetersPerSecond;
   }
 
   /**
@@ -80,6 +83,15 @@ public class SwerveModule {
     // relative to the chassis.
     return new SwerveModuleState(m_drivingEncoder.getVelocity(),
         new Rotation2d(m_turningEncoder.getPosition() - m_chassisAngularOffset));
+  }
+
+   /**
+   * Returns the desired state of the module.
+   *
+   * @return The desired state of the module.
+   */
+  public SwerveModuleState getDesiredState() {
+    return m_desiredState;
   }
 
   /**

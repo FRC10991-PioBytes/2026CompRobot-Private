@@ -4,10 +4,11 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.AbsoluteEncoderConfig;
 import com.revrobotics.spark.config.SparkFlexConfig;
 
-import frc.robot.Constants.FeederConstants;
-import frc.robot.Constants.ModuleConstants;
+import frc.robot.Constants.*;
+
 
 public final class Configs 
 {
@@ -20,24 +21,24 @@ public final class Configs
                 double drivingFactor = ModuleConstants.kWheelDiameterMeters * Math.PI
                         / ModuleConstants.kDrivingMotorReduction;
                 double turningFactor = 2 * Math.PI;
-                double drivingVelocityFeedForward = 1 / ModuleConstants.kDriveWheelFreeSpeedRps;
+                //double drivingVelocityFeedForward = 1 / ModuleConstants.kDriveWheelFreeSpeedRps;
+                double drivingVelocityFeedForward = 2.55;
 
                 drivingConfig
                         .idleMode(IdleMode.kBrake)
-                        .smartCurrentLimit(40)
-                        .openLoopRampRate(0.25)
-                        .closedLoopRampRate(0.25);
+                        .smartCurrentLimit(40);
                 drivingConfig.encoder
                         .positionConversionFactor(drivingFactor) // meters
                         .velocityConversionFactor(drivingFactor / 60.0); // meters per second
                 drivingConfig.closedLoop
                         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
                         // These are example gains you may need to them for your own robot!
-                        .pid(0.04, 0, 0)
+                        .pid(0.3, 0, 0)
                         //.velocityFF(drivingVelocityFeedForward)
                         .outputRange(-1, 1)
                         .feedForward
                                 .kV(drivingVelocityFeedForward);
+                        
 
                 turningConfig
                         .idleMode(IdleMode.kBrake)
@@ -47,7 +48,8 @@ public final class Configs
                         // direction of the steering motor in the MAXSwerve Module.
                         .inverted(true)
                         .positionConversionFactor(turningFactor) // radians
-                        .velocityConversionFactor(turningFactor / 60.0); // radians per second
+                        .velocityConversionFactor(turningFactor / 60.0) // radians per second
+                        .apply(AbsoluteEncoderConfig.Presets.REV_ThroughBoreEncoder);
                 turningConfig.closedLoop
                         .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
                         // These are example gains you may need to them for your own robot!
@@ -64,7 +66,7 @@ public final class Configs
 
     public static final class Feeder {
         public static final SparkMaxConfig leaderConfig = new SparkMaxConfig();
-        public static final SparkMaxConfig rightConfig = new SparkMaxConfig();
+        public static final SparkMaxConfig agitatorConfig = new SparkMaxConfig();
 
         static {
                 leaderConfig
@@ -73,21 +75,25 @@ public final class Configs
                         .voltageCompensation(12)
                         .closedLoopRampRate(0.5);
                 leaderConfig.closedLoop
-                        .pid(0, 0, 0)
-                        .outputRange(-1, 1)
+                        .pid(FeederConstants.kP, 0, FeederConstants.kD)
+                        .outputRange(-0.75, 0.75)
                         .feedForward
-                                .kV(0);
+                                .kS(FeederConstants.kStaticFF) // 0.002
+                                .kV(FeederConstants.kVelocityFF) // 0.00265
+                                .kA(FeederConstants.kAccelerationFF);
+                leaderConfig.closedLoop.maxMotion
+                        .maxAcceleration(2000);
 
-                rightConfig
+                agitatorConfig
                         .idleMode(IdleMode.kCoast)
                         .smartCurrentLimit(40)
-                        .follow(FeederConstants.kLeftFeederCanId, true);
+                        .voltageCompensation(12);
+
         }
     }
 
     public static final class Shooter {
         public static final SparkMaxConfig leaderConfig = new SparkMaxConfig();
-        public static final SparkMaxConfig leftConfig = new SparkMaxConfig();
         public static final SparkMaxConfig rightConfig = new SparkMaxConfig();
 
         static {
@@ -97,15 +103,14 @@ public final class Configs
                         .voltageCompensation(12)
                         .closedLoopRampRate(0.5);
                 leaderConfig.closedLoop
-                        .pid(0.00005, 0, 0.00001)
+                        .pid(ShooterConstants.kP,0, ShooterConstants.kD)
                         .outputRange(-1, 1)
                         .feedForward
-                                .kV(0.000174);
-
-                leftConfig
-                        .idleMode(IdleMode.kCoast)
-                        .smartCurrentLimit(40)
-                        .follow(Constants.ShooterConstants.kLeaderShooterCanId, false);
+                                .kS(ShooterConstants.kStaticFF)
+                                .kV(ShooterConstants.kVelocityFF)
+                                .kA(ShooterConstants.kAccelerationFF);
+                leaderConfig.closedLoop.maxMotion
+                        .maxAcceleration(ShooterConstants.kShooterMaxAcceleration);
 
                 rightConfig
                         .idleMode(IdleMode.kCoast)
@@ -116,49 +121,40 @@ public final class Configs
     }
 
     public static final class Intake {
-        public static final SparkMaxConfig leftRollerConfig = new SparkMaxConfig();
-        public static final SparkMaxConfig rightRollerConfig = new SparkMaxConfig();
+        public static final SparkMaxConfig leaderRollerConfig = new SparkMaxConfig();
 
-        public static final SparkMaxConfig leftPivotConfig = new SparkMaxConfig();
-        public static final SparkMaxConfig rightPivotConfig = new SparkMaxConfig();
+        public static final SparkMaxConfig leaderPivotConfig = new SparkMaxConfig();
 
         static {
                 // Roller configs
-                leftRollerConfig
+                leaderRollerConfig
                         .idleMode(IdleMode.kBrake)
                         .smartCurrentLimit(40);
-                rightRollerConfig
-                        .idleMode(IdleMode.kBrake)
-                        .smartCurrentLimit(40)
-                        .follow(Constants.IntakeConstants.kLeftRollerCanId, true);
 
                 // Pivot configs
                 double turningFactor = 2 * Math.PI;
 
-                leftPivotConfig
+                leaderPivotConfig
                         .idleMode(IdleMode.kBrake)
                         .smartCurrentLimit(40);
-                leftPivotConfig.absoluteEncoder
-                        .positionConversionFactor(turningFactor) // radians
-                        .velocityConversionFactor(turningFactor / 60.0); // radians per second
-                leftPivotConfig.closedLoop
+                leaderPivotConfig.absoluteEncoder
+                        .positionConversionFactor(turningFactor * 14.0 / 32.0) // radians with gear ratio
+                        .velocityConversionFactor(turningFactor / 60.0 * 14.0 / 32.0); // radians per second wtih gear ratio
+                leaderPivotConfig.closedLoop
                         .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
                         .pid(0, 0, 0, ClosedLoopSlot.kSlot0)
                         .outputRange(-1, 1)
                         .positionWrappingEnabled(false)
                         .feedForward
-                                .kCos(Constants.IntakeConstants.kIntakeGravityCosVoltage)
+                                .kS(IntakeConstants.kStaticFF)
+                                .kV(IntakeConstants.kVelocityFF)
+                                .kA(IntakeConstants.kAccelerationFF)
+                                .kCos(IntakeConstants.kIntakeGravityCosVoltage)
                                 .kCosRatio(1 / turningFactor);
-                leftPivotConfig.closedLoop
-                        .maxMotion
-                                .cruiseVelocity(Math.PI / 4, ClosedLoopSlot.kSlot0)
-                                .maxAcceleration(Math.PI / 2)
-                                .allowedProfileError(0.05, ClosedLoopSlot.kSlot0);
-
-                rightPivotConfig
-                        .idleMode(IdleMode.kBrake)
-                        .smartCurrentLimit(40)
-                        .follow(Constants.IntakeConstants.kLeftPivotCanId, true);
+                leaderPivotConfig.closedLoop.maxMotion
+                        .cruiseVelocity(Math.PI / 8)
+                        .maxAcceleration(Math.PI / 2)
+                        .allowedProfileError(0.05);
         }
     }
 }

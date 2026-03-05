@@ -55,7 +55,7 @@ public class TrackAprilTagCommand extends Command {
 
       // If positive, turn clockwise
       // If negative, turn counter clockwise
-      m_drive.drive(0, 0, rotationSpeed, 1, false);
+      m_drive.drive(0, 0, rotationSpeed, false);
     }
     else
     {

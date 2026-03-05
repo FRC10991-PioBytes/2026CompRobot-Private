@@ -4,6 +4,13 @@
 
 package frc.robot;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+
+import com.pathplanner.lib.config.RobotConfig;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -26,15 +33,11 @@ public final class Constants {
   public static final class DriveConstants {
     // Driving Parameters - Note that these are not the maximum capable speeds of
     // the robot, rather the allowed maximum speeds
-    public static final double kMaxSpeedMetersPerSecond = 4.8;
+    public static final double kMaxSpeedMetersPerSecond = 3.5;
     public static final double kMaxAngularSpeed = 2 * Math.PI; // radians per second
-
-    public static final double kFastSpeedMultiplier = 1;
-    public static final double kSlowSpeedMultiplier = 0.5;
-
+    
 
     // Chassis configuration
-    //Test bot = 22.5 for both
     public static final double kTrackWidth = Units.inchesToMeters(23.5);
     // Distance between centers of right and left wheels on robot
     public static final double kWheelBase = Units.inchesToMeters(23.5);
@@ -69,7 +72,6 @@ public final class Constants {
     // The MAXSwerve module can be configured with one of three pinion gears: 12T,
     // 13T, or 14T. This changes the drive speed of the module (a pinion gear with
     // more teeth will result in a robot that drives faster).
-    //Test bot = 13
     public static final int kDrivingMotorPinionTeeth = 12;
 
     // Calculations required for driving motor conversion factors and feed forward
@@ -79,35 +81,69 @@ public final class Constants {
     // 45 teeth on the wheel's bevel gear, 22 teeth on the first-stage spur gear, 15
     // teeth on the bevel pinion
     public static final double kDrivingMotorReduction = (45.0 * 22) / (kDrivingMotorPinionTeeth * 15);
+    
     public static final double kDriveWheelFreeSpeedRps = (kDrivingMotorFreeSpeedRps * kWheelCircumferenceMeters)
         / (kDrivingMotorReduction);
+    /*
+    public static final double kDriveWheelFreeSpeedRps = (kDrivingMotorFreeSpeedRps)
+        / (kDrivingMotorReduction);
+    */
   }
 
   public static final class IntakeConstants {
-    public static final int kLeftPivotCanId = 9;
-    public static final int kRightPivotCanId = 10;
-    public static final int kLeftRollerCanId = 11;
-    public static final int kRightRollerCanId = 12;
+    public static final int kLeaderPivotCanId = 12;
+    public static final int kLeaderRollerCanId = 13;
 
-    public static final double kIntakeInSpeed = 0.5;
-    public static final double kIntakeOutSpeed = 0.5;
+    public static final double kIntakeInSpeed = 1;
+    public static final double kIntakeOutSpeed = -1;
+
+    public static final double kIntakePivotUpSpeed = 0.3;
+    public static final double kIntakePivotDownSpeed = -0.1;
+    public static final double kIntakePivotHoldSpeed = 0.1;
 
     // In radians
     public static final Rotation2d kIntakeRetractedEncoderPosition = Rotation2d.kZero;
     public static final Rotation2d kIntakeExtendedEncoderPosition = new Rotation2d(0.1);
 
-    public static final double kIntakeGravityCosVoltage = 0;
+    public static final double kIntakeGravityCosVoltage = 0.1;
+    public static final double kStaticFF = 0;
+    public static final double kVelocityFF = 0;
+    public static final double kAccelerationFF = 0;
+
   }
 
   public static final class FeederConstants {
-    public static final int kLeftFeederCanId = 13;
-    public static final int kRightFeederCanId = 14;
+    // CAN ID
+    public static final int kLeftFeederCanId = 9;
+    public static final int kAgitatorCanId = 14;
+
+    // Feed forward constants
+    public static final double kStaticFF = 0.19906 / 60.0; // Divide by 60 to change from rps to rpm
+    public static final double kVelocityFF = 0.126 / 60.0;
+    public static final double kAccelerationFF = 0.015522 / 60.0;
+
+    // PID constants
+    public static final double kP = 2.9426E-05;
+    public static final double kD = 0;
+
+    public static final int kFeederMaxAcceleration = 2000; // RPM per second
   }
 
   public static final class ShooterConstants {
-    public static final int kLeaderShooterCanId = 15;
-    public static final int kLeftShooterCanId = 16;
-    public static final int kRightShooterCanId = 17;
+    // CAN IDs
+    public static final int kLeaderShooterCanId = 10;
+    public static final int kRightShooterCanId = 11;
+
+    // Feed forward constants
+    public static final double kStaticFF = 0.20042 / 60.0; // Divide by 60 to change from rps to rpm
+    public static final double kVelocityFF = 0.12391 / 60.0;
+    public static final double kAccelerationFF = 0.011037 / 60.0;
+
+    // PID constants
+    public static final double kP = 1.0486E-05;
+    public static final double kD = 0;
+
+    public static final int kShooterMaxAcceleration = 1500; // RPM per second
   }
 
   public static final class OIConstants {
@@ -130,8 +166,8 @@ public final class Constants {
   }
 
   public static final class AutoConstants {
-    public static final double kMaxSpeedMetersPerSecond = 3;
-    public static final double kMaxAccelerationMetersPerSecondSquared = 3;
+    public static final double kMaxSpeedMetersPerSecond = 1;
+    public static final double kMaxAccelerationMetersPerSecondSquared = 1;
     public static final double kMaxAngularSpeedRadiansPerSecond = Math.PI;
     public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.PI;
 
@@ -142,6 +178,174 @@ public final class Constants {
     // Constraint for the motion profiled robot angle controller
     public static final TrapezoidProfile.Constraints kThetaControllerConstraints = new TrapezoidProfile.Constraints(
         kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
+  }
+
+  // All values are field centric from the blue origin in meters
+  public static final class FieldConstants {
+    
+    public static final Pose2d kResetPosePosition = new Pose2d(2, 4.0345, new Rotation2d(0));
+
+    public static final Translation2d kBlueHUB = new Translation2d(4.6256, 4.0345);
+    public static final Translation2d kRedHUB = new Translation2d(11.9154, 4.0345);
+
+
+    // Blue Scoring Positions
+    public static final BlueScoringPosition kBlueLeftScoringPose1 = new BlueScoringPosition(2.061, 5.173, 4000);
+    public static final BlueScoringPosition kBlueLeftScoringPose2 = new BlueScoringPosition(1.76, 6, 4200);
+    public static final BlueScoringPosition kBlueLeftScoringPose3 = new BlueScoringPosition(3.083, 6.378, 4000);
+    public static final BlueScoringPosition kBlueLeftScoringPose4 = new BlueScoringPosition(1.5, 7.25, 5600);
+    public static final BlueScoringPosition kBlueLeftScoringPose5 = new BlueScoringPosition(1.175, 5.93, 4700);
+    public static final BlueScoringPosition kBlueLeftScoringPose6 = new BlueScoringPosition(2.67, 6.907, 4200);
+    
+    public static final BlueScoringPosition kBlueCenterScoringPose1 = new BlueScoringPosition(1.82, 4.0345, 4000);
+    public static final BlueScoringPosition kBlueCenterScoringPose2 = new BlueScoringPosition(3.04, 4.0345, 3500);
+
+    public static final BlueScoringPosition kBlueRightScoringPose1 = new BlueScoringPosition(2.074, 2.868, 4000);
+    public static final BlueScoringPosition kBlueRightScoringPose2 = new BlueScoringPosition(1.776, 2.045, 4200);
+    public static final BlueScoringPosition kBlueRightScoringPose3 = new BlueScoringPosition(3.067, 1.701, 4000);
+    public static final BlueScoringPosition kBlueRightScoringPose4 = new BlueScoringPosition(1.484, 0.834, 5600);
+    public static final BlueScoringPosition kBlueRightScoringPose5 = new BlueScoringPosition(1.19, 2.112, 4700);
+    public static final BlueScoringPosition kBlueRightScoringPose6 = new BlueScoringPosition(2.67, 1.162, 4200);
+
+    
+    // Red Scoring positions
+    public static final RedScoringPosition kRedLeftScoringPose1 = new RedScoringPosition(14.467, 2.868, 4000);
+    public static final RedScoringPosition kRedLeftScoringPose2 = new RedScoringPosition(14.765, 2.045, 4200);
+    public static final RedScoringPosition kRedLeftScoringPose3 = new RedScoringPosition(13.474, 1.701, 4000);
+    public static final RedScoringPosition kRedLeftScoringPose4 = new RedScoringPosition(15.057, 0.834, 5600);
+    public static final RedScoringPosition kRedLeftScoringPose5 = new RedScoringPosition(15.351, 2.112, 4700);
+    public static final RedScoringPosition kRedLeftScoringPose6 = new RedScoringPosition(13.871, 1.162, 4200);
+    
+    public static final RedScoringPosition kRedCenterScoringPose1 = new RedScoringPosition(14.721, 4.0345, 4000);
+    public static final RedScoringPosition kRedCenterScoringPose2 = new RedScoringPosition(13.75, 4.0345, 3500);
+
+    public static final RedScoringPosition kRedRightScoringPose1 = new RedScoringPosition(14.48, 5.173, 4000);
+    public static final RedScoringPosition kRedRightScoringPose2 = new RedScoringPosition(14.781, 6, 4200);
+    public static final RedScoringPosition kRedRightScoringPose3 = new RedScoringPosition(13.458, 6.378, 4000);
+    public static final RedScoringPosition kRedRightScoringPose4 = new RedScoringPosition(15.041, 7.25, 5600);
+    public static final RedScoringPosition kRedRightScoringPose5 = new RedScoringPosition(15.366, 5.93, 4700);
+    public static final RedScoringPosition kRedRightScoringPose6 = new RedScoringPosition(13.871, 6.907, 4200);
+
+
+    /** Represents a Blue 2D pose pointed at the Blue HUB with an RPM */
+    public static class BlueScoringPosition {
+      private Pose2d kScoringPose;
+      private double kShooterRPM;
+
+      private static ArrayList<Pose2d> kBlueScoringPoses = new ArrayList<>();
+      private static ArrayList<BlueScoringPosition> kBlueScoringPositions = new ArrayList<>();
+      
+      public BlueScoringPosition(double x, double y, double RPM)
+      {
+        Translation2d scoringTranslation = new Translation2d(x, y);
+        kScoringPose = new Pose2d(scoringTranslation, kBlueHUB.minus(scoringTranslation).getAngle());
+        kBlueScoringPoses.add(kScoringPose);
+
+        kShooterRPM = RPM;
+
+        kBlueScoringPositions.add(this);
+      }
+      
+      public static ArrayList<Pose2d> getBlueScoringPoses()
+      {
+        return kBlueScoringPoses;
+      }
+
+      public static double getNearestRPM(Pose2d robotPose)
+      {
+        Pose2d closestPose = robotPose.nearest(kBlueScoringPoses);
+
+        for (int i = 0; i < kBlueScoringPoses.size(); i++)
+        {
+          if (kBlueScoringPoses.get(i).equals(closestPose))
+          {
+            return kBlueScoringPositions.get(i).getRPM();
+          }
+        }
+
+        return 0.0;
+      }
+
+      public Pose2d getPose2d()
+      {
+        return kScoringPose;
+      }
+
+      public Translation2d getTranslation2d()
+      {
+        return kScoringPose.getTranslation();
+      }
+
+      public Rotation2d getRotation2d()
+      {
+        return kScoringPose.getRotation();
+      }
+
+      public double getRPM()
+      {
+        return kShooterRPM;
+      }
+    }
+
+    /** Represents a Red 2D pose pointed at the Red HUB with an RPM */
+    public static class RedScoringPosition {
+      private Pose2d kScoringPose;
+      private double kShooterRPM;
+
+      private static ArrayList<Pose2d> kRedScoringPoses = new ArrayList<>();
+      private static ArrayList<RedScoringPosition> kRedScoringPositions = new ArrayList<>();
+      
+      public RedScoringPosition(double x, double y, double RPM)
+      {
+        Translation2d scoringTranslation = new Translation2d(x, y);
+        kScoringPose = new Pose2d(scoringTranslation, kRedHUB.minus(scoringTranslation).getAngle());
+        kRedScoringPoses.add(kScoringPose);
+
+        kShooterRPM = RPM;
+
+        kRedScoringPositions.add(this);
+      }
+      
+      public static ArrayList<Pose2d> getRedScoringPoses()
+      {
+        return kRedScoringPoses;
+      }
+
+      public static double getNearestRPM(Pose2d robotPose)
+      {
+        Pose2d closestPose = robotPose.nearest(kRedScoringPoses);
+
+        for (int i = 0; i < kRedScoringPoses.size(); i++)
+        {
+          if (kRedScoringPoses.get(i).equals(closestPose))
+          {
+            return kRedScoringPositions.get(i).getRPM();
+          }
+        }
+
+        return 0.0;
+      }
+
+      public Pose2d getPose2d()
+      {
+        return kScoringPose;
+      }
+
+      public Translation2d getTranslation2d()
+      {
+        return kScoringPose.getTranslation();
+      }
+
+      public Rotation2d getRotation2d()
+      {
+        return kScoringPose.getRotation();
+      }
+
+      public double getRPM()
+      {
+        return kShooterRPM;
+      }
+    }
   }
 
   public static final class NeoMotorConstants {

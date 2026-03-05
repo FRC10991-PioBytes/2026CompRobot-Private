@@ -55,7 +55,9 @@ public class Robot extends TimedRobot {
   public void disabledInit() {}
 
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+    LimelightHelpers.SetIMUMode("limelight", 1);
+  }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
@@ -89,6 +91,8 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     SmartDashboard.putNumber("Game Info/TeleOp Time Remaining: ", Timer.getMatchTime());
+
+    LimelightHelpers.SetIMUMode("limelight", 4);
   }
 
   @Override

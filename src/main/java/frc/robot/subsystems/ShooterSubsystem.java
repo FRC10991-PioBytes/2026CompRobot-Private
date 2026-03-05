@@ -10,58 +10,76 @@ import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.revrobotics.spark.config.SparkMaxConfig;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Configs.Shooter;
-
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ShooterSubsystem extends SubsystemBase {
 
   private final SparkMax m_leaderMotor;
-  private final SparkMax m_leftMotor;
   private final SparkMax m_rightMotor;
 
   private SparkClosedLoopController m_leaderController;
 
-  private SparkMaxConfig m_leaderConfig = new SparkMaxConfig();
-
-  private double m_p = 0.00005;
-  private double m_d = 0.00001;
-  private double m_ff = 0.000174;//1.0 / 5676; //Neo V1.1 free speed
   private double m_targetRPM = 0;
 
+  private double m_gearRatio = (double) 23 / 18;
+
+  /*
+  private final MutVoltage m_appliedVoltage = new MutVoltage(0.0, 0.0, Units.Volts);
+  private final MutAngle m_angle = new MutAngle(0, 0, Units.Revolutions); // Revolutions
+  private final MutAngularVelocity m_velocity = new MutAngularVelocity(0, 0, Units.Revolutions.per(Units.Minute)); // RPM
+  private final SysIdRoutine m_sysIdRoutine;
+  */
+    
 
   /** Creates a new DriveSubsystem. */
   public ShooterSubsystem() {
     
     m_leaderMotor = new SparkMax(ShooterConstants.kLeaderShooterCanId, MotorType.kBrushless);
-    m_leftMotor = new SparkMax(ShooterConstants.kLeftShooterCanId, MotorType.kBrushless);
     m_rightMotor = new SparkMax(ShooterConstants.kRightShooterCanId, MotorType.kBrushless);
 
     m_leaderController = m_leaderMotor.getClosedLoopController();
 
-    m_leaderConfig
-      .idleMode(IdleMode.kCoast)
-      .smartCurrentLimit(40)
-      .voltageCompensation(12)
-      .closedLoopRampRate(0.5)
-      .closedLoop.outputRange(-1, 1);
-
     configureMotors();
+    
+    /*
+    m_sysIdRoutine =
+      new SysIdRoutine(
+        // Config
+        new SysIdRoutine.Config(),
 
-    SmartDashboard.putNumber("Shooter/P", m_p);
-    SmartDashboard.putNumber("Shooter/D", m_d);
-    SmartDashboard.putNumber("Shooter/Feed Forward", m_ff);
-    SmartDashboard.putNumber("Shooter/Target RPM", 0);
+        // Mechanism
+        new SysIdRoutine.Mechanism(
+          (voltage) -> m_leaderMotor.setVoltage(voltage),
+          (log) -> {
+            log.motor("shooter")
+              .voltage(
+                m_appliedVoltage.mut_replace(
+                  m_leaderMotor.getAppliedOutput() * RobotController.getBatteryVoltage(), Units.Volts
+                )
+              )
+              .angularPosition(
+                m_angle.mut_replace(m_leaderMotor.getEncoder().getPosition(), Units.Revolutions)
+              )
+              .angularVelocity(
+                m_velocity.mut_replace(m_leaderMotor.getEncoder().getVelocity(), Units.Revolutions.per(Units.Minute))
+              );
+          },
+          this
+        )
+      );
+    */
+    
+    setVelocity(0);
+
   }
 
   private void configureMotors() {
     // Apply to hardware (Reset to factory defaults first to clear old junk)
     m_leaderMotor.configure(Shooter.leaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    m_leftMotor.configure(Shooter.leftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     m_rightMotor.configure(Shooter.rightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
@@ -70,15 +88,16 @@ public class ShooterSubsystem extends SubsystemBase {
     if (rpm != m_targetRPM)
     {
       m_targetRPM = rpm;
-      //m_leaderController.setReference(m_targetRPM, ControlType.kVelocity);
       m_leaderController.setSetpoint(m_targetRPM, ControlType.kMAXMotionVelocityControl);
     }
-    
+    System.out.println("Setting shooter target rpm to " + rpm);
   }
 
   public void stop()
   {
+    m_targetRPM = 0;
     m_leaderMotor.stopMotor();
+    System.out.println("Shooter stopped");
   }
 
   public boolean isAtSpeed(double tolerance)
@@ -94,40 +113,17 @@ public class ShooterSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
 
-    SmartDashboard.putNumber("Shooter/Actual RPM: ", getActualVelocity());
-    SmartDashboard.putNumber("Shooter/Applied Output: ", m_leaderMotor.getAppliedOutput());
-
-    updateTunables();
-
+    SmartDashboard.putData("Shooter", this);
   }
 
-  private void updateTunables() {
-    double readP = SmartDashboard.getNumber("Shooter/P", m_p);
-    double readD = SmartDashboard.getNumber("Shooter/D", m_d);
-    double readFF = SmartDashboard.getNumber("Shooter/Feed Forward", m_ff);
-    double readTarget = SmartDashboard.getNumber("Shooter/Target RPM", m_targetRPM);
+  @Override
+  public void initSendable(SendableBuilder builder) {
+    builder.setSmartDashboardType("Shooter");
 
-    // check if PID constants changed
-    if (readP != m_p || readD != m_d || readFF != m_ff) {
-      m_p = readP;
-      m_d = readD;
-      m_ff = readFF;
+    builder.addDoubleProperty("Input Shaft RPM", () -> getActualVelocity(), null);
+    builder.addDoubleProperty("Output Shaft RPM", () -> getActualVelocity() * m_gearRatio, null);
+    builder.addDoubleProperty("Shooter Setpoint", () -> m_targetRPM, null);
+    builder.addBooleanProperty("Within 50 RPM", () -> isAtSpeed(50.0), null);
 
-      // Update the local config object
-      m_leaderConfig.closedLoop
-          .p(m_p)
-          .d(m_d)
-          .feedForward.kV(m_ff);
-
-      // Apply ALL changes at once (Batch update)
-      // Use kNoResetSafeParameters so we don't wipe the current limit/coast mode
-      m_leaderMotor.configure(m_leaderConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
-    }
-
-    // check if Target Velocity changed via dashboard
-    if (readTarget != m_targetRPM) {
-      setVelocity(readTarget);
-    }
   }
-
 }

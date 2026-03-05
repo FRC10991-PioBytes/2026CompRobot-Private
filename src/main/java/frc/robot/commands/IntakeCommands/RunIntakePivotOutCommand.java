@@ -4,45 +4,38 @@
 
 package frc.robot.commands.IntakeCommands;
 
-import edu.wpi.first.wpilibj.Timer;
+import java.util.function.DoubleSupplier;
+
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants;
 import frc.robot.subsystems.IntakeSubsystem;
 
 
-public final class ExtendThenIntakeInCommand extends Command {
+public final class RunIntakePivotOutCommand extends Command {
   private IntakeSubsystem m_intake;
-  private Timer m_timer;
+  private DoubleSupplier m_power;
 
-  public ExtendThenIntakeInCommand(IntakeSubsystem intake)
+  public RunIntakePivotOutCommand(IntakeSubsystem intake)
   {
     m_intake = intake;
+
     addRequirements(m_intake);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_timer.reset();
-    m_timer.start();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_intake.setPivotPosition(Constants.IntakeConstants.kIntakeExtendedEncoderPosition);
-
-    if (m_timer.hasElapsed(1))
-    {
-      m_intake.runRollers(Constants.IntakeConstants.kIntakeInSpeed);
-    }
+    m_intake.runPivot(1);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_intake.stopRollers();
-    m_timer.stop();
+    m_intake.stopPivot();
     
   }
 
