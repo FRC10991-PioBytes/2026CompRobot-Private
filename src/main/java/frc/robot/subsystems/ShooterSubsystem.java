@@ -10,7 +10,6 @@ import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.SparkMaxConfig;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Configs.Shooter;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -23,8 +22,6 @@ public class ShooterSubsystem extends SubsystemBase {
   private final SparkMax m_rightMotor;
 
   private SparkClosedLoopController m_leaderController;
-
-  private SparkMaxConfig m_leaderConfig = new SparkMaxConfig();
 
   private double m_targetRPM = 0;
 

@@ -16,7 +16,6 @@ public class DriveCommand extends Command {
   private final DoubleSupplier m_xSpeed;
   private final DoubleSupplier m_ySpeed;
   private final DoubleSupplier m_rot;
-  private final DoubleSupplier m_speedMult;
   private final BooleanSupplier m_fieldRelative;
   private final DriveSubsystem m_drive;
 
@@ -25,11 +24,10 @@ public class DriveCommand extends Command {
    *
    * @param subsystem The subsystem used by this command.
    */
-  public DriveCommand(DriveSubsystem driveSubsystem, DoubleSupplier xSpeed, DoubleSupplier ySpeed, DoubleSupplier rot, DoubleSupplier speedMult, BooleanSupplier fieldRelative) {
+  public DriveCommand(DriveSubsystem driveSubsystem, DoubleSupplier xSpeed, DoubleSupplier ySpeed, DoubleSupplier rot, BooleanSupplier fieldRelative) {
     m_xSpeed = xSpeed;
     m_ySpeed = ySpeed;
     m_rot = rot;
-    m_speedMult = speedMult;
     m_fieldRelative = fieldRelative;
     m_drive = driveSubsystem;
     // Use addRequirements() here to declare subsystem dependencies.
@@ -43,7 +41,7 @@ public class DriveCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_drive.drive(m_xSpeed.getAsDouble(), m_ySpeed.getAsDouble(), m_rot.getAsDouble(), m_speedMult.getAsDouble(), m_fieldRelative.getAsBoolean());
+    m_drive.drive(m_xSpeed.getAsDouble(), m_ySpeed.getAsDouble(), m_rot.getAsDouble(), m_fieldRelative.getAsBoolean());
   }
 
   // Called once the command ends or is interrupted.

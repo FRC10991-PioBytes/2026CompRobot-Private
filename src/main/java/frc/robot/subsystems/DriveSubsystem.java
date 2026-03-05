@@ -93,12 +93,18 @@ public class DriveSubsystem extends SubsystemBase {
       this::getPose, 
       this::resetPose,
       this::getRobotRelativeSpeeds,
-      (speeds, feedforwards) -> drive(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, speeds.omegaRadiansPerSecond, 1, false),
+      (speeds, feedforwards) -> driveRobotRelative(speeds),
       new PPHolonomicDriveController(
-        new PIDConstants(0, 0, 0), 
-        new PIDConstants(0, 0, 0)),
+        new PIDConstants(3, 0, 0.2), 
+        new PIDConstants(2, 0, 0)),
       config,
-      () -> false,
+      () -> {
+        var alliance = DriverStation.getAlliance();
+        if (alliance.isPresent()) {
+          return alliance.get() == DriverStation.Alliance.Red;
+        }
+        return false;
+      },
       this);
     }
     catch (Exception e) {
@@ -117,8 +123,6 @@ public class DriveSubsystem extends SubsystemBase {
             m_rearRight.getPosition()
         }, 
         new Pose2d());
-    
-    //resetOdometryWithAprilTags();
 
   }
 
@@ -146,7 +150,10 @@ public class DriveSubsystem extends SubsystemBase {
     //LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
     //this.getField().getObject("mt2 pose").setPose(mt2.pose);
 
-    
+    double frontLeftDriveSpeed = m_frontLeft.getState().speedMetersPerSecond;
+    double frontLeftCommandedSpeed = m_frontLeft.getDesiredState().speedMetersPerSecond;
+    SmartDashboard.putNumber("Drive/Drive motor speed", frontLeftDriveSpeed);
+    SmartDashboard.putNumber("Drive/Drive commanded speed", frontLeftCommandedSpeed);
     
     
 
@@ -173,8 +180,16 @@ public class DriveSubsystem extends SubsystemBase {
         });
 
     boolean doRejectUpdate = false;
+    if (DriverStation.getAlliance().isPresent()) {
+      if (DriverStation.getAlliance().get() == Alliance.Blue) {
+      LimelightHelpers.SetRobotOrientation("limelight", this.getHeading(), 0, 0, 0, 0, 0);
+      }
+      else if (DriverStation.getAlliance().get() == Alliance.Red) {
+        LimelightHelpers.SetRobotOrientation("limelight", this.getHeading() + 180, 0, 0, 0, 0, 0);
+      }
+    }
     
-    LimelightHelpers.SetRobotOrientation("limelight", this.getHeading(), 0, 0, 0, 0, 0);
+    //LimelightHelpers.SetRobotOrientation("limelight", this.getHeading(), 0, 0, 0, 0, 0);
     LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
     //this.getField().getObject("mt2 pose").setPose(mt2.pose);
     if (mt2 != null) {
@@ -261,17 +276,17 @@ public class DriveSubsystem extends SubsystemBase {
    * @param fieldRelative Whether the provided x and y speeds are relative to the
    *                      field.
    */
-  public void drive(double xSpeed, double ySpeed, double rot, double speedMult, boolean fieldRelative) {
+  public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
     // Convert the commanded speeds into the correct units for the drivetrain
 
-    double xSpeedDelivered = xSpeed * DriveConstants.kMaxSpeedMetersPerSecond * speedMult;
-    double ySpeedDelivered = ySpeed * DriveConstants.kMaxSpeedMetersPerSecond * speedMult;
-    double rotDelivered = rot * DriveConstants.kMaxAngularSpeed * speedMult;
+    double xSpeedDelivered = xSpeed * DriveConstants.kMaxSpeedMetersPerSecond;
+    double ySpeedDelivered = ySpeed * DriveConstants.kMaxSpeedMetersPerSecond;
+    double rotDelivered = rot * DriveConstants.kMaxAngularSpeed;
     
     if (DriverStation.getAlliance().get() == Alliance.Red) {
       var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
         fieldRelative
-            ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, -rotDelivered,
+            ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered,
                 Rotation2d.fromDegrees(this.getHeading()))
             : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
 
@@ -303,7 +318,7 @@ public class DriveSubsystem extends SubsystemBase {
 
   public void stop()
   {
-    drive(0,0,0,0,true);
+    drive(0,0,0,true);
   }
 
   /**
@@ -355,6 +370,11 @@ public class DriveSubsystem extends SubsystemBase {
   //Zeroes the heading of the robot.
   public void zeroHeading() {
     m_gyro.reset();
+  }
+
+  public void driveRobotRelative(ChassisSpeeds speeds) {
+    var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(speeds);
+    setModuleStates(swerveModuleStates);
   }
   
 

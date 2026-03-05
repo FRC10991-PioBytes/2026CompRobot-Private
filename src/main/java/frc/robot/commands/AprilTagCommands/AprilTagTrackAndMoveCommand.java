@@ -77,7 +77,7 @@ public class AprilTagTrackAndMoveCommand extends Command {
             double rotSpeed = m_rotPID.calculate(tx, 0);
 
             //m_drive.drive(xSpeed, ySpeed, rotSpeed, 1, false);
-            m_drive.drive(-xSpeed, ySpeed, rotSpeed, 1, false);
+            m_drive.drive(-xSpeed, ySpeed, rotSpeed, false);
             }
           else
           {
@@ -92,13 +92,13 @@ public class AprilTagTrackAndMoveCommand extends Command {
               // We don't call drive(0,0,0) here yet to prevent jitter
           } else {
 
-              m_drive.drive(0, 0, 0, 1, false);
+              m_drive.drive(0, 0, 0, false);
           }
       }
   }
 
   @Override
   public void end(boolean interrupted) {
-      m_drive.drive(0, 0, 0, 0.1, false);
+      m_drive.drive(0, 0, 0, false);
   }
 }

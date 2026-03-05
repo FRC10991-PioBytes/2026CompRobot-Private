@@ -127,21 +127,21 @@ public class MoveToScoreDistance extends Command {
 
             // 7. Drive Command
             // fieldRelative = false, so these X/Y values are treated as Field X/Y
-            m_drive.drive(xSpeed, ySpeed, rotSpeed, 1, true);
+            m_drive.drive(xSpeed, ySpeed, rotSpeed, true);
         }
         else {
             m_lostFrames++;
             if (m_lostFrames > MAX_LOST_FRAMES) {
-                m_drive.drive(0, 0, 0, 0, true);
+                m_drive.drive(0, 0, 0, true);
             }
             else {
-                m_drive.drive(lastX, lastY, lastRot, 1, true);
+                m_drive.drive(lastX, lastY, lastRot, true);
             }
         }
     }
 
     @Override
         public void end(boolean interrupted) {
-            m_drive.drive(0, 0, 0, 0, true);
+            m_drive.drive(0, 0, 0, true);
         }
 }

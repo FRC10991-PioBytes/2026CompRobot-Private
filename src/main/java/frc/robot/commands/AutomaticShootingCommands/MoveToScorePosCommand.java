@@ -135,7 +135,7 @@ public class MoveToScorePosCommand extends Command {
             }
             else
             {
-                m_drive.drive(xSpeed, ySpeed, rotSpeed, 1, true);
+                m_drive.drive(xSpeed, ySpeed, rotSpeed, true);
             }
             
         }
@@ -143,7 +143,7 @@ public class MoveToScorePosCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        m_drive.drive(0, 0, 0, 0, true);
+        m_drive.drive(0, 0, 0, true);
     }
 
     // Returns true when the command should end.

@@ -10,30 +10,18 @@ import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.SparkMaxConfig;
 import frc.robot.Constants.FeederConstants;
 import frc.robot.Configs.Feeder;
-import edu.wpi.first.units.*;
-import edu.wpi.first.units.measure.MutAngle;
-import edu.wpi.first.units.measure.MutAngularVelocity;
-import edu.wpi.first.units.measure.MutVoltage;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 public class FeederSubsystem extends SubsystemBase {
 
   private final SparkMax m_leaderMotor;
-  private final SparkMax m_agitatorMotor;
+  //private final SparkMax m_agitatorMotor;
 
   private SparkClosedLoopController m_leaderController;
 
-  private SparkMaxConfig m_leaderConfig = new SparkMaxConfig();
-
-  private double m_p = 0;
-  private double m_d = 0;
-  private double m_ff = 0;
   private double m_targetRPM = 0;
 
   /** Creates a new DriveSubsystem. */
@@ -45,9 +33,9 @@ public class FeederSubsystem extends SubsystemBase {
 
     m_leaderMotor.configure(Feeder.leaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-    m_agitatorMotor = new SparkMax(FeederConstants.kAgitatorCanId, MotorType.kBrushless);
+    //m_agitatorMotor = new SparkMax(FeederConstants.kAgitatorCanId, MotorType.kBrushless);
 
-    m_agitatorMotor.configure(Feeder.agitatorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    //m_agitatorMotor.configure(Feeder.agitatorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     SmartDashboard.putNumber("Feeder/Target RPM", 0);
 
@@ -65,16 +53,18 @@ public class FeederSubsystem extends SubsystemBase {
     System.out.println("Setting feeder target rpm to " + rpm);
   }
 
+  /*
   public void runAgitator(double speed)
   {
     m_agitatorMotor.set(speed);
   }
+  */
 
   public void stop()
   {
     m_targetRPM = 0;
     m_leaderMotor.stopMotor();
-    m_agitatorMotor.stopMotor();
+    //m_agitatorMotor.stopMotor();
     System.out.println("Feeder stopped");
   }
 
@@ -94,6 +84,7 @@ public class FeederSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Feeder/Actual RPM: ", getActualVelocity());
     SmartDashboard.putNumber("Feeder/Applied Output: ", m_leaderMotor.getAppliedOutput());
 
+    /*
     if (m_targetRPM != 0)
     {
       m_agitatorMotor.set(-1);
@@ -102,6 +93,7 @@ public class FeederSubsystem extends SubsystemBase {
     {
       m_agitatorMotor.stopMotor();
     }
+    */
   }
 
 }

@@ -5,14 +5,14 @@
 package frc.robot.commands.IntakeCommands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.IntakeConstants;
+import frc.robot.Constants;
 import frc.robot.subsystems.IntakeSubsystem;
 
 
-public final class RunIntakePivotDownCommand extends Command {
+public final class RunIntakeOutCommand extends Command {
   private IntakeSubsystem m_intake;
 
-  public RunIntakePivotDownCommand(IntakeSubsystem intake)
+  public RunIntakeOutCommand(IntakeSubsystem intake)
   {
     m_intake = intake;
 
@@ -22,20 +22,20 @@ public final class RunIntakePivotDownCommand extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    
+    System.out.println("Running rollers out");
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_intake.runPivot(IntakeConstants.kIntakePivotDownSpeed);
+    m_intake.runRollers(Constants.IntakeConstants.kIntakeOutSpeed);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_intake.runPivot(IntakeConstants.kIntakePivotHoldSpeed);
-    
+    m_intake.stopRollers();
+    System.out.println("Stopping rollers");
   }
 
   // Returns true when the command should end.

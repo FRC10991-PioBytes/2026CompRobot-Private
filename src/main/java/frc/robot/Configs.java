@@ -4,6 +4,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.AbsoluteEncoderConfig;
 import com.revrobotics.spark.config.SparkFlexConfig;
 
 import frc.robot.Constants.*;
@@ -20,24 +21,24 @@ public final class Configs
                 double drivingFactor = ModuleConstants.kWheelDiameterMeters * Math.PI
                         / ModuleConstants.kDrivingMotorReduction;
                 double turningFactor = 2 * Math.PI;
-                double drivingVelocityFeedForward = 1 / ModuleConstants.kDriveWheelFreeSpeedRps;
+                //double drivingVelocityFeedForward = 1 / ModuleConstants.kDriveWheelFreeSpeedRps;
+                double drivingVelocityFeedForward = 2.55;
 
                 drivingConfig
                         .idleMode(IdleMode.kBrake)
-                        .smartCurrentLimit(40)
-                        .openLoopRampRate(0.25)
-                        .closedLoopRampRate(0.25);
+                        .smartCurrentLimit(40);
                 drivingConfig.encoder
                         .positionConversionFactor(drivingFactor) // meters
                         .velocityConversionFactor(drivingFactor / 60.0); // meters per second
                 drivingConfig.closedLoop
                         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
                         // These are example gains you may need to them for your own robot!
-                        .pid(0.04, 0, 0)
+                        .pid(0.3, 0, 0)
                         //.velocityFF(drivingVelocityFeedForward)
                         .outputRange(-1, 1)
                         .feedForward
                                 .kV(drivingVelocityFeedForward);
+                        
 
                 turningConfig
                         .idleMode(IdleMode.kBrake)
@@ -47,7 +48,8 @@ public final class Configs
                         // direction of the steering motor in the MAXSwerve Module.
                         .inverted(true)
                         .positionConversionFactor(turningFactor) // radians
-                        .velocityConversionFactor(turningFactor / 60.0); // radians per second
+                        .velocityConversionFactor(turningFactor / 60.0) // radians per second
+                        .apply(AbsoluteEncoderConfig.Presets.REV_ThroughBoreEncoder);
                 turningConfig.closedLoop
                         .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
                         // These are example gains you may need to them for your own robot!
