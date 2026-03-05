@@ -3,51 +3,38 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.54922891566265,
-        "y": 4.035
+        "x": 3.5383012048192777,
+        "y": 4.0345
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.36363012405325,
-        "y": 4.064872862711446
+        "x": 2.538301204819274,
+        "y": 4.0345
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "CenterStart"
     },
     {
       "anchor": {
-        "x": 2.270686746987952,
+        "x": 1.82,
         "y": 4.035
       },
       "prevControl": {
-        "x": 2.021543355933218,
-        "y": 4.014322217388033
+        "x": 2.82,
+        "y": 4.035
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "CenterScore"
     }
   ],
   "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [
-    {
-      "name": "RevShooter",
-      "waypointRelativePos": 0,
-      "endWaypointRelativePos": null,
-      "command": null
-    },
-    {
-      "name": "RunFeederAndShoot",
-      "waypointRelativePos": 1.0,
-      "endWaypointRelativePos": null,
-      "command": null
-    }
-  ],
+  "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 4.8,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 1.0,
+    "maxAcceleration": 3.5,
     "maxAngularVelocity": 360.0,
     "maxAngularAcceleration": 360.0,
     "nominalVoltage": 12.0,
@@ -58,10 +45,10 @@
     "rotation": 0.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Center",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

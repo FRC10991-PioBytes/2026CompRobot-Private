@@ -5,51 +5,56 @@
     "data": {
       "commands": [
         {
-          "type": "deadline",
+          "type": "named",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "LeftStart-ShootPos1"
-                }
-              }
-            ]
+            "name": "RevShooter"
           }
         },
         {
-          "type": "deadline",
+          "type": "named",
+          "data": {
+            "name": "ExtendIntake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RightStartToScore"
+          }
+        },
+        {
+          "type": "parallel",
           "data": {
             "commands": [
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 3.0
-                }
-              },
               {
                 "type": "named",
                 "data": {
                   "name": "RunFeederAndShoot"
                 }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 3.0
+                }
               }
             ]
           }
         },
         {
-          "type": "deadline",
+          "type": "parallel",
           "data": {
             "commands": [
               {
                 "type": "named",
                 "data": {
-                  "name": "StopFeeder"
+                  "name": "StopShooter"
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "RunIntakeRoller"
+                  "name": "StopFeeder"
                 }
               }
             ]
@@ -58,7 +63,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Depot-ShootPos1"
+            "pathName": "RightScoreToNZToRightScore"
           }
         },
         {

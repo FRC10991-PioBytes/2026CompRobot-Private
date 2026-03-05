@@ -5,16 +5,15 @@
     "data": {
       "commands": [
         {
-          "type": "deadline",
+          "type": "named",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "CenterStart-ShootPos3"
-                }
-              }
-            ]
+            "name": "RevShooter"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "CenterStartToScoreSlow"
           }
         },
         {
@@ -24,7 +23,7 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 1.0
+                  "waitTime": 2.0
                 }
               },
               {
@@ -36,26 +35,7 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 3.0
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "StopShooter"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "StopFeeder"
+                  "waitTime": 10.0
                 }
               }
             ]

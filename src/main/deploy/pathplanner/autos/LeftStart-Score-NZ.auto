@@ -5,45 +5,37 @@
     "data": {
       "commands": [
         {
-          "type": "deadline",
+          "type": "named",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "LeftStart-Depot"
-                }
-              }
-            ]
+            "name": "RevShooter"
           }
         },
         {
-          "type": "deadline",
+          "type": "named",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Depot-ShootPos1"
-                }
-              }
-            ]
+            "name": "ExtendIntake"
           }
         },
         {
-          "type": "deadline",
+          "type": "path",
+          "data": {
+            "pathName": "LeftStartToScore"
+          }
+        },
+        {
+          "type": "parallel",
           "data": {
             "commands": [
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 3.0
-                }
-              },
               {
                 "type": "named",
                 "data": {
                   "name": "RunFeederAndShoot"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 3.0
                 }
               }
             ]
@@ -66,6 +58,18 @@
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LeftScoreToNZToLeftScore"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "RunFeederAndShoot"
           }
         }
       ]
