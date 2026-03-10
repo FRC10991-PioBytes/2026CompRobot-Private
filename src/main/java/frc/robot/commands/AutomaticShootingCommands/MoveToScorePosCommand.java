@@ -50,10 +50,10 @@ public class MoveToScorePosCommand extends Command {
         m_rotPID.reset();
         
         if (DriverStation.getAlliance().get() == Alliance.Blue) {
-            closestScoringPose = m_drive.getPose().nearest(FieldConstants.BlueScoringPosition.getBlueScoringPoses());
+            closestScoringPose = m_drive.getPose().nearest(FieldConstants.getBlueScoringPoses());
         }
         else if (DriverStation.getAlliance().get() == Alliance.Red) {
-            closestScoringPose = m_drive.getPose().nearest(FieldConstants.RedScoringPosition.getRedScoringPoses());
+            closestScoringPose = m_drive.getPose().nearest(FieldConstants.getRedScoringPoses());
         }
         else {
             foundDriverAlliance = true;
@@ -78,10 +78,10 @@ public class MoveToScorePosCommand extends Command {
         if (robotPose.getX() < FieldConstants.kBlueHUB.getX() || robotPose.getX() > FieldConstants.kRedHUB.getX()) {
 
             if (DriverStation.getAlliance().get() == Alliance.Blue) {
-                closestScoringPose = m_drive.getPose().nearest(FieldConstants.BlueScoringPosition.getBlueScoringPoses());
+                closestScoringPose = m_drive.getPose().nearest(FieldConstants.getBlueScoringPoses());
             }
             else if (DriverStation.getAlliance().get() == Alliance.Red) {
-                closestScoringPose = m_drive.getPose().nearest(FieldConstants.RedScoringPosition.getRedScoringPoses());
+                closestScoringPose = m_drive.getPose().nearest(FieldConstants.getRedScoringPoses());
             }
             
             // ---------------------------------------------------------
@@ -135,7 +135,7 @@ public class MoveToScorePosCommand extends Command {
             }
             else
             {
-                m_drive.drive(xSpeed, ySpeed, rotSpeed, true);
+                m_drive.drive(-xSpeed, -ySpeed, rotSpeed, true);
             }
             
         }

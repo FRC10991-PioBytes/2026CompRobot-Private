@@ -10,6 +10,8 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -114,6 +116,8 @@ public class RobotContainer
     */
     SmartDashboard.putData("Auto/PP Autos", pathAutoChooser);
 
+    //initCamera();
+
     configureButtonBindings();
   }
 
@@ -129,8 +133,8 @@ public class RobotContainer
   private void configureButtonBindings() {
     
     m_robotDrive.setDefaultCommand(new DriveCommand(m_robotDrive,
-        () -> -MathUtil.applyDeadband(-m_driverController.getRawAxis(OIConstants.leftStickY), OIConstants.kDriveDeadband) * 0.57,
-        () -> -MathUtil.applyDeadband(-m_driverController.getRawAxis(OIConstants.leftStickX), OIConstants.kDriveDeadband) * 0.57,
+        () -> -MathUtil.applyDeadband(-m_driverController.getRawAxis(OIConstants.leftStickY), OIConstants.kDriveDeadband) * 0.714,
+        () -> -MathUtil.applyDeadband(-m_driverController.getRawAxis(OIConstants.leftStickX), OIConstants.kDriveDeadband) * 0.714,
         () -> -MathUtil.applyDeadband(-m_driverController.getRawAxis(OIConstants.rightStickX), OIConstants.kDriveDeadband) * 0.57,
         () -> true));
 
@@ -199,6 +203,10 @@ public class RobotContainer
     */
   }
 
+  public Command getStopShootingCommand() {
+    return Commands.parallel(m_shooter.runOnce(() -> m_shooter.stop()), m_feeder.runOnce(() -> m_feeder.stop()));
+  }
+
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
@@ -247,8 +255,20 @@ public class RobotContainer
     }
     */
     
-    //return pathAutoChooser.getSelected();
-    return new PathPlannerAuto("CenterStart-Score");
+    return pathAutoChooser.getSelected();
+    //return new PathPlannerAuto("CenterStart-Score");
   }
+  /*
+  private void initCamera() {
+    try {
+        UsbCamera camera = CameraServer.startAutomaticCapture("MainCam", 0);
+        camera.setResolution(320, 240);
+        camera.setFPS(15);
+    }
+    catch (Exception e) {
+        e.printStackTrace();
+    }
+  }
+  */
 
 }

@@ -84,6 +84,15 @@ public class FeederSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Feeder/Actual RPM: ", getActualVelocity());
     SmartDashboard.putNumber("Feeder/Applied Output: ", m_leaderMotor.getAppliedOutput());
 
+    if (m_targetRPM != 0)
+    {
+      SmartDashboard.putBoolean("Feeder/Feeder Running", true);
+
+    }
+    else
+    {
+      SmartDashboard.putBoolean("Feeder/Feeder Running", false);
+    }
     /*
     if (m_targetRPM != 0)
     {
