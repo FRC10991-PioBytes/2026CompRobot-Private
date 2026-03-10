@@ -90,7 +90,7 @@ public class ShooterSubsystem extends SubsystemBase {
       m_targetRPM = rpm;
       m_leaderController.setSetpoint(m_targetRPM, ControlType.kMAXMotionVelocityControl);
     }
-    System.out.println("Setting shooter target rpm to " + rpm);
+    System.out.println("Set shooter to " + rpm);
   }
 
   public void stop()
@@ -98,6 +98,7 @@ public class ShooterSubsystem extends SubsystemBase {
     m_targetRPM = 0;
     m_leaderMotor.stopMotor();
     System.out.println("Shooter stopped");
+    
   }
 
   public boolean isAtSpeed(double tolerance)
@@ -114,6 +115,15 @@ public class ShooterSubsystem extends SubsystemBase {
   public void periodic() {
 
     SmartDashboard.putData("Shooter", this);
+    if (m_targetRPM != 0)
+    {
+      SmartDashboard.putBoolean("Shooter/Shooter Running", true);
+
+    }
+    else
+    {
+      SmartDashboard.putBoolean("Shooter/Shooter Running", false);
+    }
   }
 
   @Override

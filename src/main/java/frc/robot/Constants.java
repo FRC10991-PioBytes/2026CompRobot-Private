@@ -188,6 +188,11 @@ public final class Constants {
     public static final Translation2d kBlueHUB = new Translation2d(4.6256, 4.0345);
     public static final Translation2d kRedHUB = new Translation2d(11.9154, 4.0345);
 
+    private static ArrayList<Pose2d> kBlueScoringPoses = new ArrayList<>();
+    private static ArrayList<Pose2d> kRedScoringPoses = new ArrayList<>();
+
+    private static ArrayList<BlueScoringPosition> kBlueScoringPositions = new ArrayList<>();
+    private static ArrayList<RedScoringPosition> kRedScoringPositions = new ArrayList<>();
 
     // Blue Scoring Positions
     public static final BlueScoringPosition kBlueLeftScoringPose1 = new BlueScoringPosition(2.061, 5.173, 4000);
@@ -196,6 +201,7 @@ public final class Constants {
     public static final BlueScoringPosition kBlueLeftScoringPose4 = new BlueScoringPosition(1.5, 7.25, 5600);
     public static final BlueScoringPosition kBlueLeftScoringPose5 = new BlueScoringPosition(1.175, 5.93, 4700);
     public static final BlueScoringPosition kBlueLeftScoringPose6 = new BlueScoringPosition(2.67, 6.907, 4200);
+    public static final BlueScoringPosition kBlueLeftScoringPose7 = new BlueScoringPosition(1.26, 4.91, 4200);
     
     public static final BlueScoringPosition kBlueCenterScoringPose1 = new BlueScoringPosition(1.82, 4.0345, 4000);
     public static final BlueScoringPosition kBlueCenterScoringPose2 = new BlueScoringPosition(3.04, 4.0345, 3500);
@@ -215,6 +221,7 @@ public final class Constants {
     public static final RedScoringPosition kRedLeftScoringPose4 = new RedScoringPosition(15.057, 0.834, 5600);
     public static final RedScoringPosition kRedLeftScoringPose5 = new RedScoringPosition(15.351, 2.112, 4700);
     public static final RedScoringPosition kRedLeftScoringPose6 = new RedScoringPosition(13.871, 1.162, 4200);
+    public static final RedScoringPosition kRedLeftScoringPose7 = new RedScoringPosition(15.28, 3.124, 4200);
     
     public static final RedScoringPosition kRedCenterScoringPose1 = new RedScoringPosition(14.721, 4.0345, 4000);
     public static final RedScoringPosition kRedCenterScoringPose2 = new RedScoringPosition(13.75, 4.0345, 3500);
@@ -226,14 +233,25 @@ public final class Constants {
     public static final RedScoringPosition kRedRightScoringPose5 = new RedScoringPosition(15.366, 5.93, 4700);
     public static final RedScoringPosition kRedRightScoringPose6 = new RedScoringPosition(13.871, 6.907, 4200);
 
+    public static ArrayList<Pose2d> getBlueScoringPoses() {
+      return kBlueScoringPoses;
+    }
+    
+    public static ArrayList<Pose2d> getRedScoringPoses() {
+      return kRedScoringPoses;
+    }
 
+    public static ArrayList<BlueScoringPosition> getBlueScoringPositions() {
+      return kBlueScoringPositions;
+    }
+
+    public static ArrayList<RedScoringPosition> getRedScoringPositions() {
+      return kRedScoringPositions;
+    }
     /** Represents a Blue 2D pose pointed at the Blue HUB with an RPM */
     public static class BlueScoringPosition {
       private Pose2d kScoringPose;
       private double kShooterRPM;
-
-      private static ArrayList<Pose2d> kBlueScoringPoses = new ArrayList<>();
-      private static ArrayList<BlueScoringPosition> kBlueScoringPositions = new ArrayList<>();
       
       public BlueScoringPosition(double x, double y, double RPM)
       {
@@ -244,11 +262,6 @@ public final class Constants {
         kShooterRPM = RPM;
 
         kBlueScoringPositions.add(this);
-      }
-      
-      public static ArrayList<Pose2d> getBlueScoringPoses()
-      {
-        return kBlueScoringPoses;
       }
 
       public static double getNearestRPM(Pose2d robotPose)
@@ -291,9 +304,6 @@ public final class Constants {
     public static class RedScoringPosition {
       private Pose2d kScoringPose;
       private double kShooterRPM;
-
-      private static ArrayList<Pose2d> kRedScoringPoses = new ArrayList<>();
-      private static ArrayList<RedScoringPosition> kRedScoringPositions = new ArrayList<>();
       
       public RedScoringPosition(double x, double y, double RPM)
       {
@@ -304,11 +314,6 @@ public final class Constants {
         kShooterRPM = RPM;
 
         kRedScoringPositions.add(this);
-      }
-      
-      public static ArrayList<Pose2d> getRedScoringPoses()
-      {
-        return kRedScoringPoses;
       }
 
       public static double getNearestRPM(Pose2d robotPose)

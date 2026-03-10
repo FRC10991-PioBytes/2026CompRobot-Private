@@ -163,8 +163,8 @@ public class DriveSubsystem extends SubsystemBase {
 
     SmartDashboard.putData("Drive/Swerve Drive", this);
 
-    //field.getObject("Blue scoring poses").setPoses(FieldConstants.BlueScoringPosition.getBlueScoringPoses());
-    //field.getObject("Red scoring poses").setPoses(FieldConstants.RedScoringPosition.getRedScoringPoses());
+    //field.getObject("Blue scoring poses").setPoses(FieldConstants.getBlueScoringPoses());
+    //field.getObject("Red scoring poses").setPoses(FieldConstants.getRedScoringPoses());
     
   }
 
@@ -286,7 +286,7 @@ public class DriveSubsystem extends SubsystemBase {
     if (DriverStation.getAlliance().get() == Alliance.Red) {
       var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
         fieldRelative
-            ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered,
+            ? ChassisSpeeds.fromFieldRelativeSpeeds(-xSpeedDelivered, -ySpeedDelivered, -rotDelivered,
                 Rotation2d.fromDegrees(this.getHeading()))
             : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
 
@@ -300,7 +300,7 @@ public class DriveSubsystem extends SubsystemBase {
     else {
       var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
         fieldRelative
-            ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered,
+            ? ChassisSpeeds.fromFieldRelativeSpeeds(-xSpeedDelivered, -ySpeedDelivered, -rotDelivered,
                 Rotation2d.fromDegrees(this.getHeading()))
             : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
 
