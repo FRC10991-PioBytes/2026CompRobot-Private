@@ -57,20 +57,6 @@ public class DriveSubsystem extends SubsystemBase {
 
   private final Field2d field = new Field2d();
 
-  /*
-  // Odometry class for tracking robot pose
-  SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(
-      DriveConstants.kDriveKinematics,
-      m_gyro.getRotation2d(),
-      //Rotation2d.kZero,
-      new SwerveModulePosition[] {
-          m_frontLeft.getPosition(),
-          m_frontRight.getPosition(),
-          m_rearLeft.getPosition(),
-          m_rearRight.getPosition()
-      });
-  */
-
   SwerveDrivePoseEstimator m_poseEstimator;
 
   /** Creates a new DriveSubsystem. */
@@ -128,34 +114,10 @@ public class DriveSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    /*
-    // Update the odometry in the periodic block
-    m_odometry.update(
-        m_gyro.getRotation2d(),
-        //Rotation2d.kZero,
-        new SwerveModulePosition[] {
-            m_frontLeft.getPosition(),
-            m_frontRight.getPosition(),
-            m_rearLeft.getPosition(),
-            m_rearRight.getPosition()
-        });
-    */
 
     updateOdometry();
 
     SmartDashboard.putNumber("Drive/Gyro Angle: ", this.getHeading());
-    SmartDashboard.putNumber("Drive/Gyro reading", m_gyro.getRotation2d().getDegrees());
-
-    //LimelightHelpers.SetRobotOrientation("limelight", this.getHeading(), 0, 0, 0, 0, 0);
-    //LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
-    //this.getField().getObject("mt2 pose").setPose(mt2.pose);
-
-    double frontLeftDriveSpeed = m_frontLeft.getState().speedMetersPerSecond;
-    double frontLeftCommandedSpeed = m_frontLeft.getDesiredState().speedMetersPerSecond;
-    SmartDashboard.putNumber("Drive/Drive motor speed", frontLeftDriveSpeed);
-    SmartDashboard.putNumber("Drive/Drive commanded speed", frontLeftCommandedSpeed);
-    
-    
 
     Pose2d robotPose = getPose();
     field.setRobotPose(robotPose);
@@ -179,7 +141,7 @@ public class DriveSubsystem extends SubsystemBase {
             m_rearRight.getPosition()
         });
 
-    boolean doRejectUpdate = false;
+
     if (DriverStation.getAlliance().isPresent()) {
       if (DriverStation.getAlliance().get() == Alliance.Blue) {
       LimelightHelpers.SetRobotOrientation("limelight", this.getHeading(), 0, 0, 0, 0, 0);
@@ -189,15 +151,9 @@ public class DriveSubsystem extends SubsystemBase {
       }
     }
     
-    //LimelightHelpers.SetRobotOrientation("limelight", this.getHeading(), 0, 0, 0, 0, 0);
     LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
-    //this.getField().getObject("mt2 pose").setPose(mt2.pose);
     if (mt2 != null) {
-      if (Math.abs(this.getTurnRate()) > 720 || mt2.tagCount == 0)
-      {
-        doRejectUpdate = true;
-      }
-      if (!doRejectUpdate)
+      if (Math.abs(this.getTurnRate()) < 720 && mt2.tagCount != 0)
       {
         m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(1, 1, 999999));
         m_poseEstimator.addVisionMeasurement(
@@ -213,8 +169,6 @@ public class DriveSubsystem extends SubsystemBase {
    * @return The pose.
    */
   public Pose2d getPose() {
-    
-    //return m_odometry.getPoseMeters();
     return m_poseEstimator.getEstimatedPosition();
   }
 
@@ -224,22 +178,9 @@ public class DriveSubsystem extends SubsystemBase {
    * @param pose The pose to which to set the odometry.
    */
   public void resetPose(Pose2d pose) {
-    /*
-    m_odometry.resetPosition(
-        m_gyro.getRotation2d(),
-        //Rotation2d.kZero,
-        new SwerveModulePosition[] {
-            m_frontLeft.getPosition(),
-            m_frontRight.getPosition(),
-            m_rearLeft.getPosition(),
-            m_rearRight.getPosition()
-        },
-        pose);
-    */
     
     m_poseEstimator.resetPosition(
         Rotation2d.fromDegrees(this.getHeading()),
-        //Rotation2d.kZero,
         new SwerveModulePosition[] {
             m_frontLeft.getPosition(),
             m_frontRight.getPosition(),
@@ -248,23 +189,6 @@ public class DriveSubsystem extends SubsystemBase {
         },
         pose);
 
-    //m_poseEstimator.resetRotation(pose.getRotation());
-  }
-
-  public void resetOdometryWithAprilTags() {
-    try {
-      LimelightHelpers.SetIMUMode("limelight", 4);
-      LimelightHelpers.PoseEstimate mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
-      if (mt1.tagCount > 0)
-      {
-        resetPose(mt1.pose);
-        System.out.println("Set pose to " + mt1.pose.getX() + " x and " + mt1.pose.getY() + "y and " + mt1.pose.getRotation().getDegrees() + " degrees");
-      }
-    }
-    catch (Exception e) {
-      System.out.println("Couldn't get pose");
-      e.printStackTrace();
-    }
   }
 
   /**
@@ -286,7 +210,7 @@ public class DriveSubsystem extends SubsystemBase {
     if (DriverStation.getAlliance().get() == Alliance.Red) {
       var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
         fieldRelative
-            ? ChassisSpeeds.fromFieldRelativeSpeeds(-xSpeedDelivered, -ySpeedDelivered, -rotDelivered,
+            ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered,
                 Rotation2d.fromDegrees(this.getHeading()))
             : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
 
@@ -300,7 +224,7 @@ public class DriveSubsystem extends SubsystemBase {
     else {
       var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
         fieldRelative
-            ? ChassisSpeeds.fromFieldRelativeSpeeds(-xSpeedDelivered, -ySpeedDelivered, -rotDelivered,
+            ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered,
                 Rotation2d.fromDegrees(this.getHeading()))
             : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
 
@@ -311,8 +235,6 @@ public class DriveSubsystem extends SubsystemBase {
         m_rearLeft.setDesiredState(swerveModuleStates[2]);
         m_rearRight.setDesiredState(swerveModuleStates[3]);
     }
-    
-
     
   }
 

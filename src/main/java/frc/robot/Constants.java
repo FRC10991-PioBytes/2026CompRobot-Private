@@ -5,11 +5,7 @@
 package frc.robot;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 
-import com.pathplanner.lib.config.RobotConfig;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -144,6 +140,7 @@ public final class Constants {
     public static final double kD = 0;
 
     public static final int kShooterMaxAcceleration = 1500; // RPM per second
+    public static final double kShooterIdleVelocity = 4000; // RPM
   }
 
   public static final class OIConstants {
@@ -182,8 +179,6 @@ public final class Constants {
 
   // All values are field centric from the blue origin in meters
   public static final class FieldConstants {
-    
-    public static final Pose2d kResetPosePosition = new Pose2d(2, 4.0345, new Rotation2d(0));
 
     public static final Translation2d kBlueHUB = new Translation2d(4.6256, 4.0345);
     public static final Translation2d kRedHUB = new Translation2d(11.9154, 4.0345);
@@ -248,6 +243,7 @@ public final class Constants {
     public static ArrayList<RedScoringPosition> getRedScoringPositions() {
       return kRedScoringPositions;
     }
+    
     /** Represents a Blue 2D pose pointed at the Blue HUB with an RPM */
     public static class BlueScoringPosition {
       private Pose2d kScoringPose;

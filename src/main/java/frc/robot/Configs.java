@@ -78,8 +78,8 @@ public final class Configs
                         .pid(FeederConstants.kP, 0, FeederConstants.kD)
                         .outputRange(-0.75, 0.75)
                         .feedForward
-                                .kS(FeederConstants.kStaticFF) // 0.002
-                                .kV(FeederConstants.kVelocityFF) // 0.00265
+                                .kS(FeederConstants.kStaticFF)
+                                .kV(FeederConstants.kVelocityFF)
                                 .kA(FeederConstants.kAccelerationFF);
                 leaderConfig.closedLoop.maxMotion
                         .maxAcceleration(2000);

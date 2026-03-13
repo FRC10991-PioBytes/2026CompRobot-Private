@@ -73,7 +73,7 @@ public class ShooterSubsystem extends SubsystemBase {
       );
     */
     
-    setVelocity(0);
+    setVelocity(4000);
 
   }
 

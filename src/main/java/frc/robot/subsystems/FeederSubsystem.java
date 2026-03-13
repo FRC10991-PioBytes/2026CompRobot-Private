@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class FeederSubsystem extends SubsystemBase {
 
   private final SparkMax m_leaderMotor;
-  //private final SparkMax m_agitatorMotor;
+  private final SparkMax m_agitatorMotor;
 
   private SparkClosedLoopController m_leaderController;
 
@@ -33,9 +33,9 @@ public class FeederSubsystem extends SubsystemBase {
 
     m_leaderMotor.configure(Feeder.leaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-    //m_agitatorMotor = new SparkMax(FeederConstants.kAgitatorCanId, MotorType.kBrushless);
+    m_agitatorMotor = new SparkMax(FeederConstants.kAgitatorCanId, MotorType.kBrushless);
 
-    //m_agitatorMotor.configure(Feeder.agitatorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    m_agitatorMotor.configure(Feeder.agitatorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     SmartDashboard.putNumber("Feeder/Target RPM", 0);
 
@@ -53,18 +53,18 @@ public class FeederSubsystem extends SubsystemBase {
     System.out.println("Setting feeder target rpm to " + rpm);
   }
 
-  /*
+  
   public void runAgitator(double speed)
   {
-    m_agitatorMotor.set(speed);
+    m_agitatorMotor.set(-1 * speed);
   }
-  */
+  
 
   public void stop()
   {
     m_targetRPM = 0;
     m_leaderMotor.stopMotor();
-    //m_agitatorMotor.stopMotor();
+    m_agitatorMotor.stopMotor();
     System.out.println("Feeder stopped");
   }
 
@@ -86,23 +86,16 @@ public class FeederSubsystem extends SubsystemBase {
 
     if (m_targetRPM != 0)
     {
+      m_agitatorMotor.set(1);
       SmartDashboard.putBoolean("Feeder/Feeder Running", true);
 
     }
     else
     {
+      m_agitatorMotor.stopMotor();
       SmartDashboard.putBoolean("Feeder/Feeder Running", false);
     }
-    /*
-    if (m_targetRPM != 0)
-    {
-      m_agitatorMotor.set(-1);
-    }
-    else
-    {
-      m_agitatorMotor.stopMotor();
-    }
-    */
+    
   }
 
 }
