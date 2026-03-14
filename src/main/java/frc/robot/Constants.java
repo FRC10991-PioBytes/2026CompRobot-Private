@@ -143,6 +143,16 @@ public final class Constants {
     public static final double kShooterIdleVelocity = 4000; // RPM
   }
 
+  public static final class LEDConstants {
+
+    public static final int kLEDStripPort = 0;
+
+    public static final Rotation2d kFrontLeftLEDAngularOffset = new Rotation2d(0);
+    public static final Rotation2d kFrontRightLEDAngularOffset = new Rotation2d(0);
+    public static final Rotation2d kBackLeftLEDAngularOffset = new Rotation2d(0);
+    public static final Rotation2d kBackRightEDAngularOffset = new Rotation2d(0);
+  }
+
   public static final class OIConstants {
     public static final int kDriverControllerPort = 0;
     public static final double kDriveDeadband = 0.1;
