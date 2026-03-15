@@ -150,7 +150,7 @@ public final class Constants {
     public static final Rotation2d kFrontLeftLEDAngularOffset = new Rotation2d(0);
     public static final Rotation2d kFrontRightLEDAngularOffset = new Rotation2d(0);
     public static final Rotation2d kBackLeftLEDAngularOffset = new Rotation2d(0);
-    public static final Rotation2d kBackRightEDAngularOffset = new Rotation2d(0);
+    public static final Rotation2d kBackRightLEDAngularOffset = new Rotation2d(0);
   }
 
   public static final class OIConstants {

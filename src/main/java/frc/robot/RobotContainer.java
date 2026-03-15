@@ -21,6 +21,8 @@ import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.SwerveLEDSubsystem;
+import frc.robot.subsystems.SwerveLEDSubsystem.LEDState;
 import frc.robot.commands.AutomaticShootingCommands.FaceToPassCommand;
 import frc.robot.commands.AutomaticShootingCommands.MoveToScorePosCommand;
 import frc.robot.commands.AutomaticShootingCommands.ShootFromScorePosCommand;
@@ -48,6 +50,7 @@ public class RobotContainer
   private final IntakeSubsystem m_intake = new IntakeSubsystem();
   private final ShooterSubsystem m_shooter = new ShooterSubsystem();
   private final FeederSubsystem m_feeder = new FeederSubsystem();
+  private final SwerveLEDSubsystem m_LEDs = new SwerveLEDSubsystem(m_robotDrive);
 
   // Driver controller
   CommandJoystick m_driverController = new CommandJoystick(OIConstants.kDriverControllerPort);
@@ -92,14 +95,16 @@ public class RobotContainer
    */
   private void configureButtonBindings() {
     
-    m_robotDrive.setDefaultCommand(new DriveCommand(m_robotDrive,
+    //m_LEDs.setDefaultCommand(new RunCommand(() -> m_LEDs.setState(LEDState.Loading), m_LEDs));
+
+    m_robotDrive.setDefaultCommand(new DriveCommand(m_robotDrive, m_LEDs,
         () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.leftStickY), OIConstants.kDriveDeadband) * 0.714,
         () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.leftStickX), OIConstants.kDriveDeadband) * 0.714,
         () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.rightStickX), OIConstants.kDriveDeadband) * 0.57,
         () -> true));
 
     m_driverController.button(OIConstants.bumperLeft)
-        .whileTrue(new DriveCommand(m_robotDrive, 
+        .whileTrue(new DriveCommand(m_robotDrive, m_LEDs,
             () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.leftStickY), OIConstants.kDriveDeadband) * 0.29,
             () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.leftStickX), OIConstants.kDriveDeadband) * 0.29,
             () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.rightStickX), OIConstants.kDriveDeadband) * 0.29,
@@ -115,7 +120,7 @@ public class RobotContainer
     
     // Move to closest scoring position
     m_driverController.button(OIConstants.buttonA)
-        .whileTrue(new MoveToScorePosCommand(m_robotDrive));
+        .whileTrue(new MoveToScorePosCommand(m_robotDrive, m_LEDs));
 
     // Set X formation
     m_driverController.button(OIConstants.buttonX)
@@ -133,6 +138,7 @@ public class RobotContainer
         .onTrue(m_feeder.runOnce(() -> m_feeder.setVelocity(3000)))
         .onFalse(m_feeder.runOnce(() -> m_feeder.stop()));
 
+    // Pass
     m_manipulatorController.button(OIConstants.bumperRight)
         .whileTrue(m_shooter.runOnce(() -> m_shooter.setVelocity(5600)))
         .onFalse(m_shooter.runOnce(() -> m_shooter.setVelocity(ShooterConstants.kShooterIdleVelocity)));

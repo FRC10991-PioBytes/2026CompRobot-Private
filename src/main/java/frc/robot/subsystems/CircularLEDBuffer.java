@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.function.BooleanSupplier;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.*;
 import edu.wpi.first.units.measure.Frequency;
@@ -19,11 +21,23 @@ import edu.wpi.first.wpilibj.util.Color;
 
 public class CircularLEDBuffer {
   // Instantiates the motors and encoders
-  private int m_length;
-  private Rotation2d m_angularOffset;
+  private final int m_length;
+  private final Rotation2d m_angularOffset;
   private Rotation2d m_angularSetpoint;
 
   private AddressableLEDBufferView m_bufferView;
+
+  private static final LEDPattern kWhitePattern = LEDPattern.solid(Color.kWhite);
+  private static final LEDPattern kGreenPattern = LEDPattern.solid(Color.kGreen);
+  private static final LEDPattern kBlackPattern = LEDPattern.solid(Color.kBlack);
+
+  private static final LEDPattern kRedLoadingPattern =
+    LEDPattern.gradient(LEDPattern.GradientType.kContinuous, Color.kBlack, Color.kRed)
+        .scrollAtRelativeSpeed(Frequency.ofBaseUnits(1, Units.Hertz));
+
+  private static final LEDPattern kBlueLoadingPattern =
+    LEDPattern.gradient(LEDPattern.GradientType.kContinuous, Color.kBlack, Color.kBlue)
+        .scrollAtRelativeSpeed(Frequency.ofBaseUnits(1, Units.Hertz));
 
   /**
    * Constructs a Circular Buffer for LEDs
@@ -36,55 +50,47 @@ public class CircularLEDBuffer {
   }
 
   public void setLookingForTargetPattern() {
-    LEDPattern whitePattern = LEDPattern.solid(Color.kWhite);
-    whitePattern.applyTo(m_bufferView);
+    kWhitePattern.applyTo(m_bufferView);
   }
 
   public void setTargetFoundPattern() {
-    LEDPattern whitePattern = LEDPattern.solid(Color.kGreen);
-    whitePattern.applyTo(m_bufferView);
+    kGreenPattern.applyTo(m_bufferView);
   }
 
-  public void setLoadingPattern() {
-    if (DriverStation.getAlliance().get() == Alliance.Red) {
-      LEDPattern loadingPattern = LEDPattern.gradient(LEDPattern.GradientType.kContinuous, Color.kBlack, Color.kRed);
-      loadingPattern.scrollAtRelativeSpeed(Frequency.ofBaseUnits(1, Units.Hertz));
-      loadingPattern.applyTo(m_bufferView);
+  public void setLoadingPattern(boolean isRed) {
+    if (isRed) {
+      kRedLoadingPattern.applyTo(m_bufferView);
     }
     else {
-      LEDPattern loadingPattern = LEDPattern.gradient(LEDPattern.GradientType.kContinuous, Color.kBlack, Color.kBlue);
-      loadingPattern.scrollAtRelativeSpeed(Frequency.ofBaseUnits(1, Units.Hertz));
-      loadingPattern.applyTo(m_bufferView);
+      kBlueLoadingPattern.applyTo(m_bufferView);
     }
   }
 
   public void setOff() {
-    LEDPattern blackPattern = LEDPattern.solid(Color.kBlack);
-    blackPattern.applyTo(m_bufferView);
+    kBlackPattern.applyTo(m_bufferView);
   }
 
   // Sets the Azimuth Pattern given a wheel direction
-  public void setAzimuthPattern(Rotation2d wheelDirection) {
+  public void setAzimuthPattern(Rotation2d wheelDirection, boolean isRed) {
     // Get the LED-oriented direction
     Rotation2d LEDDirection = applyAngularOffset(wheelDirection);
     m_angularSetpoint = LEDDirection;
     // Get the closest LEDIndex
     int closestLEDIndex = convertToLEDIndex(LEDDirection);
-    // Get the oppositve LEDIndex
+    // Get the opposite LEDIndex
     int oppositeLEDIndex = getOppositeLEDIndex(closestLEDIndex);
 
     // Set the Azimuth LED Pattern
     // Red by default, blue if alliance is blue
-    LEDPattern whitePattern = LEDPattern.solid(Color.kWhite);
-    whitePattern.applyTo(m_bufferView);
+    kWhitePattern.applyTo(m_bufferView);
 
-    if (DriverStation.getAlliance().get() == Alliance.Blue) {
-      this.setColor(closestLEDIndex, Color.kBlue);
-      this.setColor(oppositeLEDIndex, Color.kBlue);
+    if (isRed) {
+      m_bufferView.setLED(closestLEDIndex, Color.kRed);
+      m_bufferView.setLED(oppositeLEDIndex, Color.kRed);
     }
     else {
-      this.setColor(closestLEDIndex, Color.kRed);
-      this.setColor(oppositeLEDIndex, Color.kRed);
+      m_bufferView.setLED(closestLEDIndex, Color.kBlue);
+      m_bufferView.setLED(oppositeLEDIndex, Color.kBlue);
     }
 
     /*
@@ -123,26 +129,26 @@ public class CircularLEDBuffer {
     return angle.minus(m_angularOffset);
   }
 
-  // Returns closest LEDIndex with range of (0, length]
+  // Returns closest LEDIndex with range of [0, length)
   public int convertToLEDIndex(Rotation2d angle) {
-    double LEDegree = (angle.getDegrees() / 360) * m_length;
-    // Change range from (-length / 2, length / 2] to (0, length]
-    if (LEDegree < 0) {
-      LEDegree += m_length;
+    double newAngle = (angle.getRotations() % 1);
+    if (newAngle < 0) {
+      newAngle += 1;
     }
 
-    // Round the degree
-    int LEDIndex = ((int) (LEDegree + 0.5));
-    // Make index start at 0
-    LEDIndex--;
+    double LEDegree = newAngle * m_length;
+    return (int) (LEDegree + 0.5) % m_length;
 
-    return LEDIndex;
+    
   }
 
+  /*
   // Sets the color of the LED
   public void setColor(int index, Color color) {
-    m_bufferView.setRGB(index, (int) (color.red * 255 + 0.5), (int) (color.green * 255 + 0.5), (int) (color.blue * 255 + 0.5));
+    m_bufferView.setLED(index, color);
+    //m_bufferView.setRGB(index, (int) (color.red * 255 + 0.5), (int) (color.green * 255 + 0.5), (int) (color.blue * 255 + 0.5));
   }
+  */
 
   /*
     Getters

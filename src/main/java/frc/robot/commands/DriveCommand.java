@@ -5,6 +5,8 @@
 package frc.robot.commands;
 
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.SwerveLEDSubsystem;
+import frc.robot.subsystems.SwerveLEDSubsystem.LEDState;
 import edu.wpi.first.wpilibj2.command.Command;
 
 import java.util.function.BooleanSupplier;
@@ -18,20 +20,22 @@ public class DriveCommand extends Command {
   private final DoubleSupplier m_rot;
   private final BooleanSupplier m_fieldRelative;
   private final DriveSubsystem m_drive;
+  private final SwerveLEDSubsystem m_ledSubsystem;
 
   /**
    * Creates a new ExampleCommand.
    *
    * @param subsystem The subsystem used by this command.
    */
-  public DriveCommand(DriveSubsystem driveSubsystem, DoubleSupplier xSpeed, DoubleSupplier ySpeed, DoubleSupplier rot, BooleanSupplier fieldRelative) {
+  public DriveCommand(DriveSubsystem driveSubsystem, SwerveLEDSubsystem ledSubsystem, DoubleSupplier xSpeed, DoubleSupplier ySpeed, DoubleSupplier rot, BooleanSupplier fieldRelative) {
     m_xSpeed = xSpeed;
     m_ySpeed = ySpeed;
     m_rot = rot;
     m_fieldRelative = fieldRelative;
     m_drive = driveSubsystem;
+    m_ledSubsystem = ledSubsystem;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(m_drive);
+    addRequirements(m_drive, m_ledSubsystem);
   }
 
   // Called when the command is initially scheduled.
@@ -42,6 +46,7 @@ public class DriveCommand extends Command {
   @Override
   public void execute() {
     m_drive.drive(m_xSpeed.getAsDouble(), m_ySpeed.getAsDouble(), m_rot.getAsDouble(), m_fieldRelative.getAsBoolean());
+    m_ledSubsystem.setState(LEDState.Azimuth);
   }
 
   // Called once the command ends or is interrupted.
