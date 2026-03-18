@@ -92,7 +92,8 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    SmartDashboard.putNumber("Game Info/TeleOp Time Remaining: ", Timer.getMatchTime());
+    SmartDashboard.putNumber("Game Info/Match Time:", Timer.getMatchTime());
+    SmartDashboard.putNumber("Game Info/Shift Time", getShiftTime(Timer.getMatchTime()));
 
     LimelightHelpers.SetIMUMode("limelight", 4);
   }
@@ -114,4 +115,25 @@ public class Robot extends TimedRobot {
   /** This function is called periodically whilst in simulation. */
   @Override
   public void simulationPeriodic() {}
+
+  public double getShiftTime(double time) {
+    if (time > 130) {
+      return time - 130;
+    }
+    else if (time > 105) {
+      return time - 105;
+    }
+    else if (time > 80) {
+      return time - 80;
+    }
+    else if (time > 55) {
+      return time - 55;
+    }
+    else if (time > 30) {
+      return time - 30;
+    }
+    else {
+      return time;
+    }
+  }
 }

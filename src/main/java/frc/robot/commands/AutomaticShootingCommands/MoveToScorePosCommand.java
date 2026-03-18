@@ -14,7 +14,6 @@ import frc.robot.Constants.FieldConstants;
 
 public class MoveToScorePosCommand extends Command {
     private final DriveSubsystem m_drive;
-    private final SwerveLEDSubsystem m_ledSubsystem;
 
     // PID Gains
     private final PIDController m_rangePID = new PIDController(2, 0, 0); 
@@ -25,11 +24,10 @@ public class MoveToScorePosCommand extends Command {
     private boolean atScoringPose;
     private boolean noDriverAllianceFound;
 
-    public MoveToScorePosCommand(DriveSubsystem drive, SwerveLEDSubsystem ledSubsystem) {
+    public MoveToScorePosCommand(DriveSubsystem drive) {
         m_drive = drive;
-        m_ledSubsystem = ledSubsystem;
 
-        addRequirements(m_drive, m_ledSubsystem);
+        addRequirements(m_drive);
         
         m_rangePID.setTolerance(0.05);
 
@@ -111,12 +109,10 @@ public class MoveToScorePosCommand extends Command {
             // fieldRelative = true, so these X/Y values are treated as Field X/Y
             if (atScoringPose)
             {
-                m_ledSubsystem.setState(LEDState.TargetFound);
                 m_drive.setX();
             }
             else
             {
-                m_ledSubsystem.setState(LEDState.LookingForTarget);
                 m_drive.drive(-xSpeed, -ySpeed, rotSpeed, true);
             }
             

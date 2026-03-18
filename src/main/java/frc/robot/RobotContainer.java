@@ -50,7 +50,7 @@ public class RobotContainer
   private final IntakeSubsystem m_intake = new IntakeSubsystem();
   private final ShooterSubsystem m_shooter = new ShooterSubsystem();
   private final FeederSubsystem m_feeder = new FeederSubsystem();
-  private final SwerveLEDSubsystem m_LEDs = new SwerveLEDSubsystem(m_robotDrive);
+  //private final SwerveLEDSubsystem m_LEDs = new SwerveLEDSubsystem(m_robotDrive);
 
   // Driver controller
   CommandJoystick m_driverController = new CommandJoystick(OIConstants.kDriverControllerPort);
@@ -72,7 +72,7 @@ public class RobotContainer
     NamedCommands.registerCommand("StopShooter", m_shooter.runOnce(() -> m_shooter.stop()));
     NamedCommands.registerCommand("ExtendIntake", Commands.print("Extended Intake"));
     NamedCommands.registerCommand("RevShooter", m_shooter.runOnce(() -> m_shooter.setVelocity(4200)));
-    NamedCommands.registerCommand("RunFeederAndShoot", m_feeder.runOnce(() -> m_feeder.setVelocity(3000)));
+    NamedCommands.registerCommand("RunFeederAndShoot", m_feeder.runOnce(() -> m_feeder.setVelocity(4800)));
     NamedCommands.registerCommand("RunIntakeRoller", Commands.print("Running intake roller"));
 
     pathAutoChooser = AutoBuilder.buildAutoChooser("CenterStart-Score");
@@ -97,14 +97,14 @@ public class RobotContainer
     
     //m_LEDs.setDefaultCommand(new RunCommand(() -> m_LEDs.setState(LEDState.Loading), m_LEDs));
 
-    m_robotDrive.setDefaultCommand(new DriveCommand(m_robotDrive, m_LEDs,
+    m_robotDrive.setDefaultCommand(new DriveCommand(m_robotDrive, //m_LEDs,
         () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.leftStickY), OIConstants.kDriveDeadband) * 0.714,
         () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.leftStickX), OIConstants.kDriveDeadband) * 0.714,
         () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.rightStickX), OIConstants.kDriveDeadband) * 0.57,
         () -> true));
 
     m_driverController.button(OIConstants.bumperLeft)
-        .whileTrue(new DriveCommand(m_robotDrive, m_LEDs,
+        .whileTrue(new DriveCommand(m_robotDrive, //m_LEDs,
             () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.leftStickY), OIConstants.kDriveDeadband) * 0.29,
             () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.leftStickX), OIConstants.kDriveDeadband) * 0.29,
             () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.rightStickX), OIConstants.kDriveDeadband) * 0.29,
@@ -120,7 +120,7 @@ public class RobotContainer
     
     // Move to closest scoring position
     m_driverController.button(OIConstants.buttonA)
-        .whileTrue(new MoveToScorePosCommand(m_robotDrive, m_LEDs));
+        .whileTrue(new MoveToScorePosCommand(m_robotDrive));
 
     // Set X formation
     m_driverController.button(OIConstants.buttonX)
@@ -135,7 +135,7 @@ public class RobotContainer
     
     // Run feeder
     m_manipulatorController.axisGreaterThan(OIConstants.leftTrigger, 0.5)
-        .onTrue(m_feeder.runOnce(() -> m_feeder.setVelocity(3000)))
+        .onTrue(m_feeder.runOnce(() -> m_feeder.setVelocity(4800)))
         .onFalse(m_feeder.runOnce(() -> m_feeder.stop()));
 
     // Pass

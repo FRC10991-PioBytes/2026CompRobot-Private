@@ -81,8 +81,8 @@ public class DriveSubsystem extends SubsystemBase {
       this::getRobotRelativeSpeeds,
       (speeds, feedforwards) -> driveRobotRelative(speeds),
       new PPHolonomicDriveController(
-        new PIDConstants(3, 0, 0.2), 
-        new PIDConstants(2, 0, 0)),
+        new PIDConstants(4, 0, 0), 
+        new PIDConstants(2.5, 0, 0)),
       config,
       () -> {
         var alliance = DriverStation.getAlliance();

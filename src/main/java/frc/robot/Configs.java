@@ -76,7 +76,7 @@ public final class Configs
                         .closedLoopRampRate(0.5);
                 leaderConfig.closedLoop
                         .pid(FeederConstants.kP, 0, FeederConstants.kD)
-                        .outputRange(-0.75, 0.75)
+                        .outputRange(-1, 1) // Don't limit it
                         .feedForward
                                 .kS(FeederConstants.kStaticFF)
                                 .kV(FeederConstants.kVelocityFF)
