@@ -11,12 +11,6 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "ExtendIntake"
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "LeftStartToScore"
@@ -48,22 +42,9 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "named",
           "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "StopShooter"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "StopFeeder"
-                }
-              }
-            ]
+            "name": "StopFeeder"
           }
         },
         {

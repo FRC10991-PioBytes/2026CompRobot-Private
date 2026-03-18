@@ -70,7 +70,7 @@ public final class Configs
 
         static {
                 leaderConfig
-                        .idleMode(IdleMode.kCoast)
+                        .idleMode(IdleMode.kBrake)
                         .smartCurrentLimit(40)
                         .voltageCompensation(12)
                         .closedLoopRampRate(0.5);

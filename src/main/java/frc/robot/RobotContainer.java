@@ -70,10 +70,10 @@ public class RobotContainer
 
     NamedCommands.registerCommand("StopFeeder", m_feeder.runOnce(() -> m_feeder.stop()));
     NamedCommands.registerCommand("StopShooter", m_shooter.runOnce(() -> m_shooter.stop()));
-    NamedCommands.registerCommand("ExtendIntake", Commands.print("Extended Intake"));
-    NamedCommands.registerCommand("RevShooter", m_shooter.runOnce(() -> m_shooter.setVelocity(4200)));
+    NamedCommands.registerCommand("ExtendIntake", new RunIntakePivotCommand(m_intake, () -> -1).withTimeout(0.5));
+    NamedCommands.registerCommand("RevShooter", m_shooter.runOnce(() -> m_shooter.setVelocity(4400)));
     NamedCommands.registerCommand("RunFeederAndShoot", m_feeder.runOnce(() -> m_feeder.setVelocity(4800)));
-    NamedCommands.registerCommand("RunIntakeRoller", Commands.print("Running intake roller"));
+    NamedCommands.registerCommand("RunIntakeRoller", new RunIntakeInCommand(m_intake));
 
     pathAutoChooser = AutoBuilder.buildAutoChooser("CenterStart-Score");
 

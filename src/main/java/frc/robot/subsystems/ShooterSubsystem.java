@@ -96,7 +96,6 @@ public class ShooterSubsystem extends SubsystemBase {
   public void stop()
   {
     m_targetRPM = 0;
-    m_leaderMotor.stopMotor();
     System.out.println("Shooter stopped");
     
   }
@@ -134,6 +133,7 @@ public class ShooterSubsystem extends SubsystemBase {
     builder.addDoubleProperty("Output Shaft RPM", () -> getActualVelocity() * m_gearRatio, null);
     builder.addDoubleProperty("Shooter Setpoint", () -> m_targetRPM, null);
     builder.addBooleanProperty("Within 50 RPM", () -> isAtSpeed(50.0), null);
+    builder.addDoubleProperty("Shooter/Applied Output: ", () -> m_leaderMotor.getAppliedOutput(), null);
 
   }
 }
