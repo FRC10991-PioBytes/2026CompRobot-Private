@@ -140,7 +140,7 @@ public final class Constants {
     public static final double kD = 0;
 
     public static final int kShooterMaxAcceleration = 1500; // RPM per second
-    public static final double kShooterIdleVelocity = 0; // RPM
+    public static final double kShooterIdleVelocity = 4000; // RPM
   }
 
   public static final class LEDConstants {

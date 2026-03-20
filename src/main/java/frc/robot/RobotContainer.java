@@ -73,7 +73,7 @@ public class RobotContainer
 
     NamedCommands.registerCommand("StopFeeder", m_feeder.runOnce(() -> m_feeder.stop()));
     NamedCommands.registerCommand("StopShooter", m_shooter.runOnce(() -> m_shooter.stop()));
-    NamedCommands.registerCommand("ExtendIntake", new RunIntakePivotCommand(m_intake, () -> -1).withTimeout(0.5));
+    NamedCommands.registerCommand("ExtendIntake", new RunIntakePivotCommand(m_intake, () -> -1).withTimeout(0.75));
     NamedCommands.registerCommand("RevShooterLeft", m_shooter.runOnce(() -> m_shooter.setVelocity(4400)));
     NamedCommands.registerCommand("RevShooterCenter", m_shooter.runOnce(() -> m_shooter.setVelocity(4000)));
     NamedCommands.registerCommand("RunFeederAndShoot", m_feeder.runOnce(() -> m_feeder.setVelocity(4800)));

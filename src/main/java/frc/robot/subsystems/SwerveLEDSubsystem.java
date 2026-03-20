@@ -80,6 +80,11 @@ public class SwerveLEDSubsystem extends SubsystemBase {
   public void periodic() {
 
     m_isRed = DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red;
+
+    if (DriverStation.isDisabled()) {
+      m_currentState = LEDState.Loading;
+    }
+    
     switch (m_currentState) {
       case Off:
       {
@@ -149,7 +154,13 @@ public class SwerveLEDSubsystem extends SubsystemBase {
   }
 
   public void setState(LEDState state) {
-    m_currentState = state;
+    if (DriverStation.isDisabled()) {
+      m_currentState = LEDState.Loading;
+    }
+    else {
+      m_currentState = state;
+    }
+   
   }
 
   public void initSendable(SendableBuilder builder) {
