@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import java.util.Map;
 import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -16,6 +17,7 @@ import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.LEDReader;
 import edu.wpi.first.wpilibj.LEDWriter;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 
 
@@ -27,23 +29,26 @@ public class CircularLEDBuffer {
 
   private AddressableLEDBufferView m_bufferView;
 
-  private static final LEDPattern kWhitePattern = LEDPattern.solid(Color.kWhite);
+  private static final LEDPattern kWhitePattern = LEDPattern.solid(new Color(25, 25, 25));
   private static final LEDPattern kGreenPattern = LEDPattern.solid(Color.kGreen);
   private static final LEDPattern kBlackPattern = LEDPattern.solid(Color.kBlack);
 
+  private static final LEDPattern kMask = LEDPattern.steps(Map.of(0, Color.kBlack, 0.25, Color.kWhite));
   private static final LEDPattern kRedLoadingPattern =
-    LEDPattern.gradient(LEDPattern.GradientType.kContinuous, Color.kBlack, Color.kRed)
+    LEDPattern.gradient(LEDPattern.GradientType.kDiscontinuous, Color.kBlack, Color.kRed)
+      //.mask(kMask)
         .scrollAtRelativeSpeed(Frequency.ofBaseUnits(1, Units.Hertz));
 
   private static final LEDPattern kBlueLoadingPattern =
-    LEDPattern.gradient(LEDPattern.GradientType.kContinuous, Color.kBlack, Color.kBlue)
+    LEDPattern.gradient(LEDPattern.GradientType.kDiscontinuous, Color.kBlack, Color.kBlue)
+      //.mask(kMask)
         .scrollAtRelativeSpeed(Frequency.ofBaseUnits(1, Units.Hertz));
 
   /**
    * Constructs a Circular Buffer for LEDs
    */
   public CircularLEDBuffer(AddressableLEDBufferView bufferView, Rotation2d angularOffset) {
-    m_bufferView = bufferView;
+    m_bufferView = bufferView.reversed();
 
     m_length = m_bufferView.getLength();
     m_angularOffset = angularOffset;
@@ -82,8 +87,27 @@ public class CircularLEDBuffer {
 
     // Set the Azimuth LED Pattern
     // Red by default, blue if alliance is blue
-    kWhitePattern.applyTo(m_bufferView);
+    kBlackPattern.applyTo(m_bufferView);
 
+    int[] indexGroups = new int[6];
+    indexGroups[0] = (closestLEDIndex == 0) ? m_length - 1 : closestLEDIndex - 1;
+    indexGroups[1] = closestLEDIndex;
+    indexGroups[2] = (closestLEDIndex == m_length - 1) ? 0 : closestLEDIndex + 1;
+    indexGroups[3] = (oppositeLEDIndex == 0) ? m_length - 1 : oppositeLEDIndex - 1;
+    indexGroups[4] = oppositeLEDIndex;
+    indexGroups[5] = (oppositeLEDIndex == m_length - 1) ? 0 : oppositeLEDIndex + 1;
+    if (isRed) {
+      for (int i = 0; i < 6; i++) {
+        m_bufferView.setLED(indexGroups[i], Color.kRed);
+      }
+    }
+    else {
+      for (int i = 0; i < 6; i++) {
+        m_bufferView.setLED(indexGroups[i], Color.kBlue);
+      }
+    }
+
+    /*
     if (isRed) {
       m_bufferView.setLED(closestLEDIndex, Color.kRed);
       m_bufferView.setLED(oppositeLEDIndex, Color.kRed);
@@ -92,6 +116,7 @@ public class CircularLEDBuffer {
       m_bufferView.setLED(closestLEDIndex, Color.kBlue);
       m_bufferView.setLED(oppositeLEDIndex, Color.kBlue);
     }
+    */
 
     /*
     for (int i = 0; i < m_length; i++) {

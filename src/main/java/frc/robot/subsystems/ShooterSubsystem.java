@@ -73,7 +73,7 @@ public class ShooterSubsystem extends SubsystemBase {
       );
     */
     
-    setVelocity(4000);
+    setVelocity(ShooterConstants.kShooterIdleVelocity);
 
   }
 

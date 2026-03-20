@@ -116,7 +116,7 @@ public class DriveSubsystem extends SubsystemBase {
   public void periodic() {
 
     updateOdometry();
-
+    SmartDashboard.putNumber("Wheel angle", m_frontLeft.getState().angle.getRotations());
     SmartDashboard.putNumber("Drive/Gyro Angle: ", this.getHeading());
 
     Pose2d robotPose = getPose();
@@ -124,7 +124,7 @@ public class DriveSubsystem extends SubsystemBase {
     SmartDashboard.putData("Game Info/Field", field);
 
     SmartDashboard.putData("Drive/Swerve Drive", this);
-
+    SmartDashboard.putNumber("pose estimator yaw", getPose().getRotation().getDegrees());
     //field.getObject("Blue scoring poses").setPoses(FieldConstants.getBlueScoringPoses());
     //field.getObject("Red scoring poses").setPoses(FieldConstants.getRedScoringPoses());
     
@@ -141,7 +141,7 @@ public class DriveSubsystem extends SubsystemBase {
             m_rearRight.getPosition()
         });
 
-
+    /*
     if (DriverStation.getAlliance().isPresent()) {
       if (DriverStation.getAlliance().get() == Alliance.Blue) {
       LimelightHelpers.SetRobotOrientation("limelight", this.getHeading(), 0, 0, 0, 0, 0);
@@ -150,8 +150,11 @@ public class DriveSubsystem extends SubsystemBase {
         LimelightHelpers.SetRobotOrientation("limelight", this.getHeading() + 180, 0, 0, 0, 0, 0);
       }
     }
-    
+    */
+    LimelightHelpers.SetRobotOrientation("limelight", getPose().getRotation().getDegrees(), 0, 0, 0, 0, 0);
     LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
+    field.getObject("mt2 pose").setPose(mt2.pose);
+    
     if (mt2 != null) {
       if (Math.abs(this.getTurnRate()) < 720 && mt2.tagCount != 0)
       {
@@ -161,6 +164,7 @@ public class DriveSubsystem extends SubsystemBase {
           mt2.timestampSeconds);
       }
     }
+    
   }
 
   /**

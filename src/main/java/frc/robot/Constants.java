@@ -140,17 +140,17 @@ public final class Constants {
     public static final double kD = 0;
 
     public static final int kShooterMaxAcceleration = 1500; // RPM per second
-    public static final double kShooterIdleVelocity = 4000; // RPM
+    public static final double kShooterIdleVelocity = 0; // RPM
   }
 
   public static final class LEDConstants {
 
     public static final int kLEDStripPort = 0;
 
-    public static final Rotation2d kFrontLeftLEDAngularOffset = new Rotation2d(0);
-    public static final Rotation2d kFrontRightLEDAngularOffset = new Rotation2d(0);
-    public static final Rotation2d kBackLeftLEDAngularOffset = new Rotation2d(0);
-    public static final Rotation2d kBackRightLEDAngularOffset = new Rotation2d(0);
+    public static final Rotation2d kFrontLeftLEDAngularOffset = Rotation2d.fromDegrees(-140);
+    public static final Rotation2d kFrontRightLEDAngularOffset = Rotation2d.fromDegrees(-56);
+    public static final Rotation2d kBackLeftLEDAngularOffset = Rotation2d.fromDegrees(28);
+    public static final Rotation2d kBackRightLEDAngularOffset = Rotation2d.fromDegrees(-47);
   }
 
   public static final class OIConstants {

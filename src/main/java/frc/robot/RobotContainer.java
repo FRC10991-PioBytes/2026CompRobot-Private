@@ -11,8 +11,11 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.OIConstants;
@@ -50,7 +53,7 @@ public class RobotContainer
   private final IntakeSubsystem m_intake = new IntakeSubsystem();
   private final ShooterSubsystem m_shooter = new ShooterSubsystem();
   private final FeederSubsystem m_feeder = new FeederSubsystem();
-  //private final SwerveLEDSubsystem m_LEDs = new SwerveLEDSubsystem(m_robotDrive);
+  private final SwerveLEDSubsystem m_LEDs = new SwerveLEDSubsystem(m_robotDrive);
 
   // Driver controller
   CommandJoystick m_driverController = new CommandJoystick(OIConstants.kDriverControllerPort);
@@ -71,7 +74,8 @@ public class RobotContainer
     NamedCommands.registerCommand("StopFeeder", m_feeder.runOnce(() -> m_feeder.stop()));
     NamedCommands.registerCommand("StopShooter", m_shooter.runOnce(() -> m_shooter.stop()));
     NamedCommands.registerCommand("ExtendIntake", new RunIntakePivotCommand(m_intake, () -> -1).withTimeout(0.5));
-    NamedCommands.registerCommand("RevShooter", m_shooter.runOnce(() -> m_shooter.setVelocity(4400)));
+    NamedCommands.registerCommand("RevShooterLeft", m_shooter.runOnce(() -> m_shooter.setVelocity(4400)));
+    NamedCommands.registerCommand("RevShooterCenter", m_shooter.runOnce(() -> m_shooter.setVelocity(4000)));
     NamedCommands.registerCommand("RunFeederAndShoot", m_feeder.runOnce(() -> m_feeder.setVelocity(4800)));
     NamedCommands.registerCommand("RunIntakeRoller", new RunIntakeInCommand(m_intake));
 
@@ -97,14 +101,14 @@ public class RobotContainer
     
     //m_LEDs.setDefaultCommand(new RunCommand(() -> m_LEDs.setState(LEDState.Loading), m_LEDs));
 
-    m_robotDrive.setDefaultCommand(new DriveCommand(m_robotDrive, //m_LEDs,
+    m_robotDrive.setDefaultCommand(new DriveCommand(m_robotDrive, m_LEDs,
         () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.leftStickY), OIConstants.kDriveDeadband) * 0.714,
         () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.leftStickX), OIConstants.kDriveDeadband) * 0.714,
         () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.rightStickX), OIConstants.kDriveDeadband) * 0.57,
         () -> true));
 
     m_driverController.button(OIConstants.bumperLeft)
-        .whileTrue(new DriveCommand(m_robotDrive, //m_LEDs,
+        .whileTrue(new DriveCommand(m_robotDrive, m_LEDs,
             () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.leftStickY), OIConstants.kDriveDeadband) * 0.29,
             () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.leftStickX), OIConstants.kDriveDeadband) * 0.29,
             () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.rightStickX), OIConstants.kDriveDeadband) * 0.29,
@@ -116,11 +120,19 @@ public class RobotContainer
         () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.leftStickY), OIConstants.kDriveDeadband)));
 
     m_driverController.button(OIConstants.buttonB).and(m_driverController.button(OIConstants.bumperLeft)).and(m_driverController.button(OIConstants.bumperRight))
-        .onTrue(m_robotDrive.runOnce(() -> m_robotDrive.zeroHeading()));
+        .onTrue(
+            m_robotDrive.runOnce(() -> m_robotDrive.resetPose(
+                //m_robotDrive.getPose().getX(), m_robotDrive.getPose().getY(), m_robotDrive.getPose().getRotation().unaryMinus()))));
+                //m_robotDrive.getPose().rotateBy(Rotation2d.fromDegrees(180)))));
+                
+                DriverStation.getAlliance().get() == Alliance.Red ? 
+                new Pose2d(13.002, 4.035, Rotation2d.fromDegrees(180)) : // Red center
+                new Pose2d(3.538, 4.035, Rotation2d.fromDegrees(0))))); // Blue center
+                
     
     // Move to closest scoring position
     m_driverController.button(OIConstants.buttonA)
-        .whileTrue(new MoveToScorePosCommand(m_robotDrive));
+        .whileTrue(new MoveToScorePosCommand(m_robotDrive, m_LEDs));
 
     // Set X formation
     m_driverController.button(OIConstants.buttonX)

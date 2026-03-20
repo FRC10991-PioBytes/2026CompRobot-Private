@@ -14,6 +14,7 @@ import frc.robot.Constants.FieldConstants;
 
 public class MoveToScorePosCommand extends Command {
     private final DriveSubsystem m_drive;
+    private final SwerveLEDSubsystem m_leds;
 
     // PID Gains
     private final PIDController m_rangePID = new PIDController(2, 0, 0); 
@@ -24,15 +25,16 @@ public class MoveToScorePosCommand extends Command {
     private boolean atScoringPose;
     private boolean noDriverAllianceFound;
 
-    public MoveToScorePosCommand(DriveSubsystem drive) {
+    public MoveToScorePosCommand(DriveSubsystem drive, SwerveLEDSubsystem ledSubsystem) {
         m_drive = drive;
+        m_leds = ledSubsystem;
 
-        addRequirements(m_drive);
+        addRequirements(m_drive, m_leds);
         
         m_rangePID.setTolerance(0.05);
 
         m_rotPID.enableContinuousInput(-180, 180);
-        m_rotPID.setTolerance(1.0); 
+        m_rotPID.setTolerance(1); 
     }
 
     public void initialize() {
@@ -91,7 +93,7 @@ public class MoveToScorePosCommand extends Command {
                 // Rotation Speed
                 if (!m_rotPID.atSetpoint()) 
                 {
-                    rotSpeed = -m_rotPID.calculate(robotPose.getRotation().getDegrees(), closestScoringPose.getRotation().getDegrees());
+                    rotSpeed = m_rotPID.calculate(robotPose.getRotation().getDegrees(), closestScoringPose.getRotation().getDegrees());
                 }
 
                 // 6. Calculate Field-Centric Velocities
@@ -109,10 +111,12 @@ public class MoveToScorePosCommand extends Command {
             // fieldRelative = true, so these X/Y values are treated as Field X/Y
             if (atScoringPose)
             {
+                m_leds.setState(LEDState.TargetFound);
                 m_drive.setX();
             }
             else
             {
+                m_leds.setState(LEDState.LookingForTarget);
                 m_drive.drive(-xSpeed, -ySpeed, rotSpeed, true);
             }
             

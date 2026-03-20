@@ -53,7 +53,7 @@ public class SwerveLEDSubsystem extends SubsystemBase {
     // Blue by default
     m_isRed = DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red;
 
-    m_currentState = LEDState.Off;
+    m_currentState = LEDState.Loading;
     
     m_ledStrip = new AddressableLED(LEDConstants.kLEDStripPort);
     m_ledBuffer = new AddressableLEDBuffer(m_length);
@@ -64,11 +64,11 @@ public class SwerveLEDSubsystem extends SubsystemBase {
     AddressableLEDBufferView frontRightView = m_ledBuffer.createView(m_length / 4, m_length / 2 - 1);
     m_frontRight = new CircularLEDBuffer(frontRightView, LEDConstants.kFrontRightLEDAngularOffset);
 
-    AddressableLEDBufferView rearLeftView = m_ledBuffer.createView(m_length / 2, 3 * m_length / 4 - 1);
-    m_rearLeft = new CircularLEDBuffer(rearLeftView, LEDConstants.kBackLeftLEDAngularOffset);
+    AddressableLEDBufferView rearRightView = m_ledBuffer.createView(m_length / 2, 3 * m_length / 4 - 1);
+    m_rearRight = new CircularLEDBuffer(rearRightView, LEDConstants.kBackLeftLEDAngularOffset);
 
-    AddressableLEDBufferView rearRightView = m_ledBuffer.createView(3 * m_length / 4, m_length - 1);
-    m_rearRight = new CircularLEDBuffer(rearRightView, LEDConstants.kBackRightLEDAngularOffset);
+    AddressableLEDBufferView rearLeftView = m_ledBuffer.createView(3 * m_length / 4, m_length - 1);
+    m_rearLeft = new CircularLEDBuffer(rearLeftView, LEDConstants.kBackRightLEDAngularOffset);
 
     swerveLEDs = new CircularLEDBuffer[] {m_frontLeft, m_frontRight, m_rearLeft, m_rearRight};
 
