@@ -19,6 +19,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -58,6 +59,8 @@ public class DriveSubsystem extends SubsystemBase {
   private final Field2d field = new Field2d();
 
   SwerveDrivePoseEstimator m_poseEstimator;
+
+  private final double halfDriveBase = Units.inchesToMeters(27);
 
   /** Creates a new DriveSubsystem. */
   public DriveSubsystem() {
@@ -141,7 +144,7 @@ public class DriveSubsystem extends SubsystemBase {
             m_rearRight.getPosition()
         });
 
-    /*
+    
     if (DriverStation.getAlliance().isPresent()) {
       if (DriverStation.getAlliance().get() == Alliance.Blue) {
       LimelightHelpers.SetRobotOrientation("limelight", this.getHeading(), 0, 0, 0, 0, 0);
@@ -150,21 +153,28 @@ public class DriveSubsystem extends SubsystemBase {
         LimelightHelpers.SetRobotOrientation("limelight", this.getHeading() + 180, 0, 0, 0, 0, 0);
       }
     }
-    */
-    LimelightHelpers.SetRobotOrientation("limelight", getPose().getRotation().getDegrees(), 0, 0, 0, 0, 0);
-    LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
-    field.getObject("mt2 pose").setPose(mt2.pose);
     
-    if (mt2 != null) {
-      if (Math.abs(this.getTurnRate()) < 720 && mt2.tagCount != 0)
-      {
-        m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(1, 1, 999999));
-        m_poseEstimator.addVisionMeasurement(
-          mt2.pose, 
-          mt2.timestampSeconds);
+    //LimelightHelpers.SetRobotOrientation("limelight", getHeading(), 0, 0, 0, 0, 0);
+    try {
+      LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
+      field.getObject("mt2 pose").setPose(mt2.pose);
+      if (mt2 != null) {
+        if (Math.abs(this.getTurnRate()) < 720 && mt2.tagCount > 0)
+        {
+          if (mt2.pose.getX() > (halfDriveBase)  && mt2.pose.getY() > (halfDriveBase)) {
+            if (mt2.pose.getX() < (16.541 - halfDriveBase) && mt2.pose.getY() < (8.069 - halfDriveBase)) {
+              m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(1, 1, 999999));
+              m_poseEstimator.addVisionMeasurement(
+                mt2.pose, 
+                mt2.timestampSeconds);
+            }
+          }
+          
+        }
       }
     }
-    
+    catch (Exception e) {
+    }
   }
 
   /**

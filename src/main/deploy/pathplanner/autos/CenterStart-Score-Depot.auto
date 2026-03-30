@@ -17,12 +17,6 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "ExtendIntake"
-          }
-        },
-        {
           "type": "sequential",
           "data": {
             "commands": [
@@ -51,6 +45,12 @@
           "type": "named",
           "data": {
             "name": "StopFeeder"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ExtendIntake"
           }
         },
         {

@@ -74,8 +74,8 @@ public class RobotContainer
     NamedCommands.registerCommand("StopFeeder", m_feeder.runOnce(() -> m_feeder.stop()));
     NamedCommands.registerCommand("StopShooter", m_shooter.runOnce(() -> m_shooter.stop()));
     NamedCommands.registerCommand("ExtendIntake", new RunIntakePivotCommand(m_intake, () -> -1).withTimeout(0.75));
-    NamedCommands.registerCommand("RevShooterLeft", m_shooter.runOnce(() -> m_shooter.setVelocity(4400)));
-    NamedCommands.registerCommand("RevShooterCenter", m_shooter.runOnce(() -> m_shooter.setVelocity(4000)));
+    NamedCommands.registerCommand("RevShooterSide", m_shooter.runOnce(() -> m_shooter.setVelocity(4500)));
+    NamedCommands.registerCommand("RevShooterCenter", m_shooter.runOnce(() -> m_shooter.setVelocity(4200)));
     NamedCommands.registerCommand("RunFeederAndShoot", m_feeder.runOnce(() -> m_feeder.setVelocity(4800)));
     NamedCommands.registerCommand("RunIntakeRoller", new RunIntakeInCommand(m_intake));
 
@@ -102,9 +102,9 @@ public class RobotContainer
     //m_LEDs.setDefaultCommand(new RunCommand(() -> m_LEDs.setState(LEDState.Loading), m_LEDs));
 
     m_robotDrive.setDefaultCommand(new DriveCommand(m_robotDrive, m_LEDs,
-        () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.leftStickY), OIConstants.kDriveDeadband) * 0.714,
-        () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.leftStickX), OIConstants.kDriveDeadband) * 0.714,
-        () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.rightStickX), OIConstants.kDriveDeadband) * 0.57,
+        () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.leftStickY), OIConstants.kDriveDeadband) * 1,//* 0.714,
+        () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.leftStickX), OIConstants.kDriveDeadband)  * 1,//* 0.714,
+        () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.rightStickX), OIConstants.kDriveDeadband)  * 1,//* 0.714,
         () -> true));
 
     m_driverController.button(OIConstants.bumperLeft)
@@ -141,10 +141,15 @@ public class RobotContainer
             m_robotDrive));
     
     // Run shooter
+    
     m_manipulatorController.axisGreaterThan(OIConstants.rightTrigger, 0.5)
         .onTrue(new ShootFromScorePosCommand(m_shooter, m_robotDrive))
         .onFalse(m_shooter.runOnce(() -> m_shooter.setVelocity(ShooterConstants.kShooterIdleVelocity)));
-    
+    /*
+    m_manipulatorController.axisGreaterThan(OIConstants.rightTrigger, 0.5)
+        .onTrue(m_shooter.runOnce(() -> m_shooter.setVelocity(4300)))
+        .onFalse(m_shooter.runOnce(() -> m_shooter.setVelocity(ShooterConstants.kShooterIdleVelocity)));
+    */
     // Run feeder
     m_manipulatorController.axisGreaterThan(OIConstants.leftTrigger, 0.5)
         .onTrue(m_feeder.runOnce(() -> m_feeder.setVelocity(4800)))

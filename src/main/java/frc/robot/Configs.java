@@ -129,7 +129,7 @@ public final class Configs
                 // Roller configs
                 leaderRollerConfig
                         .idleMode(IdleMode.kBrake)
-                        .smartCurrentLimit(40);
+                        .smartCurrentLimit(30);
 
                 // Pivot configs
                 double turningFactor = 2 * Math.PI;

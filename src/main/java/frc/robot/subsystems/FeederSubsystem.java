@@ -12,6 +12,7 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import frc.robot.Constants.FeederConstants;
 import frc.robot.Configs.Feeder;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -36,8 +37,6 @@ public class FeederSubsystem extends SubsystemBase {
     m_agitatorMotor = new SparkMax(FeederConstants.kAgitatorCanId, MotorType.kBrushless);
 
     m_agitatorMotor.configure(Feeder.agitatorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-    SmartDashboard.putNumber("Feeder/Target RPM", 0);
 
     setVelocity(0);
   }
@@ -80,9 +79,8 @@ public class FeederSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-
-    SmartDashboard.putNumber("Feeder/Actual RPM: ", getActualVelocity());
-    SmartDashboard.putNumber("Feeder/Applied Output: ", m_leaderMotor.getAppliedOutput());
+    
+    SmartDashboard.putData(this);
 
     if (m_targetRPM != 0)
     {
@@ -96,6 +94,17 @@ public class FeederSubsystem extends SubsystemBase {
       SmartDashboard.putBoolean("Feeder/Feeder Running", false);
     }
     
+  }
+
+  @Override
+  public void initSendable(SendableBuilder builder) {
+    builder.setSmartDashboardType("Feeder");
+
+    builder.addDoubleProperty("Output Shaft RPM", () -> getActualVelocity(), null);
+    builder.addDoubleProperty("Feeder Setpoint", () -> m_targetRPM, null);
+    builder.addBooleanProperty("Within 50 RPM", () -> isAtSpeed(50.0), null);
+    builder.addDoubleProperty("Feeder/Applied Output: ", () -> m_leaderMotor.getAppliedOutput(), null);
+
   }
 
 }
