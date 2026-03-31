@@ -196,7 +196,7 @@ public class RobotContainer
   }
 
   public Command getStopShootingCommand() {
-    return Commands.parallel(m_shooter.runOnce(() -> m_shooter.stop()), m_feeder.runOnce(() -> m_feeder.stop()));
+    return m_feeder.runOnce(() -> m_feeder.stop());
   }
 
   /**

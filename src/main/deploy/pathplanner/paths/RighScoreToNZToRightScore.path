@@ -241,17 +241,6 @@
           "name": "RunIntakeRoller"
         }
       }
-    },
-    {
-      "name": "RevShooter",
-      "waypointRelativePos": 6.163771712158801,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "RevShooter"
-        }
-      }
     }
   ],
   "globalConstraints": {

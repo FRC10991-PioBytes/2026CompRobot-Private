@@ -20,7 +20,7 @@ public class MoveToScoreDistance extends Command {
     private final PIDController m_rotPID = new PIDController(0, 0, 0);
 
     // Field Coordinate of the HUB Center
-    private final Translation2d HUB_CENTER = FieldConstants.kBlueHUB;
+    private final Translation2d HUB_CENTER = FieldConstants.kBlueHUBCenter;
 
     // Allowed Blue side AprilTag IDs for the HUB
     private final Set<Double> VALID_TAG_IDS = Set.of(24.0, 25.0, 26.0, 27.0);

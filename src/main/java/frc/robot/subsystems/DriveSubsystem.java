@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.LimelightHelpers;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.LimelightHelpers.PoseEstimate;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class DriveSubsystem extends SubsystemBase {
@@ -60,7 +61,7 @@ public class DriveSubsystem extends SubsystemBase {
 
   SwerveDrivePoseEstimator m_poseEstimator;
 
-  private final double halfDriveBase = Units.inchesToMeters(27);
+  private LimelightHelpers.PoseEstimate mt2PoseEstimate = null;
 
   /** Creates a new DriveSubsystem. */
   public DriveSubsystem() {
@@ -144,7 +145,22 @@ public class DriveSubsystem extends SubsystemBase {
             m_rearRight.getPosition()
         });
 
+    LimelightHelpers.SetRobotOrientation("limelight", this.getPose().getRotation().getDegrees(), 0, 0, 0, 0, 0);
     
+    try {
+      mt2PoseEstimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
+
+      if (isGoodPoseEstimate(mt2PoseEstimate)) {
+        m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(1, 1, 999999));
+        m_poseEstimator.addVisionMeasurement(
+          mt2PoseEstimate.pose, 
+          mt2PoseEstimate.timestampSeconds);
+      }
+    }
+    catch (Exception e) {
+    }
+
+    /*
     if (DriverStation.getAlliance().isPresent()) {
       if (DriverStation.getAlliance().get() == Alliance.Blue) {
       LimelightHelpers.SetRobotOrientation("limelight", this.getHeading(), 0, 0, 0, 0, 0);
@@ -153,8 +169,10 @@ public class DriveSubsystem extends SubsystemBase {
         LimelightHelpers.SetRobotOrientation("limelight", this.getHeading() + 180, 0, 0, 0, 0, 0);
       }
     }
-    
+    */
+
     //LimelightHelpers.SetRobotOrientation("limelight", getHeading(), 0, 0, 0, 0, 0);
+    /*
     try {
       LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
       field.getObject("mt2 pose").setPose(mt2.pose);
@@ -174,7 +192,100 @@ public class DriveSubsystem extends SubsystemBase {
       }
     }
     catch (Exception e) {
+      
     }
+    */
+  }
+
+
+  public boolean isGoodPoseEstimate(LimelightHelpers.PoseEstimate poseEstimate) {
+    // If reading is clearly incorrect
+    if (poseEstimate == null || poseEstimate.tagCount < 1) {
+      return false;
+    }
+
+    // If spinning too quickly
+    if (Math.abs(this.getTurnRate()) > 360) {
+      return false;
+    }
+
+    // If more than four meters away
+    if (poseEstimate.avgTagDist > 4) {
+      return false;
+    }
+
+    Pose2d pose = poseEstimate.pose;
+
+    // If outside of the field pose.getX() > (FieldConstants.kfieldLength - DriveConstants.kHalfDriveBaseLength
+    if (pose.getX() < (DriveConstants.kHalfDriveBaseLength)  || pose.getX() > (FieldConstants.kFieldLength - DriveConstants.kHalfDriveBaseLength)) {
+      return false;
+    }
+    else if (pose.getY() < (DriveConstants.kHalfDriveBaseLength) || pose.getY() > (FieldConstants.kFieldHeight - DriveConstants.kHalfDriveBaseLength)) {
+      return false;
+    }
+
+    // If inside blue field components
+    if (FieldConstants.kBlueUpperTrenchDivider.contains(pose.getX(), pose.getY())) {
+      return false;
+    }
+    if (FieldConstants.kBlueHUB.contains(pose.getX(), pose.getY())) {
+      return false;
+    }
+    if (FieldConstants.kBlueLowerTrenchDivider.contains(pose.getX(), pose.getY())) {
+      return false;
+    }
+    // If inside red field components
+    if (FieldConstants.kRedUpperTrenchDivider.contains(pose.getX(), pose.getY())) {
+      return false;
+    }
+    if (FieldConstants.kRedHUB.contains(pose.getX(), pose.getY())) {
+      return false;
+    }
+    if (FieldConstants.kRedLowerTrenchDivider.contains(pose.getX(), pose.getY())) {
+      return false;
+    }
+
+    return true;
+
+    /*
+    // If X is inside blue field components
+    if (pose.getX() > (FieldConstants.kBlueHUB.getX() - FieldConstants.kHalfHUBLength)  && pose.getX() < (FieldConstants.kBlueHUB.getX() + FieldConstants.kHalfHUBLength)) {
+
+      // If inside upper trench
+      if ((pose.getY() > (FieldConstants.kBlueHUB.getY() + FieldConstants.kBumpLength)) && pose.getY() > (FieldConstants.kBlueHUB.getY() + FieldConstants.kBumpLength + 12)) {
+        return false;
+      }
+
+      // If inside HUB
+      if (pose.getY() > (FieldConstants.kBlueHUB.getY() - DriveConstants.kHalfDriveBaseLength) && pose.getY() < (FieldConstants.kBlueHUB.getY() + DriveConstants.kHalfDriveBaseLength)) {
+        return false;
+      }
+
+      // If inside lower trench
+      if ((pose.getY() > (FieldConstants.kBlueHUB.getY() - FieldConstants.kBumpLength)) && pose.getY() > (FieldConstants.kBlueHUB.getY() - FieldConstants.kBumpLength - 12)) {
+        return false;
+      }
+    }
+
+    // If X is inside red field components
+    if (pose.getX() > (FieldConstants.kRedHUB.getX() - FieldConstants.kHalfHUBLength)  && pose.getX() < (FieldConstants.kRedHUB.getX() + FieldConstants.kHalfHUBLength)) {
+
+      // If inside upper trench
+      if ((pose.getY() > (FieldConstants.kRedHUB.getY() + FieldConstants.kBumpLength)) && pose.getY() > (FieldConstants.kRedHUB.getY() + FieldConstants.kBumpLength + 12)) {
+        return false;
+      }
+
+      // If inside HUB
+      if (pose.getY() > (FieldConstants.kRedHUB.getY() - DriveConstants.kHalfDriveBaseLength) && pose.getY() < (FieldConstants.kRedHUB.getY() + DriveConstants.kHalfDriveBaseLength)) {
+        return false;
+      }
+
+      // If inside lower trench
+      if ((pose.getY() > (FieldConstants.kRedHUB.getY() - FieldConstants.kBumpLength)) && pose.getY() > (FieldConstants.kRedHUB.getY() - FieldConstants.kBumpLength - 12)) {
+        return false;
+      }
+    }
+    */
   }
 
   /**
@@ -221,34 +332,18 @@ public class DriveSubsystem extends SubsystemBase {
     double ySpeedDelivered = ySpeed * DriveConstants.kMaxSpeedMetersPerSecond;
     double rotDelivered = rot * DriveConstants.kMaxAngularSpeed;
     
-    if (DriverStation.getAlliance().get() == Alliance.Red) {
-      var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
-        fieldRelative
-            ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered,
-                Rotation2d.fromDegrees(this.getHeading()))
-            : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
+    var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
+      fieldRelative
+          ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered,
+              Rotation2d.fromDegrees(this.getHeading()))
+          : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
 
-      SwerveDriveKinematics.desaturateWheelSpeeds(
-        swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);
-        m_frontLeft.setDesiredState(swerveModuleStates[0]);
-        m_frontRight.setDesiredState(swerveModuleStates[1]);
-        m_rearLeft.setDesiredState(swerveModuleStates[2]);
-        m_rearRight.setDesiredState(swerveModuleStates[3]);
-    }
-    else {
-      var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
-        fieldRelative
-            ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered,
-                Rotation2d.fromDegrees(this.getHeading()))
-            : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
-
-      SwerveDriveKinematics.desaturateWheelSpeeds(
-        swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);
-        m_frontLeft.setDesiredState(swerveModuleStates[0]);
-        m_frontRight.setDesiredState(swerveModuleStates[1]);
-        m_rearLeft.setDesiredState(swerveModuleStates[2]);
-        m_rearRight.setDesiredState(swerveModuleStates[3]);
-    }
+    SwerveDriveKinematics.desaturateWheelSpeeds(
+      swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);
+      m_frontLeft.setDesiredState(swerveModuleStates[0]);
+      m_frontRight.setDesiredState(swerveModuleStates[1]);
+      m_rearLeft.setDesiredState(swerveModuleStates[2]);
+      m_rearRight.setDesiredState(swerveModuleStates[3]);
     
   }
 

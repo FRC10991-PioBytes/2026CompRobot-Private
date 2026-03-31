@@ -12,6 +12,9 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+import java.awt.geom.Rectangle2D;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -32,7 +35,8 @@ public final class Constants {
     public static final double kMaxSpeedMetersPerSecond = 3.5;
     public static final double kMaxAngularSpeed = 2 * Math.PI; // radians per second
     
-
+    public static final double kDriveBaseLength = Units.inchesToMeters(27);
+    public static final double kHalfDriveBaseLength = Units.inchesToMeters(13.5);
     // Chassis configuration
     public static final double kTrackWidth = Units.inchesToMeters(23.5);
     // Distance between centers of right and left wheels on robot
@@ -189,9 +193,74 @@ public final class Constants {
 
   // All values are field centric from the blue origin in meters
   public static final class FieldConstants {
+    
+    // Hub Dimensions
+    public static final double kHubSize = Units.inchesToMeters(47.0); 
+    public static final double kHubHalfSize = kHubSize / 2.0;
 
-    public static final Translation2d kBlueHUB = new Translation2d(4.6256, 4.0345);
-    public static final Translation2d kRedHUB = new Translation2d(11.9154, 4.0345);
+    // Trench/Bump Divider Dimensions
+    public static final double kDividerWidth = Units.inchesToMeters(47.0); 
+    public static final double kDividerThickness = Units.inchesToMeters(12.0); 
+    public static final double kDividerHalfWidth = kDividerWidth / 2.0;
+    public static final double kDividerHalfThickness = kDividerThickness / 2.0;
+
+    // Y-Coordinates for Dividers and Centers
+    public static final double kLowerDividerY = Units.inchesToMeters(56.34);
+    public static final double kUpperDividerY = Units.inchesToMeters(261.35);
+    public static final double kMidFieldY = Units.inchesToMeters(158.845);
+
+    // Blue Alliance Objects
+    public static final double kBlueCenterX = Units.inchesToMeters(182.11);
+    public static final Rectangle2D kBlueHUB = new Rectangle2D.Double(
+        kBlueCenterX - kHubHalfSize, 
+        kMidFieldY - kHubHalfSize, 
+        kHubSize, 
+        kHubSize
+    );
+    
+    public static final Rectangle2D kBlueLowerTrenchDivider = new Rectangle2D.Double(
+        kBlueCenterX - kDividerHalfWidth, 
+        kLowerDividerY - kDividerHalfThickness, 
+        kDividerWidth, 
+        kDividerThickness
+    );
+        
+    public static final Rectangle2D kBlueUpperTrenchDivider = new Rectangle2D.Double(
+        kBlueCenterX - kDividerHalfWidth, 
+        kUpperDividerY - kDividerHalfThickness, 
+        kDividerWidth, 
+        kDividerThickness
+    );
+
+    // Red Alliance Objects
+    public static final double kRedCenterX = Units.inchesToMeters(469.11);
+    public static final Rectangle2D kRedHUB = new Rectangle2D.Double(
+        kRedCenterX - kHubHalfSize, 
+        kMidFieldY - kHubHalfSize, 
+        kHubSize, 
+        kHubSize
+    );
+
+    public static final Rectangle2D kRedLowerTrenchDivider = new Rectangle2D.Double(
+        kRedCenterX - kDividerHalfWidth, 
+        kLowerDividerY - kDividerHalfThickness, 
+        kDividerWidth, 
+        kDividerThickness
+    );
+        
+    public static final Rectangle2D kRedUpperTrenchDivider = new Rectangle2D.Double(
+        kRedCenterX - kDividerHalfWidth, 
+        kUpperDividerY - kDividerHalfThickness, 
+        kDividerWidth, 
+        kDividerThickness
+    );
+
+
+    public static final double kFieldHeight = Units.inchesToMeters(317.69);
+    public static final double kFieldLength = Units.inchesToMeters(651.52);
+
+    public static final Translation2d kBlueHUBCenter = new Translation2d(4.6256, 4.0345);
+    public static final Translation2d kRedHUBCenter = new Translation2d(11.9154, 4.0345);
 
     private static ArrayList<Pose2d> kBlueScoringPoses = new ArrayList<>();
     private static ArrayList<Pose2d> kRedScoringPoses = new ArrayList<>();
@@ -262,7 +331,7 @@ public final class Constants {
       public BlueScoringPosition(double x, double y, double RPM)
       {
         Translation2d scoringTranslation = new Translation2d(x, y);
-        kScoringPose = new Pose2d(scoringTranslation, kBlueHUB.minus(scoringTranslation).getAngle());
+        kScoringPose = new Pose2d(scoringTranslation, kBlueHUBCenter.minus(scoringTranslation).getAngle());
         kBlueScoringPoses.add(kScoringPose);
 
         kShooterRPM = RPM;
@@ -314,7 +383,7 @@ public final class Constants {
       public RedScoringPosition(double x, double y, double RPM)
       {
         Translation2d scoringTranslation = new Translation2d(x, y);
-        kScoringPose = new Pose2d(scoringTranslation, kRedHUB.minus(scoringTranslation).getAngle());
+        kScoringPose = new Pose2d(scoringTranslation, kRedHUBCenter.minus(scoringTranslation).getAngle());
         kRedScoringPoses.add(kScoringPose);
 
         kShooterRPM = RPM;
