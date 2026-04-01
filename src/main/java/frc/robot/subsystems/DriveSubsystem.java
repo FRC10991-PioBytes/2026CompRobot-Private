@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.ArrayList;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
@@ -62,6 +64,8 @@ public class DriveSubsystem extends SubsystemBase {
   SwerveDrivePoseEstimator m_poseEstimator;
 
   private LimelightHelpers.PoseEstimate mt2PoseEstimate = null;
+  private ArrayList<Pose2d> llReadings = new ArrayList<Pose2d>();
+  private boolean isAddingToList = false;
 
   /** Creates a new DriveSubsystem. */
   public DriveSubsystem() {
@@ -151,10 +155,43 @@ public class DriveSubsystem extends SubsystemBase {
       mt2PoseEstimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
 
       if (isGoodPoseEstimate(mt2PoseEstimate)) {
-        m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(1, 1, 999999));
-        m_poseEstimator.addVisionMeasurement(
-          mt2PoseEstimate.pose, 
-          mt2PoseEstimate.timestampSeconds);
+        if (isAddingToList) {
+          llReadings.add(mt2PoseEstimate.pose);
+        }
+
+        if (mt2PoseEstimate.tagCount > 1) {
+          m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.1, 0.1, 999999));
+          m_poseEstimator.addVisionMeasurement(
+            mt2PoseEstimate.pose, 
+            mt2PoseEstimate.timestampSeconds);
+        }
+        else if (mt2PoseEstimate.avgTagDist > 3) {
+          m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(
+            0.24,
+            0.24,
+            999999));
+          m_poseEstimator.addVisionMeasurement(
+            mt2PoseEstimate.pose, 
+            mt2PoseEstimate.timestampSeconds);
+        }
+        else if (mt2PoseEstimate.avgTagDist > 2) {
+          m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(
+            0.14,
+            0.14,
+            999999));
+          m_poseEstimator.addVisionMeasurement(
+            mt2PoseEstimate.pose, 
+            mt2PoseEstimate.timestampSeconds);
+        }
+        else if (mt2PoseEstimate.avgTagDist > 1) {
+          m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(
+            0.07,
+            0.07,
+            999999));
+          m_poseEstimator.addVisionMeasurement(
+            mt2PoseEstimate.pose, 
+            mt2PoseEstimate.timestampSeconds);
+        }
       }
     }
     catch (Exception e) {
@@ -288,6 +325,79 @@ public class DriveSubsystem extends SubsystemBase {
     */
   }
 
+  public void enableLLReading() {
+    isAddingToList = true;
+  }
+
+
+  public void disableLLReading() {
+    isAddingToList = false;
+  }
+
+
+  public void updateLLAverages() {
+    if (llReadings.size() < 2) {
+        SmartDashboard.putNumber("X stdev", 0);
+        SmartDashboard.putNumber("Y stdev", 0);
+        return;
+    }
+
+
+    int n = llReadings.size();
+    double sum = 0;
+
+
+    for (Pose2d pose : llReadings) {
+        sum += pose.getX();
+    }
+
+
+    double avg = sum / n;
+    double sumOfDiffsSquared = 0;
+
+
+    for (Pose2d pose : llReadings) {
+        double diff = pose.getX() - avg;
+        sumOfDiffsSquared += diff * diff;
+    }
+
+
+    double stdev = Math.sqrt(sumOfDiffsSquared / (n - 1));
+   
+    SmartDashboard.putNumber("X stdev", stdev);
+
+
+    sum = 0;
+
+
+    for (Pose2d pose : llReadings) {
+        sum += pose.getY();
+    }
+
+
+    avg = sum / n;
+    sumOfDiffsSquared = 0;
+
+
+    for (Pose2d pose : llReadings) {
+        double diff = pose.getY() - avg;
+        sumOfDiffsSquared += diff * diff;
+    }
+
+
+    stdev = Math.sqrt(sumOfDiffsSquared / (n - 1));
+   
+    SmartDashboard.putNumber("Y stdev", stdev);
+    SmartDashboard.putNumber("Samples", llReadings.size());
+}
+
+public void clearLLAverages() {
+  while (llReadings.size() > 0) {
+    llReadings.remove(0);
+  }
+}
+
+
   /**
    * Returns the currently-estimated pose of the robot.
    *
@@ -295,6 +405,14 @@ public class DriveSubsystem extends SubsystemBase {
    */
   public Pose2d getPose() {
     return m_poseEstimator.getEstimatedPosition();
+  }
+
+  public void resetPoseRotation() {
+    m_poseEstimator.resetRotation(
+      DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red 
+      ? Rotation2d.fromDegrees(180) 
+      : Rotation2d.fromDegrees(0)
+    );
   }
 
   /**

@@ -104,7 +104,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Game Info/Match Time:", Timer.getMatchTime());
     SmartDashboard.putNumber("Game Info/Shift Time", getShiftTime(Timer.getMatchTime()));
 
-    LimelightHelpers.SetIMUMode("limelight", 4);
+    LimelightHelpers.SetIMUMode("limelight", 1);
   }
 
   @Override

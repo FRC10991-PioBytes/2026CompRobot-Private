@@ -36,6 +36,7 @@ import frc.robot.commands.IntakeCommands.RunIntakePivotCommand;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -139,7 +140,13 @@ public class RobotContainer
         .whileTrue(new RunCommand(
             () -> m_robotDrive.setX(),
             m_robotDrive));
+
+    m_driverController.button(OIConstants.bumperRight)
+        .onTrue(m_robotDrive.runOnce(() -> m_robotDrive.resetPoseRotation()));
     
+    m_driverController.axisGreaterThan(OIConstants.leftTrigger, 0.5)
+        .onTrue(new SequentialCommandGroup(m_robotDrive.runOnce(() -> m_robotDrive.clearLLAverages()), m_robotDrive.runOnce(() -> m_robotDrive.enableLLReading())))
+        .onFalse(new SequentialCommandGroup(m_robotDrive.runOnce(() -> m_robotDrive.enableLLReading()), m_robotDrive.runOnce(() -> m_robotDrive.updateLLAverages())));
     // Run shooter
     
     m_manipulatorController.axisGreaterThan(OIConstants.rightTrigger, 0.5)
