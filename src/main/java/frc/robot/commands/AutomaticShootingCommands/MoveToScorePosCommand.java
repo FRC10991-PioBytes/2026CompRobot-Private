@@ -31,10 +31,10 @@ public class MoveToScorePosCommand extends Command {
 
         addRequirements(m_drive, m_leds);
         
-        m_rangePID.setTolerance(0.05);
+        m_rangePID.setTolerance(0.01);
 
         m_rotPID.enableContinuousInput(-180, 180);
-        m_rotPID.setTolerance(1); 
+        m_rotPID.setTolerance(0.5); 
     }
 
     public void initialize() {

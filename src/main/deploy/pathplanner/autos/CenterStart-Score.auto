@@ -31,12 +31,6 @@
                 "data": {
                   "name": "RunFeederAndShoot"
                 }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 10.0
-                }
               }
             ]
           }

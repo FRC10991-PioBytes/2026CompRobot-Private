@@ -21,7 +21,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -31,7 +30,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.LimelightHelpers;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.FieldConstants;
-import frc.robot.LimelightHelpers.PoseEstimate;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class DriveSubsystem extends SubsystemBase {
@@ -124,7 +122,6 @@ public class DriveSubsystem extends SubsystemBase {
   public void periodic() {
 
     updateOdometry();
-    SmartDashboard.putNumber("Wheel angle", m_frontLeft.getState().angle.getRotations());
     SmartDashboard.putNumber("Drive/Gyro Angle: ", this.getHeading());
 
     Pose2d robotPose = getPose();
@@ -132,9 +129,6 @@ public class DriveSubsystem extends SubsystemBase {
     SmartDashboard.putData("Game Info/Field", field);
 
     SmartDashboard.putData("Drive/Swerve Drive", this);
-    SmartDashboard.putNumber("pose estimator yaw", getPose().getRotation().getDegrees());
-    //field.getObject("Blue scoring poses").setPoses(FieldConstants.getBlueScoringPoses());
-    //field.getObject("Red scoring poses").setPoses(FieldConstants.getRedScoringPoses());
     
   }
 
@@ -196,48 +190,12 @@ public class DriveSubsystem extends SubsystemBase {
     }
     catch (Exception e) {
     }
-
-    /*
-    if (DriverStation.getAlliance().isPresent()) {
-      if (DriverStation.getAlliance().get() == Alliance.Blue) {
-      LimelightHelpers.SetRobotOrientation("limelight", this.getHeading(), 0, 0, 0, 0, 0);
-      }
-      else if (DriverStation.getAlliance().get() == Alliance.Red) {
-        LimelightHelpers.SetRobotOrientation("limelight", this.getHeading() + 180, 0, 0, 0, 0, 0);
-      }
-    }
-    */
-
-    //LimelightHelpers.SetRobotOrientation("limelight", getHeading(), 0, 0, 0, 0, 0);
-    /*
-    try {
-      LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
-      field.getObject("mt2 pose").setPose(mt2.pose);
-      if (mt2 != null) {
-        if (Math.abs(this.getTurnRate()) < 720 && mt2.tagCount > 0)
-        {
-          if (mt2.pose.getX() > (halfDriveBase)  && mt2.pose.getY() > (halfDriveBase)) {
-            if (mt2.pose.getX() < (16.541 - halfDriveBase) && mt2.pose.getY() < (8.069 - halfDriveBase)) {
-              m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(1, 1, 999999));
-              m_poseEstimator.addVisionMeasurement(
-                mt2.pose, 
-                mt2.timestampSeconds);
-            }
-          }
-          
-        }
-      }
-    }
-    catch (Exception e) {
-      
-    }
-    */
   }
 
 
   public boolean isGoodPoseEstimate(LimelightHelpers.PoseEstimate poseEstimate) {
     // If reading is clearly incorrect
-    if (poseEstimate == null || poseEstimate.tagCount < 1) {
+    if (poseEstimate.equals(null) || poseEstimate.tagCount < 1) {
       return false;
     }
 
@@ -253,6 +211,11 @@ public class DriveSubsystem extends SubsystemBase {
 
     Pose2d pose = poseEstimate.pose;
 
+    // If bad rotation
+    if (pose.getRotation().equals(null)) {
+      return false;
+    }
+    
     // If outside of the field pose.getX() > (FieldConstants.kfieldLength - DriveConstants.kHalfDriveBaseLength
     if (pose.getX() < (DriveConstants.kHalfDriveBaseLength)  || pose.getX() > (FieldConstants.kFieldLength - DriveConstants.kHalfDriveBaseLength)) {
       return false;
@@ -283,46 +246,6 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     return true;
-
-    /*
-    // If X is inside blue field components
-    if (pose.getX() > (FieldConstants.kBlueHUB.getX() - FieldConstants.kHalfHUBLength)  && pose.getX() < (FieldConstants.kBlueHUB.getX() + FieldConstants.kHalfHUBLength)) {
-
-      // If inside upper trench
-      if ((pose.getY() > (FieldConstants.kBlueHUB.getY() + FieldConstants.kBumpLength)) && pose.getY() > (FieldConstants.kBlueHUB.getY() + FieldConstants.kBumpLength + 12)) {
-        return false;
-      }
-
-      // If inside HUB
-      if (pose.getY() > (FieldConstants.kBlueHUB.getY() - DriveConstants.kHalfDriveBaseLength) && pose.getY() < (FieldConstants.kBlueHUB.getY() + DriveConstants.kHalfDriveBaseLength)) {
-        return false;
-      }
-
-      // If inside lower trench
-      if ((pose.getY() > (FieldConstants.kBlueHUB.getY() - FieldConstants.kBumpLength)) && pose.getY() > (FieldConstants.kBlueHUB.getY() - FieldConstants.kBumpLength - 12)) {
-        return false;
-      }
-    }
-
-    // If X is inside red field components
-    if (pose.getX() > (FieldConstants.kRedHUB.getX() - FieldConstants.kHalfHUBLength)  && pose.getX() < (FieldConstants.kRedHUB.getX() + FieldConstants.kHalfHUBLength)) {
-
-      // If inside upper trench
-      if ((pose.getY() > (FieldConstants.kRedHUB.getY() + FieldConstants.kBumpLength)) && pose.getY() > (FieldConstants.kRedHUB.getY() + FieldConstants.kBumpLength + 12)) {
-        return false;
-      }
-
-      // If inside HUB
-      if (pose.getY() > (FieldConstants.kRedHUB.getY() - DriveConstants.kHalfDriveBaseLength) && pose.getY() < (FieldConstants.kRedHUB.getY() + DriveConstants.kHalfDriveBaseLength)) {
-        return false;
-      }
-
-      // If inside lower trench
-      if ((pose.getY() > (FieldConstants.kRedHUB.getY() - FieldConstants.kBumpLength)) && pose.getY() > (FieldConstants.kRedHUB.getY() - FieldConstants.kBumpLength - 12)) {
-        return false;
-      }
-    }
-    */
   }
 
   public void enableLLReading() {

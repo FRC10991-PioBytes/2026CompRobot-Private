@@ -7,12 +7,9 @@ import java.util.function.DoubleSupplier;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Constants.FieldConstants;
 
 public class FaceToPassCommand extends Command {
     private final DriveSubsystem m_drive;
@@ -20,8 +17,6 @@ public class FaceToPassCommand extends Command {
     private DoubleSupplier m_xSpeed;
     private DoubleSupplier m_ySpeed;
     private Rotation2d m_targetAngle;
-
-    private boolean atAngle;
 
     private final PIDController m_rotPID = new PIDController(0.035, 0, 0);
 
@@ -56,7 +51,6 @@ public class FaceToPassCommand extends Command {
     public void execute() {
 
         Pose2d robotPose = m_drive.getPose();
-        atAngle = m_rotPID.atSetpoint();
 
         double rotSpeed = 0;
 
@@ -66,7 +60,6 @@ public class FaceToPassCommand extends Command {
             rotSpeed = -m_rotPID.calculate(robotPose.getRotation().getDegrees(), m_targetAngle.getDegrees());
         }
 
-        SmartDashboard.putNumber("rotation", rotSpeed);
         m_drive.drive(m_xSpeed.getAsDouble(), m_ySpeed.getAsDouble(), rotSpeed, true);
         
     }

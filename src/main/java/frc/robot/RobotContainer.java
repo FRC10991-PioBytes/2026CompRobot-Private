@@ -8,14 +8,9 @@ package frc.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
-import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.OIConstants;
@@ -25,7 +20,6 @@ import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveLEDSubsystem;
-import frc.robot.subsystems.SwerveLEDSubsystem.LEDState;
 import frc.robot.commands.AutomaticShootingCommands.FaceToPassCommand;
 import frc.robot.commands.AutomaticShootingCommands.MoveToScorePosCommand;
 import frc.robot.commands.AutomaticShootingCommands.ShootFromScorePosCommand;
@@ -34,12 +28,9 @@ import frc.robot.commands.IntakeCommands.RunIntakeInCommand;
 import frc.robot.commands.IntakeCommands.RunIntakeOutCommand;
 import frc.robot.commands.IntakeCommands.RunIntakePivotCommand;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 /*
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
@@ -76,15 +67,13 @@ public class RobotContainer
     NamedCommands.registerCommand("StopShooter", m_shooter.runOnce(() -> m_shooter.stop()));
     NamedCommands.registerCommand("ExtendIntake", new RunIntakePivotCommand(m_intake, () -> -1).withTimeout(0.75));
     NamedCommands.registerCommand("RevShooterSide", m_shooter.runOnce(() -> m_shooter.setVelocity(4500)));
-    NamedCommands.registerCommand("RevShooterCenter", m_shooter.runOnce(() -> m_shooter.setVelocity(4200)));
+    NamedCommands.registerCommand("RevShooterCenter", m_shooter.runOnce(() -> m_shooter.setVelocity(4100))); //Good
     NamedCommands.registerCommand("RunFeederAndShoot", m_feeder.runOnce(() -> m_feeder.setVelocity(4800)));
     NamedCommands.registerCommand("RunIntakeRoller", new RunIntakeInCommand(m_intake));
 
     pathAutoChooser = AutoBuilder.buildAutoChooser("CenterStart-Score");
 
-    SmartDashboard.putData("Auto/PP Autos", pathAutoChooser);
-
-    //initCamera();
+    SmartDashboard.putData("Auto/Auto Chooser", pathAutoChooser);
 
     configureButtonBindings();
   }
@@ -110,9 +99,9 @@ public class RobotContainer
 
     m_driverController.button(OIConstants.bumperLeft)
         .whileTrue(new DriveCommand(m_robotDrive, m_LEDs,
-            () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.leftStickY), OIConstants.kDriveDeadband) * 0.29,
-            () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.leftStickX), OIConstants.kDriveDeadband) * 0.29,
-            () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.rightStickX), OIConstants.kDriveDeadband) * 0.29,
+            () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.leftStickY), OIConstants.kDriveDeadband) * 0.5,
+            () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.leftStickX), OIConstants.kDriveDeadband) * 0.5,
+            () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.rightStickX), OIConstants.kDriveDeadband) * 0.5,
             () -> true));
     
     m_driverController.button(OIConstants.buttonY)
@@ -120,17 +109,6 @@ public class RobotContainer
         () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.leftStickY), OIConstants.kDriveDeadband),
         () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.leftStickY), OIConstants.kDriveDeadband)));
 
-    m_driverController.button(OIConstants.buttonB).and(m_driverController.button(OIConstants.bumperLeft)).and(m_driverController.button(OIConstants.bumperRight))
-        .onTrue(
-            m_robotDrive.runOnce(() -> m_robotDrive.resetPose(
-                //m_robotDrive.getPose().getX(), m_robotDrive.getPose().getY(), m_robotDrive.getPose().getRotation().unaryMinus()))));
-                //m_robotDrive.getPose().rotateBy(Rotation2d.fromDegrees(180)))));
-                
-                DriverStation.getAlliance().get() == Alliance.Red ? 
-                new Pose2d(13.002, 4.035, Rotation2d.fromDegrees(180)) : // Red center
-                new Pose2d(3.538, 4.035, Rotation2d.fromDegrees(0))))); // Blue center
-                
-    
     // Move to closest scoring position
     m_driverController.button(OIConstants.buttonA)
         .whileTrue(new MoveToScorePosCommand(m_robotDrive, m_LEDs));
@@ -141,22 +119,14 @@ public class RobotContainer
             () -> m_robotDrive.setX(),
             m_robotDrive));
 
-    m_driverController.button(OIConstants.bumperRight)
+    m_driverController.button(OIConstants.buttonB).and(m_driverController.button(OIConstants.bumperLeft)).and(m_driverController.button(OIConstants.bumperRight))
         .onTrue(m_robotDrive.runOnce(() -> m_robotDrive.resetPoseRotation()));
     
-    m_driverController.axisGreaterThan(OIConstants.leftTrigger, 0.5)
-        .onTrue(new SequentialCommandGroup(m_robotDrive.runOnce(() -> m_robotDrive.clearLLAverages()), m_robotDrive.runOnce(() -> m_robotDrive.enableLLReading())))
-        .onFalse(new SequentialCommandGroup(m_robotDrive.runOnce(() -> m_robotDrive.enableLLReading()), m_robotDrive.runOnce(() -> m_robotDrive.updateLLAverages())));
     // Run shooter
-    
     m_manipulatorController.axisGreaterThan(OIConstants.rightTrigger, 0.5)
         .onTrue(new ShootFromScorePosCommand(m_shooter, m_robotDrive))
         .onFalse(m_shooter.runOnce(() -> m_shooter.setVelocity(ShooterConstants.kShooterIdleVelocity)));
-    /*
-    m_manipulatorController.axisGreaterThan(OIConstants.rightTrigger, 0.5)
-        .onTrue(m_shooter.runOnce(() -> m_shooter.setVelocity(4300)))
-        .onFalse(m_shooter.runOnce(() -> m_shooter.setVelocity(ShooterConstants.kShooterIdleVelocity)));
-    */
+
     // Run feeder
     m_manipulatorController.axisGreaterThan(OIConstants.leftTrigger, 0.5)
         .onTrue(m_feeder.runOnce(() -> m_feeder.setVelocity(4800)))
@@ -174,32 +144,10 @@ public class RobotContainer
     m_manipulatorController.button(OIConstants.buttonY)
         .toggleOnTrue(new RunIntakeOutCommand(m_intake));
 
-    // Run agitator
-    /*
-    m_manipulatorController.button(OIConstants.buttonA)
-        .whileTrue(m_feeder.runOnce(() -> m_feeder.runAgitator(-1)));
-    */
-
     // Run intake
     m_intake.setDefaultCommand(new RunIntakePivotCommand(
         m_intake,
         () -> MathUtil.applyDeadband(m_manipulatorController.getRawAxis(OIConstants.rightStickY), 0.1)));
-    
-
-    // Sys Id Routines
-    /*
-    m_driverController.button(OIConstants.buttonA)
-        .whileTrue(m_feeder.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-
-    m_driverController.button(OIConstants.buttonB)
-        .whileTrue(m_feeder.sysIdDynamic(SysIdRoutine.Direction.kForward));
-
-    m_driverController.button(OIConstants.buttonX)
-        .whileTrue(m_feeder.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-
-    m_driverController.button(OIConstants.buttonY)
-        .whileTrue(m_feeder.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-    */
   }
 
   public Command getStopShootingCommand() {
@@ -215,18 +163,5 @@ public class RobotContainer
     
     return pathAutoChooser.getSelected();
   }
-
-  /*
-  private void initCamera() {
-    try {
-        UsbCamera camera = CameraServer.startAutomaticCapture("MainCam", 0);
-        camera.setResolution(320, 240);
-        camera.setFPS(15);
-    }
-    catch (Exception e) {
-        e.printStackTrace();
-    }
-  }
-  */
 
 }

@@ -4,20 +4,12 @@
 
 package frc.robot.subsystems;
 
-import java.util.Map;
-import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.*;
 import edu.wpi.first.units.measure.Frequency;
-import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.AddressableLEDBufferView;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.LEDPattern;
-import edu.wpi.first.wpilibj.LEDReader;
-import edu.wpi.first.wpilibj.LEDWriter;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 
 
@@ -33,7 +25,6 @@ public class CircularLEDBuffer {
   private static final LEDPattern kGreenPattern = LEDPattern.solid(Color.kGreen);
   private static final LEDPattern kBlackPattern = LEDPattern.solid(Color.kBlack);
 
-  private static final LEDPattern kMask = LEDPattern.steps(Map.of(0, Color.kBlack, 0.25, Color.kWhite));
   private static final LEDPattern kRedLoadingPattern =
     LEDPattern.gradient(LEDPattern.GradientType.kDiscontinuous, Color.kBlack, Color.kRed)
       //.mask(kMask)
@@ -106,37 +97,6 @@ public class CircularLEDBuffer {
         m_bufferView.setLED(indexGroups[i], Color.kBlue);
       }
     }
-
-    /*
-    if (isRed) {
-      m_bufferView.setLED(closestLEDIndex, Color.kRed);
-      m_bufferView.setLED(oppositeLEDIndex, Color.kRed);
-    }
-    else {
-      m_bufferView.setLED(closestLEDIndex, Color.kBlue);
-      m_bufferView.setLED(oppositeLEDIndex, Color.kBlue);
-    }
-    */
-
-    /*
-    for (int i = 0; i < m_length; i++) {
-      if (i == closestLEDIndex || i == oppositeLEDIndex)
-      {
-        // Red by default, blue if alliance is blue
-        if (DriverStation.getAlliance().get() == Alliance.Blue) {
-          this.setColor(i, Color.kBlue);
-        }
-        else {
-          this.setColor(i, Color.kRed);
-        }
-      }
-      // Others are white
-      else {
-        this.setColor(i, Color.kWhite);
-      }
-    }
-    */
-
     
   }
   
@@ -166,14 +126,6 @@ public class CircularLEDBuffer {
 
     
   }
-
-  /*
-  // Sets the color of the LED
-  public void setColor(int index, Color color) {
-    m_bufferView.setLED(index, color);
-    //m_bufferView.setRGB(index, (int) (color.red * 255 + 0.5), (int) (color.green * 255 + 0.5), (int) (color.blue * 255 + 0.5));
-  }
-  */
 
   /*
     Getters

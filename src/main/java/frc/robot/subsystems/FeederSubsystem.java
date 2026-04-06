@@ -13,6 +13,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import frc.robot.Constants.FeederConstants;
 import frc.robot.Configs.Feeder;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -24,6 +25,7 @@ public class FeederSubsystem extends SubsystemBase {
   private SparkClosedLoopController m_leaderController;
 
   private double m_targetRPM = 0;
+  private Timer m_agitatorTimer = new Timer();
 
   /** Creates a new DriveSubsystem. */
   public FeederSubsystem() {
@@ -84,14 +86,27 @@ public class FeederSubsystem extends SubsystemBase {
 
     if (m_targetRPM != 0)
     {
-      m_agitatorMotor.set(1);
-      SmartDashboard.putBoolean("Feeder/Feeder Running", true);
+      m_agitatorTimer.start();
+      int phase = (int) m_agitatorTimer.get() % 6;
+      if (phase < 2) {
+        m_agitatorMotor.set(1);
 
+      }
+      else if (phase < 3) {
+        m_agitatorMotor.stopMotor();
+      }
+      else if (phase < 5) {
+        m_agitatorMotor.set(-1);
+      }
+      else {
+        m_agitatorMotor.stopMotor();
+      }
     }
     else
     {
+      m_agitatorTimer.stop();
+      m_agitatorTimer.reset();
       m_agitatorMotor.stopMotor();
-      SmartDashboard.putBoolean("Feeder/Feeder Running", false);
     }
     
   }

@@ -26,13 +26,6 @@ public class ShooterSubsystem extends SubsystemBase {
   private double m_targetRPM = 0;
 
   private double m_gearRatio = (double) 23 / 18;
-
-  /*
-  private final MutVoltage m_appliedVoltage = new MutVoltage(0.0, 0.0, Units.Volts);
-  private final MutAngle m_angle = new MutAngle(0, 0, Units.Revolutions); // Revolutions
-  private final MutAngularVelocity m_velocity = new MutAngularVelocity(0, 0, Units.Revolutions.per(Units.Minute)); // RPM
-  private final SysIdRoutine m_sysIdRoutine;
-  */
     
 
   /** Creates a new DriveSubsystem. */
@@ -44,34 +37,6 @@ public class ShooterSubsystem extends SubsystemBase {
     m_leaderController = m_leaderMotor.getClosedLoopController();
 
     configureMotors();
-    
-    /*
-    m_sysIdRoutine =
-      new SysIdRoutine(
-        // Config
-        new SysIdRoutine.Config(),
-
-        // Mechanism
-        new SysIdRoutine.Mechanism(
-          (voltage) -> m_leaderMotor.setVoltage(voltage),
-          (log) -> {
-            log.motor("shooter")
-              .voltage(
-                m_appliedVoltage.mut_replace(
-                  m_leaderMotor.getAppliedOutput() * RobotController.getBatteryVoltage(), Units.Volts
-                )
-              )
-              .angularPosition(
-                m_angle.mut_replace(m_leaderMotor.getEncoder().getPosition(), Units.Revolutions)
-              )
-              .angularVelocity(
-                m_velocity.mut_replace(m_leaderMotor.getEncoder().getVelocity(), Units.Revolutions.per(Units.Minute))
-              );
-          },
-          this
-        )
-      );
-    */
     
     setVelocity(ShooterConstants.kShooterIdleVelocity);
 

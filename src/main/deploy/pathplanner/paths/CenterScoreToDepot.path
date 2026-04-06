@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.0761993922258313,
-        "y": 3.979414994929523
+        "x": 2.0084216867469884,
+        "y": 4.340975903614458
       },
       "isLocked": false,
       "linkedName": "CenterScore"
@@ -32,48 +32,96 @@
     },
     {
       "anchor": {
-        "x": 1.2762650602409638,
-        "y": 5.969204819277109
+        "x": 1.3199759036144576,
+        "y": 5.63044578313253
       },
       "prevControl": {
-        "x": 1.8422237567470487,
-        "y": 5.946106688137616
+        "x": 1.8859346001205426,
+        "y": 5.607347651993037
       },
       "nextControl": {
-        "x": 1.0264730069728525,
-        "y": 5.97939943178083
+        "x": 1.0701838503463463,
+        "y": 5.640640395636251
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 0.6752409638554218,
-        "y": 5.969204819277109
+        "x": 0.751734939759036,
+        "y": 5.663228915662651
       },
       "prevControl": {
-        "x": 1.1286108037308724,
-        "y": 5.952500663911446
+        "x": 1.2051047796344867,
+        "y": 5.646524760296988
       },
       "nextControl": {
-        "x": 0.41102349288631407,
-        "y": 5.978939762577711
+        "x": 0.4875174687899284,
+        "y": 5.672963858963253
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 1.276,
-        "y": 5.969
+        "x": 1.2653373493975903,
+        "y": 5.663228915662651
       },
       "prevControl": {
-        "x": 1.0073208446508772,
-        "y": 5.967776335585237
+        "x": 0.9966581940484676,
+        "y": 5.662005251247887
       },
       "nextControl": {
-        "x": 2.7827048214976413,
-        "y": 5.975862091966991
+        "x": 2.7720421708952294,
+        "y": 5.670091007629641
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 1.5494578313253013,
+        "y": 6.297036144578313
+      },
+      "prevControl": {
+        "x": 2.0084216867469884,
+        "y": 6.307963855421686
+      },
+      "nextControl": {
+        "x": 1.2079871570859062,
+        "y": 6.288905890429756
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 0.7626626506024097,
+        "y": 6.286108433734939
+      },
+      "prevControl": {
+        "x": 1.166987951807229,
+        "y": 6.286108433734939
+      },
+      "nextControl": {
+        "x": 0.36684412914262016,
+        "y": 6.286108433734939
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 2.052132530120482,
+        "y": 6.1003373493975905
+      },
+      "prevControl": {
+        "x": 1.4720166561960568,
+        "y": 6.355981632821914
+      },
+      "nextControl": {
+        "x": 2.6968674698795176,
+        "y": 5.81621686746988
       },
       "isLocked": false,
       "linkedName": null
@@ -96,10 +144,10 @@
   "constraintZones": [
     {
       "name": "Reduce speed",
-      "minWaypointRelativePos": 1.7220843672456396,
-      "maxWaypointRelativePos": 4.114143920595527,
+      "minWaypointRelativePos": 1.5960297766749223,
+      "maxWaypointRelativePos": 6.773200992555757,
       "constraints": {
-        "maxVelocity": 3.0,
+        "maxVelocity": 2.0,
         "maxAcceleration": 0.5,
         "maxAngularVelocity": 360.0,
         "maxAngularAcceleration": 360.0,
@@ -112,19 +160,29 @@
     {
       "fieldPosition": {
         "x": 0.0,
-        "y": 5.969
+        "y": 5.65
       },
       "rotationOffset": 0.0,
-      "minWaypointRelativePos": 2.039702233250538,
-      "maxWaypointRelativePos": 4.094292803970195,
-      "name": "Point Towards Depot"
+      "minWaypointRelativePos": 1.024317617866036,
+      "maxWaypointRelativePos": 3.5811414392060206,
+      "name": "Point Towards Depot 1"
+    },
+    {
+      "fieldPosition": {
+        "x": 0.0,
+        "y": 6.3
+      },
+      "rotationOffset": 0.0,
+      "minWaypointRelativePos": 5.042183622828763,
+      "maxWaypointRelativePos": 6.630272952853607,
+      "name": "Point Towards Depot 2"
     }
   ],
   "eventMarkers": [
     {
       "name": "RunIntakeRoller",
       "waypointRelativePos": 1.8014888337468504,
-      "endWaypointRelativePos": 4.14392059553345,
+      "endWaypointRelativePos": 6.503225806451505,
       "command": {
         "type": "named",
         "data": {
