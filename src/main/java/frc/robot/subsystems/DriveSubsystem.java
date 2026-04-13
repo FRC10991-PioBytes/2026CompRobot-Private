@@ -122,7 +122,7 @@ public class DriveSubsystem extends SubsystemBase {
   public void periodic() {
 
     updateOdometry();
-    SmartDashboard.putNumber("Drive/Gyro Angle: ", this.getHeading());
+    SmartDashboard.putNumber("Drive/Gyro Angle", this.getHeading());
 
     Pose2d robotPose = getPose();
     field.setRobotPose(robotPose);

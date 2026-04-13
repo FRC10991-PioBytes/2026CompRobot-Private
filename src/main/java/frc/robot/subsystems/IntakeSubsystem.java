@@ -72,6 +72,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     builder.addDoubleProperty("Roller Duty Cycle", () -> m_rollerMotor.getAppliedOutput(), null);
     builder.addDoubleProperty("Roller Output Current", () -> m_rollerMotor.getOutputCurrent(), null);
+    builder.addDoubleProperty("Roller Velocity", () -> m_rollerMotor.getEncoder().getVelocity(), null);
   }
 
 }

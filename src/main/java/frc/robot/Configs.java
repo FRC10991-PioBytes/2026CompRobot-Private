@@ -99,7 +99,7 @@ public final class Configs
         static {
                 leaderConfig
                         .idleMode(IdleMode.kCoast)
-                        .smartCurrentLimit(40)
+                        .smartCurrentLimit(60)
                         .voltageCompensation(12)
                         .closedLoopRampRate(0.5);
                 leaderConfig.closedLoop
@@ -114,7 +114,7 @@ public final class Configs
 
                 rightConfig
                         .idleMode(IdleMode.kCoast)
-                        .smartCurrentLimit(40)
+                        .smartCurrentLimit(60)
                         .follow(Constants.ShooterConstants.kLeaderShooterCanId, true);
 
         }

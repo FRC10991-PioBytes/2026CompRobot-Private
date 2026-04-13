@@ -98,7 +98,18 @@ public class ShooterSubsystem extends SubsystemBase {
     builder.addDoubleProperty("Output Shaft RPM", () -> getActualVelocity() * m_gearRatio, null);
     builder.addDoubleProperty("Shooter Setpoint", () -> m_targetRPM, null);
     builder.addBooleanProperty("Within 50 RPM", () -> isAtSpeed(50.0), null);
-    builder.addDoubleProperty("Shooter/Applied Output: ", () -> m_leaderMotor.getAppliedOutput(), null);
+
+    builder.addDoubleProperty("L Applied Output", () -> m_leaderMotor.getAppliedOutput(), null);
+    builder.addDoubleProperty("L Bus Voltage", () -> m_leaderMotor.getBusVoltage(), null);
+    builder.addDoubleProperty("L Output Current", () -> m_leaderMotor.getOutputCurrent(), null);
+    builder.addDoubleProperty("L Temperature", () -> m_leaderMotor.getMotorTemperature(), null);
+
+    builder.addDoubleProperty("F Applied Output", () -> m_rightMotor.getAppliedOutput(), null);
+    builder.addDoubleProperty("F Bus Voltage", () -> m_rightMotor.getBusVoltage(), null);
+    builder.addDoubleProperty("F Output Current", () -> m_rightMotor.getOutputCurrent(), null);
+    builder.addDoubleProperty("F Temperature", () -> m_rightMotor.getMotorTemperature(), null);
+
+    builder.addStringProperty("Slot", () -> m_leaderController.getSelectedSlot().toString(), null);
 
   }
 }

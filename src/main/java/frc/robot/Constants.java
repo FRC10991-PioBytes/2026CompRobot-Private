@@ -268,18 +268,18 @@ public final class Constants {
     private static ArrayList<RedScoringPosition> kRedScoringPositions = new ArrayList<>();
 
     // Blue Scoring Positions
-    public static final BlueScoringPosition kBlueLeftScoringPose1 = new BlueScoringPosition(2.061, 5.173, 4100); //Good
+    public static final BlueScoringPosition kBlueLeftScoringPose1 = new BlueScoringPosition(2.061, 5.173, 4050); //Good
     public static final BlueScoringPosition kBlueLeftScoringPose2 = new BlueScoringPosition(1.76, 6, 4400); //Good
-    public static final BlueScoringPosition kBlueLeftScoringPose3 = new BlueScoringPosition(3.083, 6.378, 4100); //Good
+    public static final BlueScoringPosition kBlueLeftScoringPose3 = new BlueScoringPosition(3.083, 6.378, 4050); //Good
     public static final BlueScoringPosition kBlueLeftScoringPose4 = new BlueScoringPosition(1.5, 7.25, 5350); //Good
     public static final BlueScoringPosition kBlueLeftScoringPose5 = new BlueScoringPosition(1.175, 5.93, 4650); //Good
     public static final BlueScoringPosition kBlueLeftScoringPose6 = new BlueScoringPosition(2.67, 6.907, 4400); //Good
     public static final BlueScoringPosition kBlueLeftScoringPose7 = new BlueScoringPosition(1.26, 4.91, 4400); //Good
     
-    public static final BlueScoringPosition kBlueCenterScoringPose1 = new BlueScoringPosition(1.82, 4.0345, 4100); //Good
+    public static final BlueScoringPosition kBlueCenterScoringPose1 = new BlueScoringPosition(1.82, 4.0345, 4050); //Good
     public static final BlueScoringPosition kBlueCenterScoringPose2 = new BlueScoringPosition(3.04, 4.0345, 3700); //Good
 
-    public static final BlueScoringPosition kBlueRightScoringPose1 = new BlueScoringPosition(2.074, 2.868, 4100); //Good
+    public static final BlueScoringPosition kBlueRightScoringPose1 = new BlueScoringPosition(2.074, 2.868, 4050); //Good
     public static final BlueScoringPosition kBlueRightScoringPose2 = new BlueScoringPosition(1.776, 2.045, 4400); //Good
     public static final BlueScoringPosition kBlueRightScoringPose3 = new BlueScoringPosition(3.067, 1.701, 4100); //Good
     public static final BlueScoringPosition kBlueRightScoringPose4 = new BlueScoringPosition(1.484, 0.834, 5350); //Good
@@ -288,20 +288,20 @@ public final class Constants {
 
     
     // Red Scoring positions
-    public static final RedScoringPosition kRedLeftScoringPose1 = new RedScoringPosition(14.467, 2.868, 4100); //Good
+    public static final RedScoringPosition kRedLeftScoringPose1 = new RedScoringPosition(14.467, 2.868, 4050); //Good
     public static final RedScoringPosition kRedLeftScoringPose2 = new RedScoringPosition(14.765, 2.045, 4400); //Good
-    public static final RedScoringPosition kRedLeftScoringPose3 = new RedScoringPosition(13.474, 1.701, 4100); //Good
+    public static final RedScoringPosition kRedLeftScoringPose3 = new RedScoringPosition(13.474, 1.701, 4050); //Good
     public static final RedScoringPosition kRedLeftScoringPose4 = new RedScoringPosition(15.057, 0.834, 5350); //Good
     public static final RedScoringPosition kRedLeftScoringPose5 = new RedScoringPosition(15.351, 2.112, 4650);//Good
     public static final RedScoringPosition kRedLeftScoringPose6 = new RedScoringPosition(13.871, 1.162, 4400); //Good
     public static final RedScoringPosition kRedLeftScoringPose7 = new RedScoringPosition(15.28, 3.124, 4400); //Good
     
-    public static final RedScoringPosition kRedCenterScoringPose1 = new RedScoringPosition(14.721, 4.0345, 4100); //Good
+    public static final RedScoringPosition kRedCenterScoringPose1 = new RedScoringPosition(14.721, 4.0345, 4050); //Good
     public static final RedScoringPosition kRedCenterScoringPose2 = new RedScoringPosition(14, 4.0345, 3700); //Good
 
-    public static final RedScoringPosition kRedRightScoringPose1 = new RedScoringPosition(14.48, 5.173, 4100); //Good
+    public static final RedScoringPosition kRedRightScoringPose1 = new RedScoringPosition(14.48, 5.173, 4050); //Good
     public static final RedScoringPosition kRedRightScoringPose2 = new RedScoringPosition(14.781, 6, 4400); //Good
-    public static final RedScoringPosition kRedRightScoringPose3 = new RedScoringPosition(13.458, 6.378, 4100); //Good
+    public static final RedScoringPosition kRedRightScoringPose3 = new RedScoringPosition(13.458, 6.378, 4050); //Good
     public static final RedScoringPosition kRedRightScoringPose4 = new RedScoringPosition(15.041, 7.25, 5350); //Good
     public static final RedScoringPosition kRedRightScoringPose5 = new RedScoringPosition(15.366, 5.93, 4650); //Good
     public static final RedScoringPosition kRedRightScoringPose6 = new RedScoringPosition(13.871, 6.907, 4400); //Good

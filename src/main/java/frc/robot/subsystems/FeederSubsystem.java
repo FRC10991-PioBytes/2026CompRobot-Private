@@ -86,6 +86,8 @@ public class FeederSubsystem extends SubsystemBase {
 
     if (m_targetRPM != 0)
     {
+      m_agitatorMotor.set(1);
+      /*
       m_agitatorTimer.start();
       int phase = (int) m_agitatorTimer.get() % 6;
       if (phase < 2) {
@@ -101,11 +103,15 @@ public class FeederSubsystem extends SubsystemBase {
       else {
         m_agitatorMotor.stopMotor();
       }
+        */
     }
+      
     else
     {
+      /*
       m_agitatorTimer.stop();
       m_agitatorTimer.reset();
+      */
       m_agitatorMotor.stopMotor();
     }
     
@@ -118,7 +124,7 @@ public class FeederSubsystem extends SubsystemBase {
     builder.addDoubleProperty("Output Shaft RPM", () -> getActualVelocity(), null);
     builder.addDoubleProperty("Feeder Setpoint", () -> m_targetRPM, null);
     builder.addBooleanProperty("Within 50 RPM", () -> isAtSpeed(50.0), null);
-    builder.addDoubleProperty("Feeder/Applied Output: ", () -> m_leaderMotor.getAppliedOutput(), null);
+    builder.addDoubleProperty("Applied Output", () -> m_leaderMotor.getAppliedOutput(), null);
 
   }
 

@@ -51,7 +51,7 @@ public class MoveToScorePosCommand extends Command {
             noDriverAllianceFound = true;
         }
 
-        m_drive.getField().getObject("Field Info/TargetPose").setPose(closestScoringPose);
+        m_drive.getField().getObject("TargetPose").setPose(closestScoringPose);
     }
 
     @Override
@@ -117,7 +117,13 @@ public class MoveToScorePosCommand extends Command {
             else
             {
                 m_leds.setState(LEDState.LookingForTarget);
-                m_drive.drive(-xSpeed, -ySpeed, rotSpeed, true);
+                if (DriverStation.getAlliance().get() == Alliance.Blue) {
+                    m_drive.drive(xSpeed, ySpeed, rotSpeed, true);
+                }
+                else {
+                     m_drive.drive(-xSpeed, -ySpeed, rotSpeed, true);
+                }
+                
             }
             
         }
