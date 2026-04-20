@@ -59,6 +59,10 @@ public class FeederSubsystem extends SubsystemBase {
   {
     m_agitatorMotor.set(-1 * speed);
   }
+
+  public void runFeeder(double speed) {
+    m_leaderMotor.set(speed);
+  }
   
 
   public void stop()

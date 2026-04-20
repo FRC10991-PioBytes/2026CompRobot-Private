@@ -102,6 +102,9 @@ public final class Configs
                         .smartCurrentLimit(60)
                         .voltageCompensation(12)
                         .closedLoopRampRate(0.5);
+                leaderConfig.encoder
+                        .uvwMeasurementPeriod(10)
+                        .uvwAverageDepth(8);
                 leaderConfig.closedLoop
                         .pid(ShooterConstants.kP,0, ShooterConstants.kD)
                         .outputRange(-1, 1)
@@ -131,30 +134,31 @@ public final class Configs
                         .idleMode(IdleMode.kBrake)
                         .smartCurrentLimit(30);
 
-                // Pivot configs
-                double turningFactor = 2 * Math.PI;
+                double turningRatio = 14 / (50 * 4.8);
 
                 leaderPivotConfig
                         .idleMode(IdleMode.kBrake)
-                        .smartCurrentLimit(40);
-                leaderPivotConfig.absoluteEncoder
-                        .positionConversionFactor(turningFactor * 14.0 / 32.0) // radians with gear ratio
-                        .velocityConversionFactor(turningFactor / 60.0 * 14.0 / 32.0); // radians per second wtih gear ratio
+                        .inverted(true)
+                        .smartCurrentLimit(40)
+                        .voltageCompensation(12);
+                leaderPivotConfig.encoder
+                        .positionConversionFactor(turningRatio) // rotations with gear ratio
+                        .velocityConversionFactor(turningRatio / 60); // rotations per second wtih gear ratio
                 leaderPivotConfig.closedLoop
-                        .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
+                        .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
                         .pid(0, 0, 0, ClosedLoopSlot.kSlot0)
                         .outputRange(-1, 1)
-                        .positionWrappingEnabled(false)
+                        .positionWrappingEnabled(true)
                         .feedForward
                                 .kS(IntakeConstants.kStaticFF)
                                 .kV(IntakeConstants.kVelocityFF)
                                 .kA(IntakeConstants.kAccelerationFF)
                                 .kCos(IntakeConstants.kIntakeGravityCosVoltage)
-                                .kCosRatio(1 / turningFactor);
+                                .kCosRatio(1);
                 leaderPivotConfig.closedLoop.maxMotion
-                        .cruiseVelocity(Math.PI / 8)
-                        .maxAcceleration(Math.PI / 2)
-                        .allowedProfileError(0.05);
+                        .cruiseVelocity(0.5)
+                        .maxAcceleration(0.5)
+                        .allowedProfileError(0.01);
         }
     }
 }

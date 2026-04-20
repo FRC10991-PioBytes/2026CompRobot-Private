@@ -13,6 +13,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Configs.Shooter;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -103,6 +104,7 @@ public class ShooterSubsystem extends SubsystemBase {
     builder.addDoubleProperty("L Bus Voltage", () -> m_leaderMotor.getBusVoltage(), null);
     builder.addDoubleProperty("L Output Current", () -> m_leaderMotor.getOutputCurrent(), null);
     builder.addDoubleProperty("L Temperature", () -> m_leaderMotor.getMotorTemperature(), null);
+    builder.addBooleanProperty("L Faults", () -> m_leaderMotor.getFaults().can, null);
 
     builder.addDoubleProperty("F Applied Output", () -> m_rightMotor.getAppliedOutput(), null);
     builder.addDoubleProperty("F Bus Voltage", () -> m_rightMotor.getBusVoltage(), null);

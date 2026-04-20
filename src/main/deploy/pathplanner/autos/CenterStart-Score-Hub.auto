@@ -7,13 +7,13 @@
         {
           "type": "named",
           "data": {
-            "name": "RevShooterSide"
+            "name": "RevShooterCenter"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "LeftStartToScore"
+            "pathName": "CenterStartToCenterScore"
           }
         },
         {
@@ -48,34 +48,28 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "StopFeeder"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "LeftScoreToNZToLeftScore"
-          }
-        },
-        {
           "type": "parallel",
           "data": {
             "commands": [
               {
                 "type": "named",
                 "data": {
-                  "name": "RunFeederAndShoot"
+                  "name": "StopIntakeRoller"
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "SpamIntakePivot"
+                  "name": "StopFeeder"
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "CenterScoreToCenterStart"
           }
         }
       ]

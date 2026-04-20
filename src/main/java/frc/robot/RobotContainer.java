@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.subsystems.DriveSubsystem;
@@ -27,8 +28,10 @@ import frc.robot.commands.DriveCommand;
 import frc.robot.commands.IntakeCommands.RunIntakeInCommand;
 import frc.robot.commands.IntakeCommands.RunIntakeOutCommand;
 import frc.robot.commands.IntakeCommands.RunIntakePivotCommand;
+import frc.robot.commands.IntakeCommands.SpamIntakePivotCommand;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
@@ -49,9 +52,6 @@ public class RobotContainer
 
   // Driver controller
   CommandJoystick m_driverController = new CommandJoystick(OIConstants.kDriverControllerPort);
-  
-  // Operator controller
-  CommandJoystick m_manipulatorController = new CommandJoystick(OIConstants.kManipulatorControllerPort);
 
   // Auto chooser
   private final SendableChooser<Command> pathAutoChooser;
@@ -65,11 +65,14 @@ public class RobotContainer
 
     NamedCommands.registerCommand("StopFeeder", m_feeder.runOnce(() -> m_feeder.stop()));
     NamedCommands.registerCommand("StopShooter", m_shooter.runOnce(() -> m_shooter.stop()));
-    NamedCommands.registerCommand("ExtendIntake", new RunIntakePivotCommand(m_intake, () -> -1).withTimeout(0.75));
-    NamedCommands.registerCommand("RevShooterSide", m_shooter.runOnce(() -> m_shooter.setVelocity(4500)));
-    NamedCommands.registerCommand("RevShooterCenter", m_shooter.runOnce(() -> m_shooter.setVelocity(4100))); //Good
-    NamedCommands.registerCommand("RunFeederAndShoot", m_feeder.runOnce(() -> m_feeder.setVelocity(4800)));
+    NamedCommands.registerCommand("ExtendIntake", new RunIntakePivotCommand(m_intake, () -> 1).withTimeout(0.75));
+    NamedCommands.registerCommand("RevShooterSide", m_shooter.runOnce(() -> m_shooter.setVelocity(4200)));
+    NamedCommands.registerCommand("RevShooterCenter", m_shooter.runOnce(() -> m_shooter.setVelocity(3800))); //Good
+    NamedCommands.registerCommand("RunFeederAndShoot", new RunCommand(() -> m_feeder.runFeeder(0.75), m_feeder)
+        .finallyDo(() -> m_feeder.stop()));
+    NamedCommands.registerCommand("SpamIntakePivot", new SpamIntakePivotCommand(m_intake));
     NamedCommands.registerCommand("RunIntakeRoller", new RunIntakeInCommand(m_intake));
+    NamedCommands.registerCommand("StopIntakeRoller", m_intake.runOnce(() -> m_intake.stopRollers()));
 
     pathAutoChooser = AutoBuilder.buildAutoChooser("CenterStart-Score");
 
@@ -97,18 +100,6 @@ public class RobotContainer
         () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.rightStickX), OIConstants.kDriveDeadband)  * 1,//* 0.714,
         () -> true));
 
-    m_driverController.button(OIConstants.bumperLeft)
-        .whileTrue(new DriveCommand(m_robotDrive, m_LEDs,
-            () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.leftStickY), OIConstants.kDriveDeadband) * 0.5,
-            () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.leftStickX), OIConstants.kDriveDeadband) * 0.5,
-            () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.rightStickX), OIConstants.kDriveDeadband) * 0.5,
-            () -> true));
-    
-    m_driverController.button(OIConstants.buttonY)
-        .whileTrue(new FaceToPassCommand(m_robotDrive,
-        () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.leftStickY), OIConstants.kDriveDeadband),
-        () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.leftStickY), OIConstants.kDriveDeadband)));
-
     // Move to closest scoring position
     m_driverController.button(OIConstants.buttonA)
         .whileTrue(new MoveToScorePosCommand(m_robotDrive, m_LEDs));
@@ -119,35 +110,47 @@ public class RobotContainer
             () -> m_robotDrive.setX(),
             m_robotDrive));
 
-    m_driverController.button(OIConstants.buttonB).and(m_driverController.button(OIConstants.bumperLeft)).and(m_driverController.button(OIConstants.bumperRight))
-        .onTrue(m_robotDrive.runOnce(() -> m_robotDrive.resetPoseRotation()));
-    
     // Run shooter
-    m_manipulatorController.axisGreaterThan(OIConstants.rightTrigger, 0.5)
+    m_driverController.axisGreaterThan(OIConstants.rightTrigger, 0.5)
         .onTrue(new ShootFromScorePosCommand(m_shooter, m_robotDrive))
         .onFalse(m_shooter.runOnce(() -> m_shooter.setVelocity(ShooterConstants.kShooterIdleVelocity)));
-
+    
     // Run feeder
-    m_manipulatorController.axisGreaterThan(OIConstants.leftTrigger, 0.5)
-        .onTrue(m_feeder.runOnce(() -> m_feeder.setVelocity(4800)))
+    m_driverController.axisGreaterThan(OIConstants.leftTrigger, 0.5)
+        .whileTrue(new RunCommand(() -> m_feeder.runFeeder(0.75), m_feeder))
+        .onFalse(m_feeder.runOnce(() -> m_feeder.stop()));
+        //.onTrue(m_feeder.runOnce(() -> m_feeder.setVelocity(4800)))
+        //.onFalse(m_feeder.runOnce(() -> m_feeder.stop()));
+
+    m_driverController.button(OIConstants.buttonX)
+        .whileTrue(new RunCommand(() -> m_feeder.runFeeder(-0.75), m_feeder))
         .onFalse(m_feeder.runOnce(() -> m_feeder.stop()));
 
     // Pass
-    m_manipulatorController.button(OIConstants.bumperRight)
+    m_driverController.button(OIConstants.buttonY)
         .whileTrue(m_shooter.runOnce(() -> m_shooter.setVelocity(5600)))
         .onFalse(m_shooter.runOnce(() -> m_shooter.setVelocity(ShooterConstants.kShooterIdleVelocity)));
+    
+    // Run intake pivot
+    m_driverController.povUp()
+        .whileTrue(new RunIntakePivotCommand(m_intake, () -> IntakeConstants.kIntakePivotUpSpeed));
 
-    // Run intake
-    m_manipulatorController.button(OIConstants.buttonX)
+    m_driverController.povDown()
+        .whileTrue(new RunIntakePivotCommand(m_intake, () -> IntakeConstants.kIntakePivotDownSpeed));
+
+    // Run intake rollers
+    m_driverController.button(OIConstants.bumperRight)
         .toggleOnTrue(new RunIntakeInCommand(m_intake));
 
-    m_manipulatorController.button(OIConstants.buttonY)
+    m_driverController.button(OIConstants.bumperLeft)
         .toggleOnTrue(new RunIntakeOutCommand(m_intake));
 
-    // Run intake
-    m_intake.setDefaultCommand(new RunIntakePivotCommand(
-        m_intake,
-        () -> MathUtil.applyDeadband(m_manipulatorController.getRawAxis(OIConstants.rightStickY), 0.1)));
+    // Re-seed pose estimator
+    m_driverController.povRight().and(m_driverController.button(OIConstants.buttonB))
+        .onTrue(m_robotDrive.runOnce(() -> m_robotDrive.resetPoseRotation()));
+
+    m_driverController.povLeft().whileTrue(new SpamIntakePivotCommand(m_intake));
+
   }
 
   public Command getStopShootingCommand() {
