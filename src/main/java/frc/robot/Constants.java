@@ -93,19 +93,23 @@ public final class Constants {
     public static final int kLeaderPivotCanId = 12;
     public static final int kLeaderRollerCanId = 13;
 
-    public static final double kIntakeInSpeed = 1;
-    public static final double kIntakeOutSpeed = -1;
+    public static final double kIntakeInSpeed = 0.75;
+    public static final double kIntakeOutSpeed = -0.75;
 
-    public static final double kIntakePivotUpSpeed = 0.3;
-    public static final double kIntakePivotDownSpeed = -0.1;
+    public static final double kIntakePivotUpSpeed = -1;
+    public static final double kPivotSpamUpSpeed = -1;
+    public static final double kIntakePivotDownSpeed = 0.1;
+    public static final double kPivotSpamDownSpeed = 0.12;
     public static final double kIntakePivotHoldSpeed = 0.1;
 
     // In radians
-    public static final Rotation2d kIntakeRetractedEncoderPosition = Rotation2d.kZero;
-    public static final Rotation2d kIntakeExtendedEncoderPosition = new Rotation2d(0.1);
+    public static final Rotation2d kIntakeOffset = Rotation2d.fromDegrees(-118);
+    public static final Rotation2d kIntakeRetractedEncoderPosition = kIntakeOffset;
+    public static final Rotation2d kIntakeExtendedEncoderPosition = Rotation2d.fromDegrees(-12);
+    
 
-    public static final double kIntakeGravityCosVoltage = 0.1;
-    public static final double kStaticFF = 0;
+    public static final double kIntakeGravityCosVoltage = 1.05;
+    public static final double kStaticFF = 0.21;
     public static final double kVelocityFF = 0;
     public static final double kAccelerationFF = 0;
 
@@ -125,7 +129,7 @@ public final class Constants {
     public static final double kP = 2.9426E-05;
     public static final double kD = 0;
 
-    public static final int kFeederMaxAcceleration = 2000; // RPM per second
+    public static final int kFeederMaxAcceleration = 3000; // RPM per second
   }
 
   public static final class ShooterConstants {
@@ -134,16 +138,16 @@ public final class Constants {
     public static final int kRightShooterCanId = 11;
 
     // Feed forward constants
-    public static final double kStaticFF = 0.20042 / 60.0; // Divide by 60 to change from rps to rpm
-    public static final double kVelocityFF = 0.12391 / 60.0;
-    public static final double kAccelerationFF = 0.011037 / 60.0;
+    public static final double kStaticFF = 6.65 / 60.0;//0.20042 / 60.0; // Divide by 60 to change from rps to rpm
+    public static final double kVelocityFF = 0.1236 / 60.0;//0.12391 / 60.0;
+    public static final double kAccelerationFF = 0;//0.011037 / 60.0;
 
     // PID constants
-    public static final double kP = 1.0486E-05;
-    public static final double kD = 0;
+    public static final double kP = 0.0006;//0.000144;//1.0486E-05;
+    public static final double kD = 0.00001;
 
-    public static final int kShooterMaxAcceleration = 1500; // RPM per second
-    public static final double kShooterIdleVelocity = 4200; // RPM
+    public static final int kShooterMaxAcceleration = 4000; // RPM per second
+    public static final double kShooterIdleVelocity = 4500; // RPM
   }
 
   public static final class LEDConstants {
@@ -269,42 +273,42 @@ public final class Constants {
 
     // Blue Scoring Positions
     public static final BlueScoringPosition kBlueLeftScoringPose1 = new BlueScoringPosition(2.061, 5.173, 4050); //Good
-    public static final BlueScoringPosition kBlueLeftScoringPose2 = new BlueScoringPosition(1.76, 6, 4400); //Good
+    public static final BlueScoringPosition kBlueLeftScoringPose2 = new BlueScoringPosition(1.76, 6, 4150); //Good
     public static final BlueScoringPosition kBlueLeftScoringPose3 = new BlueScoringPosition(3.083, 6.378, 4050); //Good
-    public static final BlueScoringPosition kBlueLeftScoringPose4 = new BlueScoringPosition(1.5, 7.25, 5350); //Good
-    public static final BlueScoringPosition kBlueLeftScoringPose5 = new BlueScoringPosition(1.175, 5.93, 4650); //Good
-    public static final BlueScoringPosition kBlueLeftScoringPose6 = new BlueScoringPosition(2.67, 6.907, 4400); //Good
-    public static final BlueScoringPosition kBlueLeftScoringPose7 = new BlueScoringPosition(1.26, 4.91, 4400); //Good
+    public static final BlueScoringPosition kBlueLeftScoringPose4 = new BlueScoringPosition(1.5, 7.25, 5000); //Good
+    public static final BlueScoringPosition kBlueLeftScoringPose5 = new BlueScoringPosition(1.175, 5.93, 4350); //Maybe?
+    public static final BlueScoringPosition kBlueLeftScoringPose6 = new BlueScoringPosition(2.67, 6.907, 4150); //Good
+    public static final BlueScoringPosition kBlueLeftScoringPose7 = new BlueScoringPosition(1.26, 4.91, 4150); //Good
     
     public static final BlueScoringPosition kBlueCenterScoringPose1 = new BlueScoringPosition(1.82, 4.0345, 4050); //Good
-    public static final BlueScoringPosition kBlueCenterScoringPose2 = new BlueScoringPosition(3.04, 4.0345, 3700); //Good
+    public static final BlueScoringPosition kBlueCenterScoringPose2 = new BlueScoringPosition(3.04, 4.0345, 3700); //Who knows
 
     public static final BlueScoringPosition kBlueRightScoringPose1 = new BlueScoringPosition(2.074, 2.868, 4050); //Good
-    public static final BlueScoringPosition kBlueRightScoringPose2 = new BlueScoringPosition(1.776, 2.045, 4400); //Good
-    public static final BlueScoringPosition kBlueRightScoringPose3 = new BlueScoringPosition(3.067, 1.701, 4100); //Good
-    public static final BlueScoringPosition kBlueRightScoringPose4 = new BlueScoringPosition(1.484, 0.834, 5350); //Good
-    public static final BlueScoringPosition kBlueRightScoringPose5 = new BlueScoringPosition(1.19, 2.112, 4650); //Good
-    public static final BlueScoringPosition kBlueRightScoringPose6 = new BlueScoringPosition(2.67, 1.162, 4400); //Good
+    public static final BlueScoringPosition kBlueRightScoringPose2 = new BlueScoringPosition(1.776, 2.045, 4150); //Good
+    public static final BlueScoringPosition kBlueRightScoringPose3 = new BlueScoringPosition(3.067, 1.701, 4050); //Good
+    public static final BlueScoringPosition kBlueRightScoringPose4 = new BlueScoringPosition(1.484, 0.834, 5000); //Good
+    public static final BlueScoringPosition kBlueRightScoringPose5 = new BlueScoringPosition(1.19, 2.112, 4350); //Maybe?
+    public static final BlueScoringPosition kBlueRightScoringPose6 = new BlueScoringPosition(2.67, 1.162, 4150); //Good
 
     
     // Red Scoring positions
     public static final RedScoringPosition kRedLeftScoringPose1 = new RedScoringPosition(14.467, 2.868, 4050); //Good
-    public static final RedScoringPosition kRedLeftScoringPose2 = new RedScoringPosition(14.765, 2.045, 4400); //Good
+    public static final RedScoringPosition kRedLeftScoringPose2 = new RedScoringPosition(14.765, 2.045, 4150); //Good
     public static final RedScoringPosition kRedLeftScoringPose3 = new RedScoringPosition(13.474, 1.701, 4050); //Good
-    public static final RedScoringPosition kRedLeftScoringPose4 = new RedScoringPosition(15.057, 0.834, 5350); //Good
-    public static final RedScoringPosition kRedLeftScoringPose5 = new RedScoringPosition(15.351, 2.112, 4650);//Good
-    public static final RedScoringPosition kRedLeftScoringPose6 = new RedScoringPosition(13.871, 1.162, 4400); //Good
-    public static final RedScoringPosition kRedLeftScoringPose7 = new RedScoringPosition(15.28, 3.124, 4400); //Good
+    public static final RedScoringPosition kRedLeftScoringPose4 = new RedScoringPosition(15.057, 0.834, 5000); //Good
+    public static final RedScoringPosition kRedLeftScoringPose5 = new RedScoringPosition(15.351, 2.112, 4350); //Maybe?
+    public static final RedScoringPosition kRedLeftScoringPose6 = new RedScoringPosition(13.871, 1.162, 4150); //Good
+    public static final RedScoringPosition kRedLeftScoringPose7 = new RedScoringPosition(15.28, 3.124, 4150); //Good
     
     public static final RedScoringPosition kRedCenterScoringPose1 = new RedScoringPosition(14.721, 4.0345, 4050); //Good
-    public static final RedScoringPosition kRedCenterScoringPose2 = new RedScoringPosition(14, 4.0345, 3700); //Good
+    public static final RedScoringPosition kRedCenterScoringPose2 = new RedScoringPosition(14, 4.0345, 3700); //Who knows
 
     public static final RedScoringPosition kRedRightScoringPose1 = new RedScoringPosition(14.48, 5.173, 4050); //Good
-    public static final RedScoringPosition kRedRightScoringPose2 = new RedScoringPosition(14.781, 6, 4400); //Good
+    public static final RedScoringPosition kRedRightScoringPose2 = new RedScoringPosition(14.781, 6, 4150); //Good
     public static final RedScoringPosition kRedRightScoringPose3 = new RedScoringPosition(13.458, 6.378, 4050); //Good
-    public static final RedScoringPosition kRedRightScoringPose4 = new RedScoringPosition(15.041, 7.25, 5350); //Good
-    public static final RedScoringPosition kRedRightScoringPose5 = new RedScoringPosition(15.366, 5.93, 4650); //Good
-    public static final RedScoringPosition kRedRightScoringPose6 = new RedScoringPosition(13.871, 6.907, 4400); //Good
+    public static final RedScoringPosition kRedRightScoringPose4 = new RedScoringPosition(15.041, 7.25, 5000); //Good
+    public static final RedScoringPosition kRedRightScoringPose5 = new RedScoringPosition(15.366, 5.93, 4350); //Maybe?
+    public static final RedScoringPosition kRedRightScoringPose6 = new RedScoringPosition(13.871, 6.907, 4150); //Good
 
     public static ArrayList<Pose2d> getBlueScoringPoses() {
       return kBlueScoringPoses;
