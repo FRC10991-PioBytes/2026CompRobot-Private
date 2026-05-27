@@ -98,7 +98,7 @@ public final class Constants {
 
     public static final double kIntakePivotUpSpeed = -1;
     public static final double kPivotSpamUpSpeed = -1;
-    public static final double kIntakePivotDownSpeed = 0.1;
+    public static final double kIntakePivotDownSpeed = 0.75;
     public static final double kPivotSpamDownSpeed = 0.12;
     public static final double kIntakePivotHoldSpeed = 0.1;
 

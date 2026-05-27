@@ -73,6 +73,8 @@ public class RobotContainer
     NamedCommands.registerCommand("SpamIntakePivot", new SpamIntakePivotCommand(m_intake));
     NamedCommands.registerCommand("RunIntakeRoller", new RunIntakeInCommand(m_intake));
     NamedCommands.registerCommand("StopIntakeRoller", m_intake.runOnce(() -> m_intake.stopRollers()));
+    NamedCommands.registerCommand("AutoAlign", new MoveToScorePosCommand(m_robotDrive, m_LEDs)
+        .withTimeout(0.75));
 
     pathAutoChooser = AutoBuilder.buildAutoChooser("CenterStart-Score");
 

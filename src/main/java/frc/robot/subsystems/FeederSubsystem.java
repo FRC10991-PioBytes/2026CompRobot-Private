@@ -88,7 +88,7 @@ public class FeederSubsystem extends SubsystemBase {
     
     SmartDashboard.putData(this);
 
-    if (m_targetRPM != 0)
+    if (getActualVelocity() != 0)
     {
       m_agitatorMotor.set(1);
       /*
