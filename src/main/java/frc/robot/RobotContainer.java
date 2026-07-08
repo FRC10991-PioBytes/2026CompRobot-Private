@@ -106,12 +106,6 @@ public class RobotContainer
     m_driverController.button(OIConstants.buttonA)
         .whileTrue(new MoveToScorePosCommand(m_robotDrive, m_LEDs));
 
-    // Set X formation
-    m_driverController.button(OIConstants.buttonX)
-        .whileTrue(new RunCommand(
-            () -> m_robotDrive.setX(),
-            m_robotDrive));
-
     // Run shooter
     m_driverController.axisGreaterThan(OIConstants.rightTrigger, 0.5)
         .onTrue(new ShootFromScorePosCommand(m_shooter, m_robotDrive))

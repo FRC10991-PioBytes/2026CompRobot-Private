@@ -79,6 +79,7 @@ public class DriveSubsystem extends SubsystemBase {
 
     RobotConfig config;
     
+    // Make robot config for Pathplanner
     try {
       config = RobotConfig.fromGUISettings();
       AutoBuilder.configure(
@@ -103,8 +104,10 @@ public class DriveSubsystem extends SubsystemBase {
       e.printStackTrace();
     }
 
+    // Reset the gyro
     zeroHeading();
 
+    // Make the pose estimator
     m_poseEstimator = new SwerveDrivePoseEstimator(
       DriveConstants.kDriveKinematics, 
       Rotation2d.fromDegrees(this.getHeading()),
@@ -121,19 +124,24 @@ public class DriveSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
 
+    // Update pose
     updateOdometry();
     SmartDashboard.putNumber("Drive/Gyro Angle", this.getHeading());
 
+    // Update robot icon on dashboard
     Pose2d robotPose = getPose();
     field.setRobotPose(robotPose);
     SmartDashboard.putData("Game Info/Field", field);
 
+    // Update swerve module states for dashboard
     SmartDashboard.putData("Drive/Swerve Drive", this);
     
   }
 
 
   public void updateOdometry() {
+
+    // Update the pose estimator with new encoder/gyro reaedings
     m_poseEstimator.update(
         Rotation2d.fromDegrees(this.getHeading()),
         new SwerveModulePosition[] {
@@ -143,16 +151,26 @@ public class DriveSubsystem extends SubsystemBase {
             m_rearRight.getPosition()
         });
 
+    /*
+    Feed the estimated pose's yaw into the limelight
+    - Should be estimated yaw (not actual yaw) because the pose estimator automatically
+        offsets the yaw based on starting pose. If you use actual yaw, then you will have
+        to manually offset it and it gets difficult
+    */
     LimelightHelpers.SetRobotOrientation("limelight", this.getPose().getRotation().getDegrees(), 0, 0, 0, 0, 0);
     
+    // Try catch because getBotPoseEstimate can give error
     try {
+      // Get new mt2 pose estimate
       mt2PoseEstimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
 
+      // Check if the pose estimate is valid
       if (isGoodPoseEstimate(mt2PoseEstimate)) {
-        if (isAddingToList) {
-          llReadings.add(mt2PoseEstimate.pose);
-        }
 
+        /*
+        Adjust standard devs based on distance. These were technically measured empirically
+          but they lowkey kinda sucked so we guessed them
+        */
         if (mt2PoseEstimate.tagCount > 1) {
           m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.1, 0.1, 999999));
           m_poseEstimator.addVisionMeasurement(
@@ -248,78 +266,6 @@ public class DriveSubsystem extends SubsystemBase {
     return true;
   }
 
-  public void enableLLReading() {
-    isAddingToList = true;
-  }
-
-
-  public void disableLLReading() {
-    isAddingToList = false;
-  }
-
-
-  public void updateLLAverages() {
-    if (llReadings.size() < 2) {
-        SmartDashboard.putNumber("X stdev", 0);
-        SmartDashboard.putNumber("Y stdev", 0);
-        return;
-    }
-
-
-    int n = llReadings.size();
-    double sum = 0;
-
-
-    for (Pose2d pose : llReadings) {
-        sum += pose.getX();
-    }
-
-
-    double avg = sum / n;
-    double sumOfDiffsSquared = 0;
-
-
-    for (Pose2d pose : llReadings) {
-        double diff = pose.getX() - avg;
-        sumOfDiffsSquared += diff * diff;
-    }
-
-
-    double stdev = Math.sqrt(sumOfDiffsSquared / (n - 1));
-   
-    SmartDashboard.putNumber("X stdev", stdev);
-
-
-    sum = 0;
-
-
-    for (Pose2d pose : llReadings) {
-        sum += pose.getY();
-    }
-
-
-    avg = sum / n;
-    sumOfDiffsSquared = 0;
-
-
-    for (Pose2d pose : llReadings) {
-        double diff = pose.getY() - avg;
-        sumOfDiffsSquared += diff * diff;
-    }
-
-
-    stdev = Math.sqrt(sumOfDiffsSquared / (n - 1));
-   
-    SmartDashboard.putNumber("Y stdev", stdev);
-    SmartDashboard.putNumber("Samples", llReadings.size());
-}
-
-public void clearLLAverages() {
-  while (llReadings.size() > 0) {
-    llReadings.remove(0);
-  }
-}
-
 
   /**
    * Returns the currently-estimated pose of the robot.
@@ -330,6 +276,7 @@ public void clearLLAverages() {
     return m_poseEstimator.getEstimatedPosition();
   }
 
+  // Reset the pose's rotation based on alliance color
   public void resetPoseRotation() {
     m_poseEstimator.resetRotation(
       DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red 
@@ -388,6 +335,7 @@ public void clearLLAverages() {
     
   }
 
+  // Stops the drive motors
   public void stop()
   {
     drive(0,0,0,true);
@@ -417,6 +365,7 @@ public void clearLLAverages() {
     m_rearRight.setDesiredState(desiredStates[3]);
   }
 
+  // Returns the current module states
   public SwerveModuleState[] getModuleStates() {
     SwerveModuleState[] swerveModuleStates = {m_frontLeft.getState(), m_frontRight.getState(), m_rearLeft.getState(), m_rearRight.getState()};
     return swerveModuleStates;
