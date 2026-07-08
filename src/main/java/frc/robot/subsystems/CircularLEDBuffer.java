@@ -25,6 +25,7 @@ public class CircularLEDBuffer {
   private static final LEDPattern kGreenPattern = LEDPattern.solid(Color.kGreen);
   private static final LEDPattern kBlackPattern = LEDPattern.solid(Color.kBlack);
 
+  // test comment
   private static final LEDPattern kRedLoadingPattern =
     LEDPattern.gradient(LEDPattern.GradientType.kDiscontinuous, Color.kBlack, Color.kRed)
       //.mask(kMask)
