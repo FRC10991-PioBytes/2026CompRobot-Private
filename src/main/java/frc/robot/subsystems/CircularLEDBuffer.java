@@ -5,6 +5,8 @@
 package frc.robot.subsystems;
 
 
+import java.util.Map;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.*;
 import edu.wpi.first.units.measure.Frequency;
@@ -36,6 +38,12 @@ public class CircularLEDBuffer {
       //.mask(kMask)
         .scrollAtRelativeSpeed(Frequency.ofBaseUnits(1, Units.Hertz));
 
+  private static final LEDPattern kFreedomPattern = 
+    LEDPattern.steps(Map.of(0, Color.kRed, 0.33, Color.kWhite, 0.67, Color.kBlue))
+    //LEDPattern.gradient(LEDPattern.GradientType.kDiscontinuous, Color.kRed, Color.kWhite, Color.kBlue)
+      //.mask(kMask)
+        .scrollAtRelativeSpeed(Frequency.ofBaseUnits(0.75, Units.Hertz));
+
   /**
    * Constructs a Circular Buffer for LEDs
    */
@@ -46,60 +54,10 @@ public class CircularLEDBuffer {
     m_angularOffset = angularOffset;
   }
 
-  public void setLookingForTargetPattern() {
-    kWhitePattern.applyTo(m_bufferView);
+  public void setFreedomPattern() {
+    kFreedomPattern.applyTo(m_bufferView);
   }
 
-  public void setTargetFoundPattern() {
-    kGreenPattern.applyTo(m_bufferView);
-  }
-
-  public void setLoadingPattern(boolean isRed) {
-    if (isRed) {
-      kRedLoadingPattern.applyTo(m_bufferView);
-    }
-    else {
-      kBlueLoadingPattern.applyTo(m_bufferView);
-    }
-  }
-
-  public void setOff() {
-    kBlackPattern.applyTo(m_bufferView);
-  }
-
-  // Sets the Azimuth Pattern given a wheel direction
-  public void setAzimuthPattern(Rotation2d wheelDirection, boolean isRed) {
-    // Get the LED-oriented direction
-    Rotation2d LEDDirection = applyAngularOffset(wheelDirection);
-    m_angularSetpoint = LEDDirection;
-    // Get the closest LEDIndex
-    int closestLEDIndex = convertToLEDIndex(LEDDirection);
-    // Get the opposite LEDIndex
-    int oppositeLEDIndex = getOppositeLEDIndex(closestLEDIndex);
-
-    // Set the Azimuth LED Pattern
-    // Red by default, blue if alliance is blue
-    kBlackPattern.applyTo(m_bufferView);
-
-    int[] indexGroups = new int[6];
-    indexGroups[0] = (closestLEDIndex == 0) ? m_length - 1 : closestLEDIndex - 1;
-    indexGroups[1] = closestLEDIndex;
-    indexGroups[2] = (closestLEDIndex == m_length - 1) ? 0 : closestLEDIndex + 1;
-    indexGroups[3] = (oppositeLEDIndex == 0) ? m_length - 1 : oppositeLEDIndex - 1;
-    indexGroups[4] = oppositeLEDIndex;
-    indexGroups[5] = (oppositeLEDIndex == m_length - 1) ? 0 : oppositeLEDIndex + 1;
-    if (isRed) {
-      for (int i = 0; i < 6; i++) {
-        m_bufferView.setLED(indexGroups[i], Color.kRed);
-      }
-    }
-    else {
-      for (int i = 0; i < 6; i++) {
-        m_bufferView.setLED(indexGroups[i], Color.kBlue);
-      }
-    }
-    
-  }
   
   /*
     Helper Methods

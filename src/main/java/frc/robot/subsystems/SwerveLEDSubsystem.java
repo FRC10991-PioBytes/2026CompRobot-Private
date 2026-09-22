@@ -21,7 +21,6 @@ import frc.robot.Constants.LEDConstants;
 public class SwerveLEDSubsystem extends SubsystemBase {
   
   private boolean m_isRed;
-  private LEDState m_currentState;
   private final int m_length = 96;
   private final AddressableLED m_ledStrip;
   private final AddressableLEDBuffer m_ledBuffer;
@@ -35,13 +34,7 @@ public class SwerveLEDSubsystem extends SubsystemBase {
 
   private DriveSubsystem m_drive;
 
-  public enum LEDState {
-    Off,
-    Loading,
-    Azimuth,
-    LookingForTarget,
-    TargetFound,
-  }
+  
 
   public SwerveLEDSubsystem(DriveSubsystem drive) {
 
@@ -49,7 +42,6 @@ public class SwerveLEDSubsystem extends SubsystemBase {
     // Blue by default
     m_isRed = DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red;
 
-    m_currentState = LEDState.Loading;
     
     m_ledStrip = new AddressableLED(LEDConstants.kLEDStripPort);
     m_ledBuffer = new AddressableLEDBuffer(m_length);
@@ -67,107 +59,37 @@ public class SwerveLEDSubsystem extends SubsystemBase {
     m_rearLeft = new CircularLEDBuffer(rearLeftView, LEDConstants.kBackRightLEDAngularOffset);
 
     swerveLEDs = new CircularLEDBuffer[] {m_frontLeft, m_frontRight, m_rearLeft, m_rearRight};
-
+    
     m_ledStrip.setLength(m_ledBuffer.getLength());
+
+    
+
     m_ledStrip.start();
+
+    setFreedomPattern();
+    //m_ledStrip.setData(m_ledBuffer);
+    
   }
 
   @Override
   public void periodic() {
-
-    m_isRed = DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red;
-
-    if (DriverStation.isDisabled()) {
-      m_currentState = LEDState.Loading;
-    }
-    else if (DriverStation.isAutonomousEnabled()) {
-      m_currentState = LEDState.Azimuth;
-    }
-    
-    switch (m_currentState) {
-      case Off:
-      {
-        setOff();
-        break;
-      }
-      case Loading:
-      {
-        setLoadingPattern(m_isRed);
-        break;
-      }
-      case Azimuth:
-      {
-        setAzimuthPattern(() -> m_drive.getModuleStates(), m_isRed);
-        break;
-      }
-      case LookingForTarget:
-      {
-        setLookingForTargetPattern();
-        break;
-      }
-      case TargetFound:
-      {
-        setTargetFoundPattern();
-        break;
-      }
-    }
-
-    updateLEDStrip();
-    SmartDashboard.putData(this);
+    setFreedomPattern();
+    m_ledStrip.setData(m_ledBuffer); 
   }
 
-  public void updateLEDStrip() {
-    m_ledStrip.setData(m_ledBuffer);
-  }
 
-  public void setLookingForTargetPattern() {
+
+  public void setFreedomPattern() {
     for (int i = 0; i < swerveLEDs.length; i++) {
-      swerveLEDs[i].setLookingForTargetPattern();
+      swerveLEDs[i].setFreedomPattern();
     }
   }
 
-  public void setTargetFoundPattern() {
-    for (int i = 0; i < swerveLEDs.length; i++) {
-      swerveLEDs[i].setTargetFoundPattern();
-    }
-  }
 
-  public void setLoadingPattern(boolean isRed) {
-    for (int i = 0; i < swerveLEDs.length; i++) {
-      swerveLEDs[i].setLoadingPattern(isRed);
-    }
-  }
-
-  // Sets the Azimuth Pattern given a wheel direction
-  public void setAzimuthPattern(Supplier<SwerveModuleState[]> currentStates, boolean isRed) {
-    var states = currentStates.get();
-    for (int i = 0; i < swerveLEDs.length; i++) {
-      swerveLEDs[i].setAzimuthPattern(states[i].angle, isRed);
-    }
-  }
-
-  public void setOff() {
-    for (int i = 0; i < swerveLEDs.length; i++) {
-      swerveLEDs[i].setOff();
-    }
-  }
-
-  public void setState(LEDState state) {
-    if (DriverStation.isDisabled()) {
-      m_currentState = LEDState.Loading;
-    }
-    else if (DriverStation.isAutonomousEnabled()) {
-      m_currentState = LEDState.Azimuth;
-    }
-    else {
-      m_currentState = state;
-    }
-   
-  }
+ 
 
   public void initSendable(SendableBuilder builder) {
     builder.setSmartDashboardType("Swerve LEDs");
 
-    builder.addStringProperty("LED State", () -> m_currentState.name(), null);
   }
 }

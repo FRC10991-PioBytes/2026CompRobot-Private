@@ -6,7 +6,6 @@ package frc.robot.commands;
 
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.SwerveLEDSubsystem;
-import frc.robot.subsystems.SwerveLEDSubsystem.LEDState;
 import edu.wpi.first.wpilibj2.command.Command;
 
 import java.util.function.BooleanSupplier;
@@ -45,7 +44,6 @@ public class DriveCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_leds.setState(LEDState.Azimuth);
     m_drive.drive(m_xSpeed.getAsDouble(), m_ySpeed.getAsDouble(), m_rot.getAsDouble(), m_fieldRelative.getAsBoolean());
   }
 

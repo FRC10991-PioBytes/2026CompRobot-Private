@@ -90,7 +90,7 @@ public class FeederSubsystem extends SubsystemBase {
 
     if (getActualVelocity() != 0)
     {
-      m_agitatorMotor.set(1);
+      //m_agitatorMotor.set(1);
       /*
       m_agitatorTimer.start();
       int phase = (int) m_agitatorTimer.get() % 6;

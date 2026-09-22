@@ -2,7 +2,6 @@ package frc.robot.commands.AutomaticShootingCommands;
 
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.SwerveLEDSubsystem;
-import frc.robot.subsystems.SwerveLEDSubsystem.LEDState;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -111,12 +110,10 @@ public class MoveToScorePosCommand extends Command {
             // fieldRelative = true, so these X/Y values are treated as Field X/Y
             if (atScoringPose)
             {
-                m_leds.setState(LEDState.TargetFound);
                 m_drive.setX();
             }
             else
             {
-                m_leds.setState(LEDState.LookingForTarget);
                 if (DriverStation.getAlliance().get() == Alliance.Blue) {
                     m_drive.drive(xSpeed, ySpeed, rotSpeed, true);
                 }

@@ -63,16 +63,7 @@ public class RobotContainer
   {
     DriverStation.silenceJoystickConnectionWarning(true);
 
-    NamedCommands.registerCommand("StopFeeder", m_feeder.runOnce(() -> m_feeder.stop()));
-    NamedCommands.registerCommand("StopShooter", m_shooter.runOnce(() -> m_shooter.stop()));
-    NamedCommands.registerCommand("ExtendIntake", new RunIntakePivotCommand(m_intake, () -> 1).withTimeout(0.75));
-    NamedCommands.registerCommand("RevShooterSide", m_shooter.runOnce(() -> m_shooter.setVelocity(4200)));
-    NamedCommands.registerCommand("RevShooterCenter", m_shooter.runOnce(() -> m_shooter.setVelocity(3800))); //Good
-    NamedCommands.registerCommand("RunFeederAndShoot", new RunCommand(() -> m_feeder.runFeeder(0.75), m_feeder)
-        .finallyDo(() -> m_feeder.stop()));
-    NamedCommands.registerCommand("SpamIntakePivot", new SpamIntakePivotCommand(m_intake));
-    NamedCommands.registerCommand("RunIntakeRoller", new RunIntakeInCommand(m_intake));
-    NamedCommands.registerCommand("StopIntakeRoller", m_intake.runOnce(() -> m_intake.stopRollers()));
+    
     NamedCommands.registerCommand("AutoAlign", new MoveToScorePosCommand(m_robotDrive, m_LEDs)
         .withTimeout(0.75));
 
@@ -97,19 +88,14 @@ public class RobotContainer
     //m_LEDs.setDefaultCommand(new RunCommand(() -> m_LEDs.setState(LEDState.Loading), m_LEDs));
 
     m_robotDrive.setDefaultCommand(new DriveCommand(m_robotDrive, m_LEDs,
-        () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.leftStickY), OIConstants.kDriveDeadband) * 1,//* 0.714,
-        () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.leftStickX), OIConstants.kDriveDeadband)  * 1,//* 0.714,
-        () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.rightStickX), OIConstants.kDriveDeadband)  * 1,//* 0.714,
+        () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.leftStickY), OIConstants.kDriveDeadband) * 0.25,//* 0.714,
+        () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.leftStickX), OIConstants.kDriveDeadband)  * 0.25,//* 0.714,
+        () -> -MathUtil.applyDeadband(m_driverController.getRawAxis(OIConstants.rightStickX), OIConstants.kDriveDeadband)  * 0.25,//* 0.714,
         () -> true));
 
     // Move to closest scoring position
-    m_driverController.button(OIConstants.buttonA)
-        .whileTrue(new MoveToScorePosCommand(m_robotDrive, m_LEDs));
-
-    // Run shooter
-    m_driverController.axisGreaterThan(OIConstants.rightTrigger, 0.5)
-        .onTrue(new ShootFromScorePosCommand(m_shooter, m_robotDrive))
-        .onFalse(m_shooter.runOnce(() -> m_shooter.setVelocity(ShooterConstants.kShooterIdleVelocity)));
+    /*m_driverController.button(OIConstants.buttonA)
+        .whileTrue(new MoveToScorePosCommand(m_robotDrive, m_LEDs));*/
     
     // Run feeder
     m_driverController.axisGreaterThan(OIConstants.leftTrigger, 0.5)
@@ -118,34 +104,28 @@ public class RobotContainer
         //.onTrue(m_feeder.runOnce(() -> m_feeder.setVelocity(4800)))
         //.onFalse(m_feeder.runOnce(() -> m_feeder.stop()));
 
-    m_driverController.button(OIConstants.buttonX)
-        .whileTrue(new RunCommand(() -> m_feeder.runFeeder(-0.75), m_feeder))
-        .onFalse(m_feeder.runOnce(() -> m_feeder.stop()));
-
     // Pass
-    m_driverController.button(OIConstants.buttonY)
-        .whileTrue(m_shooter.runOnce(() -> m_shooter.setVelocity(5600)))
+    m_driverController.axisGreaterThan(OIConstants.rightTrigger, 0.5)
+        .whileTrue(m_shooter.runOnce(() -> m_shooter.setVelocity(4000)))
         .onFalse(m_shooter.runOnce(() -> m_shooter.setVelocity(ShooterConstants.kShooterIdleVelocity)));
     
-    // Run intake pivot
-    m_driverController.povUp()
-        .whileTrue(new RunIntakePivotCommand(m_intake, () -> IntakeConstants.kIntakePivotUpSpeed));
-
-    m_driverController.povDown()
-        .whileTrue(new RunIntakePivotCommand(m_intake, () -> IntakeConstants.kIntakePivotDownSpeed));
-
-    // Run intake rollers
-    m_driverController.button(OIConstants.bumperRight)
+    // Run intake roller
+     m_driverController.button(OIConstants.bumperRight)
         .toggleOnTrue(new RunIntakeInCommand(m_intake));
+        //.toggleOnFalse(m_intake.runOnce(() -> m_intake.stopRollers()));
 
     m_driverController.button(OIConstants.bumperLeft)
         .toggleOnTrue(new RunIntakeOutCommand(m_intake));
 
-    // Re-seed pose estimator
-    m_driverController.povRight().and(m_driverController.button(OIConstants.buttonB))
-        .onTrue(m_robotDrive.runOnce(() -> m_robotDrive.resetPoseRotation()));
+    m_driverController.button(OIConstants.buttonA)
+        .onTrue(m_intake.runOnce(() -> m_intake.stopRollers()));
+        //.toggleOnFalse(m_intake.runOnce(() -> m_intake.stopRollers()));
 
-    m_driverController.povLeft().whileTrue(new SpamIntakePivotCommand(m_intake));
+    // Re-seed pose estimator
+    //m_driverController.povRight().and(m_driverController.button(OIConstants.buttonB))
+        //.onTrue(m_robotDrive.runOnce(() -> m_robotDrive.resetPoseRotation()));
+
+    //m_driverController.povLeft().whileTrue(new SpamIntakePivotCommand(m_intake));
 
   }
 
